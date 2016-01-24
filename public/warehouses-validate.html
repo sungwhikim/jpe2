@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JPE 2.0</title>
+
+    <!-- css -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.media.css" rel="stylesheet">
+</head>
+
+<body>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid header-bar">
+        <div class="col-lg-12">
+            <div class="container">
+                <img src="image/hdr.jpg">
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="container">
+            <div class="nav navbar-nav hidden-lg hidden-md hidden-sm visible-xs">
+                <button class="navbar-toggle" data-target="#menu-main" data-toggle="collapse" type="button">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <ul class="nav navbar-nav navbar-collapse hidden-xs">
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Transactions<span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Transaction Finder</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Receiving</a></li>
+                        <li><a href="#">Shipping</a></li>
+                        <li><a href="#">Advanced Receiving Notice</a></li>
+                        <li><a href="#">Advanced Shipping Notice</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Warehouse Transfer</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Reports<span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Inventory - Pallet Detail Report</a></li>
+                        <li><a href="#">Inventory - By Warehouse</a></li>
+                        <li><a href="#">Shipping Report</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">CSR Report</a></li>
+                        <li><a href="#">Transactions - Yearly</a></li>
+                        <li><a href="#">Bin Location Details</a></li>
+                        <li><a href="#">Zero Report</a></li>
+                        <li><a href="#">ReOrder Report</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Billing Reports</a></li>
+                        <li><a href="#">Client Billing Reports</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Products<span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Products</a></li>
+                        <li><a href="#">Bin Locations</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Site<span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Clients</a></li>
+                        <li><a href="#">Warehouses</a></li>
+                        <li><a href="#">Customers</a></li>
+                        <li><a href="#">Carriers</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Fees</a></li>
+                        <li><a href="#">Taxes</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Users</a></li>
+                        <li><a href="#">User Groups</a></li>
+                        <li><a href="#">Menu Items</a></li>
+                        <li class="divider"></li>
+                        <li><a href="countries.html">Countries</a></li>
+                        <li><a href="#">Provinces / States</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right hidden-xs">
+                <li><a href="#"><span class="glyphicon glyphicon-wrench"></span> 1290 / DC</a></li>
+                <li><a href="#"><span class="glyphicon glyphicon-cog"></span> Sung-Whi Kim</a></li>
+                <li><a href="login.html"><span class="glyphicon glyphicon-log-out"></span> logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container main-content" ng-controller="WarehouseListController as warehouseList" st-table="warehouseList.displayItems" st-safe-src="warehouseList.items">
+    <div class="row content-header">
+        <div class="col-lg-7 col-md-6 col-sm-5">
+            <h1>Warehouses</h1>
+        </div>
+        <div class="col-lg-5 col-md-6 col-sm-7 col-xs-10">
+            <span class="item-total-container"><span id="item-total" class="badge" ng-bind="warehouseList.items.length"></span>  items</span>
+            <form class="">
+                <div class="form-group">
+                    <label class="control-label"></label>
+                    <div class="input-group">
+                        <span class="search-criteria">
+                            <select class="form-control" ng-model="warehouseList.searchCriteria">
+                                <option value="">All</option>
+                                <option value="code">Code</option>
+                                <option value="name">Name</option>
+                            </select>
+                        </span>
+                        <input placeholder="Search" st-search="{{ warehouseList.searchCriteria }}" class="form-control" type="search"/>
+                        <span class="input-group-btn">
+                          <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="status-row">
+        <div class="col-lg-12">
+            <div class="alert alert-dismissible alert-{{ item.type }}" ng-repeat="item in warehouseList.alerts">
+                <button type="button" class="close" data-dismiss="item" ng-click="warehouseList.closeAlert($index)">x</button>
+                <div ng-bind="item.msg"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <table class="table table-striped table-hover table-form">
+                <thead>
+                <tr>
+                    <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
+                    <th class="sort-header" st-sort="code" st-sort-default="true">Code</th>
+                    <th class="sort-header" st-sort="name">Name</th>
+                </tr>
+                <tr>
+                    <td colspan="3" class="td-form">
+                        <div class="collapse" id="new-item">
+                            <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && warehouseList.new(formNew)" novalidate>
+                                <fieldset>
+                                    <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
+                                         ng-class="{ 'has-error': (formNew.code.$touched || formNew.$submitted) && formNew.code.$invalid }">
+                                        <label class="col-lg-2 control-label">Code <span class="required-field glyphicon glyphicon-asterisk" /></label>
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" name="code"
+                                                   placeholder="Code" ng-model="warehouseList.newItem.code"
+                                                   ng-maxlength="20"
+                                                   ng-model-options="{ updateOn: 'blur' }"
+                                                   required>
+                                            <!-- ngMessages goes here -->
+                                            <div class="help-block ng-messages" ng-messages="formNew.code.$error" ng-if="formNew.$submitted || formNew.code.$touched">
+                                                <div ng-messages-include="js/template/validate-message.html"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
+                                         ng-class="{ 'has-error': (formNew.name.$touched || formNew.$submitted) && formNew.name.$invalid }">
+                                        <label class="col-lg-2 control-label">Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" name="name" placeholder="Name"
+                                                   ng-model="warehouseList.newItem.name"
+                                                   ng-maxlength="50"
+                                                   ng-model-options="{ updateOn: 'blur' }"
+                                                   required>
+                                            <!-- ngMessages goes here -->
+                                            <div class="help-block ng-messages" ng-messages="formNew.name.$error" ng-if="formNew.$submitted || formNew.name.$touched">
+                                                <div ng-messages-include="js/template/validate-message.html"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
+                                         ng-class="{ 'has-error': (formNew.country_id.$touched || formNew.$submitted) && formNew.country_id.$invalid }">
+                                        <label class="col-lg-2 control-label">Country <span class="required-field glyphicon glyphicon-asterisk" /></label>
+                                        <div class="col-lg-8">
+                                            <select class="form-control" name="country_id" ng-model="warehouseList.newItem.country_id"
+                                                    ng-change="formNew.province_id=null" ng-options="country.id as country.name for country in warehouseList.countries" required>
+                                                <option value="">-- select a country --</option>
+                                            </select>
+                                            <!-- ngMessages goes here -->
+                                            <div class="help-block ng-messages" ng-messages="formNew.country_id.$error" ng-if="formNew.$submitted || formNew.country_id.$touched">
+                                                <div ng-messages-include="js/template/validate-message.html"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
+                                         ng-class="{ 'has-error': (formNew.province_id.$touched || formNew.$submitted) && formNew.province_id.$invalid }">
+                                        <label class="col-lg-2 control-label">Province/State <span class="required-field glyphicon glyphicon-asterisk" /></label>
+                                        <div class="col-lg-8">
+                                            <select class="form-control" name="province_id" ng-model="warehouseList.newItem.province_id" required
+                                                    ng-options="province.id as province.name for province in (warehouseList.countries | filter:{id:warehouseList.newItem.country_id})[0].provinces">
+                                                <option value="">-- select a province/state --</option>
+                                            </select>
+                                            <!-- ngMessages goes here -->
+                                            <div class="help-block ng-messages" ng-messages="formNew.province_id.$error"
+                                                 ng-if="formNew.$submitted || formNew.province_id.$touched">
+                                                <div ng-messages-include="js/template/validate-message.html"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row col-lg-12 col-md-12 col-sm-12">
+                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group button-group">
+                                            <div class="col-lg-2 control-label"></div>
+                                            <div class="col-lg-6 col-md-8 col-sm-7 col-xs-5 text-left">
+                                                <button class="btn btn-default" type="reset" data-toggle="collapse" data-target="#new-item">Cancel</button>
+                                                <button type="submit" class="btn btn-success">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </thead>
+                <tbody dir-paginate="item in warehouseList.displayItems | itemsPerPage: 10" class="tbody-form">
+                <tr>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#item-{{ item.id }}">Edit</button>
+                        </div>
+                    </td>
+                    <td ng-bind="item.code"></td>
+                    <td ng-bind="item.name"></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="td-form">
+                        <div class="collapse col-lg-12" id="item-{{ item.id }}">
+                            <form class="form-horizontal" name="dataForm" ng-submit="warehouseList.save(item)" novalidate>
+                                <input class="item-id" type="hidden" ng-model="item.id" name="id">
+                                <fieldset>
+                                    <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
+                                         ng-class="{ 'has-error': (dataForm.code.$touched || dataForm.$submitted) && dataForm.code.$invalid }">
+                                        <label class="col-lg-2 control-label">Code <span class="required-field glyphicon glyphicon-asterisk" /></label>
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" name="code" placeholder="Code"
+                                                   ng-model="item.code" ng-maxlength="20"
+                                                   ng-model-options="{ updateOn: 'blur' }" required>
+                                            <!-- ngMessages goes here -->
+                                            <div class="help-block ng-messages" ng-messages="dataForm.code.$error"
+                                                 ng-if="dataForm.$submitted || dataForm.code.$touched">
+                                                <div ng-messages-include="js/template/validate-message.html"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
+                                         ng-class="{ 'has-error': (dataForm.name.$touched || dataForm.$submitted) && dataForm.name.$invalid }">
+                                        <label class="col-lg-2 control-label">Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" name="name" placeholder="Name"
+                                                   ng-model="item.name" ng-maxlength="50"
+                                                   ng-model-options="{ updateOn: 'blur' }" required>
+                                            <!-- ngMessages goes here -->
+                                            <div class="help-block ng-messages" ng-messages="dataForm.name.$error"
+                                                 ng-if="dataForm.$submitted || dataForm.name.$touched">
+                                                <div ng-messages-include="js/template/validate-message.html"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group">
+                                        <label class="col-lg-2 control-label">Country <span class="required-field glyphicon glyphicon-asterisk" /></label>
+                                        <div class="col-lg-8">
+                                            <select class="form-control" name="country_id" ng-model="item.country_id" ng-change="item.province_id=null"
+                                                    ng-options="country.id as country.name for country in warehouseList.countries">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
+                                         ng-class="{ 'has-error': (dataForm.province_id.$touched || dataForm.$submitted) && dataForm.province_id.$invalid }">
+                                        <label class="col-lg-2 control-label">Province/State <span class="required-field glyphicon glyphicon-asterisk" /></label>
+                                        <div class="col-lg-8">
+                                            <select class="form-control" name="province_id" ng-model="item.province_id" required
+                                                    ng-options="province.id as province.name for province in (warehouseList.countries | filter:{id:item.country_id})[0].provinces">
+                                            </select>
+                                            <!-- ngMessages goes here -->
+                                            <div class="help-block ng-messages" ng-messages="dataForm.province_id.$error"
+                                                 ng-if="dataForm.$submitted || dataForm.province_id.$touched">
+                                                <div ng-messages-include="js/template/validate-message.html"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row col-lg-12 col-md-12 col-sm-12">
+                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group button-group">
+                                            <div class="col-lg-2 control-label"></div>
+                                            <div class="col-lg-6 col-md-8 col-sm-7 col-xs-5 text-left">
+                                                <button class="btn btn-default" ng-click="warehouseList.resetData()">Cancel</button>
+                                                <button type="submit" class="btn btn-success">Save</button>
+                                            </div>
+                                            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                                                <a href="#" ng-click="warehouseList.deleteConfirm($index)"
+                                                   class="btn glyphicon glyphicon-trash btn-delete"
+                                                   data-toggle="tooltip" title="Delete"></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="text-center pagination-container">
+    <dir-pagination-controls boundary-links="true"></dir-pagination-controls>
+</div>
+<footer class="footer">
+    <div class="container text-center">
+        <p class="text-muted"><span class="glyphicon glyphicon-copyright-mark"></span> JP Enterprises 2016</p>
+    </div>
+</footer>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery-1.11.3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+
+<!-- angular -->
+<script src="js/angular-1.5.0.min.js"></script>
+<script src="js/angular-library/ui-bootstrap-tpls-1.0.3.min.js"></script>
+<script src="js/angular-library/angular-animate.js"></script>
+<script src="js/angular-library/angular-message.min.js"></script>
+
+<!-- open source components -->
+<script src="js/angular-library/dirPaginate.js"></script>
+<script src="js/angular-library/smart-table.js"></script>
+
+<!-- custom components -->
+<script src="js/angular-component/modalService-1.0.js"></script>
+<script src="js/angular-component/modalService-yesnocontroller.js"></script>
+<script src="js/angular-component/alertService-1.0.js"></script>
+<script src="js/angular-component/warehouseController-1.0.js"></script>
+
+</body>
+</html>

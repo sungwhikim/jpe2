@@ -11,6 +11,27 @@
 |
 */
 
-Route::get('/', function () {
+Route::get('/test', 'WarehouseController@getList');
+Route::get('/test/add', 'WarehouseController@addTestItem');
+Route::get('/test/delete/{id}', 'WarehouseController@deleteItem');
+Route::get('/test/addCountry', 'CountryController@addItem');
+Route::get('/test/deleteCountry', 'CountryController@deleteItem');
+Route::controller('/test/country', 'CountryController');
+
+
+Route::get('/', function()
+{
     return view('welcome');
 });
+
+/* WAREHOUSES */
+Route::controller('/warehouse', 'WarehouseController');
+Route::get('/warehouses', 'WarehouseController@getList');
+Route::get('/warehouses/{filer}/{value}', 'WarehouseController@getList');
+Route::get('/warehouse/{id}', 'WarehouseController@getItem');
+
+/* COUNTRIES */
+Route::controller('/country', 'CountryController');
+Route::get('/countries', 'CountryController@getList');
+
+/* PROVINCES/STATES */
