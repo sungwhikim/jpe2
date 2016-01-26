@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="9904681e-d393-4153-b4e5-1a902e8f3883" name="Jpent - Linux" url="http://jpent.01digitalmarketing.com">
+        <fileTransfer host="jpent.01digitalmarketing.com" port="21" password="dfe9dfc5dfccdfccdfcfdfcfdfe8dfc3dfc1dfcfdf9bdfea" username="sungwhikim@jpent.01digitalmarketing.com">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" showHiddenFiles="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

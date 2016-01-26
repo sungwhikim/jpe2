@@ -1,0 +1,392 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+SET search_path = public, pg_catalog;
+
+ALTER TABLE ONLY public.warehouse DROP CONSTRAINT lnk_warehouse_country;
+ALTER TABLE ONLY public.province DROP CONSTRAINT lnk_province_country;
+DROP INDEX public.warehouse_short_name_unique;
+DROP INDEX public.index_country_id;
+ALTER TABLE ONLY public.warehouse DROP CONSTRAINT warehouse_pkey;
+ALTER TABLE ONLY public.warehouse DROP CONSTRAINT unique_name;
+ALTER TABLE ONLY public.country DROP CONSTRAINT unique_code;
+ALTER TABLE ONLY public.province DROP CONSTRAINT province_pkey;
+ALTER TABLE ONLY public.country DROP CONSTRAINT country_pkey;
+ALTER TABLE public.province ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE public.country ALTER COLUMN id DROP DEFAULT;
+DROP TABLE public.warehouse;
+DROP SEQUENCE public.warehouse_id_seq;
+DROP SEQUENCE public.province_id_seq;
+DROP TABLE public.province;
+DROP SEQUENCE public.country_id_seq;
+DROP TABLE public.country;
+DROP EXTENSION plpgsql;
+DROP SCHEMA public;
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA public;
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: country; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE country (
+    id integer NOT NULL,
+    code character(2) NOT NULL,
+    name character varying(100) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE country OWNER TO sungwhikim;
+
+--
+-- Name: country_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE country_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE country_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: country_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE country_id_seq OWNED BY country.id;
+
+
+--
+-- Name: province; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE province (
+    id integer NOT NULL,
+    code character(2) NOT NULL,
+    name character varying(100) NOT NULL,
+    tax_rate_total money,
+    tax_rate_pst money,
+    tax_rate_gst money,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone,
+    tax_rate_hst money,
+    is_hst boolean DEFAULT false,
+    country_id integer NOT NULL
+);
+
+
+ALTER TABLE province OWNER TO sungwhikim;
+
+--
+-- Name: province_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE province_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE province_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: province_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE province_id_seq OWNED BY province.id;
+
+
+--
+-- Name: warehouse_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE warehouse_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE warehouse_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: warehouse; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE warehouse (
+    id integer DEFAULT nextval('warehouse_id_seq'::regclass) NOT NULL,
+    short_name character varying(20) NOT NULL,
+    name character varying(50) NOT NULL,
+    address1 character varying(100) NOT NULL,
+    address2 character varying(100),
+    city character varying(50) NOT NULL,
+    province_id integer,
+    country_id integer DEFAULT 1,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone,
+    deleted_at timestamp without time zone,
+    postal_code character varying(2044) NOT NULL
+);
+
+
+ALTER TABLE warehouse OWNER TO sungwhikim;
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY country ALTER COLUMN id SET DEFAULT nextval('country_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY province ALTER COLUMN id SET DEFAULT nextval('province_id_seq'::regclass);
+
+
+--
+-- Data for Name: country; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY country (id, code, name, created_at, updated_at) FROM stdin;
+1	CA	Canada	2016-01-11 20:09:42	2016-01-26 14:09:09
+2	US	United States	2016-01-11 20:16:45	2016-01-11 20:45:32
+\.
+
+
+--
+-- Name: country_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('country_id_seq', 4, true);
+
+
+--
+-- Data for Name: province; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY province (id, code, name, tax_rate_total, tax_rate_pst, tax_rate_gst, created_at, updated_at, tax_rate_hst, is_hst, country_id) FROM stdin;
+2	AB	Alberta	\N	\N	\N	2016-01-26 13:30:44.101671	2016-01-26 13:30:44.101671	\N	f	1
+3	BC	British Columbia	\N	\N	\N	2016-01-26 13:31:23.877637	2016-01-26 13:31:23.877637	\N	f	1
+4	MB	Manitoba	\N	\N	\N	2016-01-26 13:31:23.907145	2016-01-26 13:31:23.907145	\N	f	1
+5	NB	New Brunswick	\N	\N	\N	2016-01-26 13:31:23.925802	2016-01-26 13:31:23.925802	\N	f	1
+6	NL	Newfoundland and Labrador	\N	\N	\N	2016-01-26 13:31:23.953796	2016-01-26 13:31:23.953796	\N	f	1
+7	NT	Northwest Territories	\N	\N	\N	2016-01-26 13:31:23.979028	2016-01-26 13:31:23.979028	\N	f	1
+8	NS	Nova Scotia	\N	\N	\N	2016-01-26 13:31:24.003828	2016-01-26 13:31:24.003828	\N	f	1
+9	NU	Nunavut	\N	\N	\N	2016-01-26 13:31:24.023874	2016-01-26 13:31:24.023874	\N	f	1
+10	ON	Ontario	\N	\N	\N	2016-01-26 13:31:24.048492	2016-01-26 13:31:24.048492	\N	f	1
+11	PE	Prince Edward Island	\N	\N	\N	2016-01-26 13:31:24.071304	2016-01-26 13:31:24.071304	\N	f	1
+12	QC	Quebec	\N	\N	\N	2016-01-26 13:31:24.09228	2016-01-26 13:31:24.09228	\N	f	1
+13	SK	Saskatchewan	\N	\N	\N	2016-01-26 13:31:24.110264	2016-01-26 13:31:24.110264	\N	f	1
+14	YT	Yukon	\N	\N	\N	2016-01-26 13:31:24.127525	2016-01-26 13:31:24.127525	\N	f	1
+15	AL	Alabama	\N	\N	\N	2016-01-26 13:34:42.683762	2016-01-26 13:34:42.683762	\N	f	2
+16	AK	Alaska	\N	\N	\N	2016-01-26 13:34:42.699241	2016-01-26 13:34:42.699241	\N	f	2
+17	AZ	Arizona	\N	\N	\N	2016-01-26 13:34:42.710158	2016-01-26 13:34:42.710158	\N	f	2
+18	AR	Arkansas	\N	\N	\N	2016-01-26 13:34:42.759012	2016-01-26 13:34:42.759012	\N	f	2
+19	CA	California	\N	\N	\N	2016-01-26 13:34:42.776604	2016-01-26 13:34:42.776604	\N	f	2
+20	CO	Colorado	\N	\N	\N	2016-01-26 13:34:42.794914	2016-01-26 13:34:42.794914	\N	f	2
+21	CT	Connecticut	\N	\N	\N	2016-01-26 13:34:42.817578	2016-01-26 13:34:42.817578	\N	f	2
+22	DE	Delaware	\N	\N	\N	2016-01-26 13:34:42.836034	2016-01-26 13:34:42.836034	\N	f	2
+23	FL	Florida	\N	\N	\N	2016-01-26 13:34:42.853682	2016-01-26 13:34:42.853682	\N	f	2
+24	GA	Georgia	\N	\N	\N	2016-01-26 13:34:42.878513	2016-01-26 13:34:42.878513	\N	f	2
+25	HI	Hawaii	\N	\N	\N	2016-01-26 13:34:42.896236	2016-01-26 13:34:42.896236	\N	f	2
+26	ID	Idaho	\N	\N	\N	2016-01-26 13:34:42.912096	2016-01-26 13:34:42.912096	\N	f	2
+27	IL	Illinois	\N	\N	\N	2016-01-26 13:34:42.935862	2016-01-26 13:34:42.935862	\N	f	2
+28	IN	Indiana	\N	\N	\N	2016-01-26 13:34:42.953423	2016-01-26 13:34:42.953423	\N	f	2
+29	IA	Iowa	\N	\N	\N	2016-01-26 13:34:42.965091	2016-01-26 13:34:42.965091	\N	f	2
+30	KS	Kansas	\N	\N	\N	2016-01-26 13:34:42.983442	2016-01-26 13:34:42.983442	\N	f	2
+31	KY	Kentucky	\N	\N	\N	2016-01-26 13:34:43.003246	2016-01-26 13:34:43.003246	\N	f	2
+32	LA	Louisiana	\N	\N	\N	2016-01-26 13:34:43.019899	2016-01-26 13:34:43.019899	\N	f	2
+33	ME	Maine	\N	\N	\N	2016-01-26 13:34:43.035093	2016-01-26 13:34:43.035093	\N	f	2
+34	MD	Maryland	\N	\N	\N	2016-01-26 13:34:43.051995	2016-01-26 13:34:43.051995	\N	f	2
+35	MA	Massachusetts	\N	\N	\N	2016-01-26 13:34:43.06587	2016-01-26 13:34:43.06587	\N	f	2
+36	MI	Michigan	\N	\N	\N	2016-01-26 13:34:43.083861	2016-01-26 13:34:43.083861	\N	f	2
+37	MN	Minnesota	\N	\N	\N	2016-01-26 13:34:43.099261	2016-01-26 13:34:43.099261	\N	f	2
+38	MS	Mississippi	\N	\N	\N	2016-01-26 13:34:43.111852	2016-01-26 13:34:43.111852	\N	f	2
+39	MO	Missouri	\N	\N	\N	2016-01-26 13:34:43.126115	2016-01-26 13:34:43.126115	\N	f	2
+40	MT	Montana	\N	\N	\N	2016-01-26 13:34:43.149437	2016-01-26 13:34:43.149437	\N	f	2
+41	NE	Nebraska	\N	\N	\N	2016-01-26 13:34:43.168872	2016-01-26 13:34:43.168872	\N	f	2
+42	NV	Nevada	\N	\N	\N	2016-01-26 13:34:43.190742	2016-01-26 13:34:43.190742	\N	f	2
+43	NH	New Hampshire	\N	\N	\N	2016-01-26 13:34:43.212541	2016-01-26 13:34:43.212541	\N	f	2
+44	NJ	New Jersey	\N	\N	\N	2016-01-26 13:34:43.228428	2016-01-26 13:34:43.228428	\N	f	2
+45	NM	New Mexico	\N	\N	\N	2016-01-26 13:34:43.249619	2016-01-26 13:34:43.249619	\N	f	2
+46	NY	New York	\N	\N	\N	2016-01-26 13:34:43.265088	2016-01-26 13:34:43.265088	\N	f	2
+47	NC	North Carolina	\N	\N	\N	2016-01-26 13:34:43.285257	2016-01-26 13:34:43.285257	\N	f	2
+48	ND	North Dakota	\N	\N	\N	2016-01-26 13:34:43.3078	2016-01-26 13:34:43.3078	\N	f	2
+49	OH	Ohio	\N	\N	\N	2016-01-26 13:34:43.325056	2016-01-26 13:34:43.325056	\N	f	2
+50	OK	Oklahoma	\N	\N	\N	2016-01-26 13:34:43.34507	2016-01-26 13:34:43.34507	\N	f	2
+51	OR	Oregon	\N	\N	\N	2016-01-26 13:34:43.364122	2016-01-26 13:34:43.364122	\N	f	2
+52	PA	Pennsylvania	\N	\N	\N	2016-01-26 13:34:43.385327	2016-01-26 13:34:43.385327	\N	f	2
+53	RI	Rhode Island	\N	\N	\N	2016-01-26 13:34:43.40263	2016-01-26 13:34:43.40263	\N	f	2
+54	SC	South Carolina	\N	\N	\N	2016-01-26 13:34:43.420967	2016-01-26 13:34:43.420967	\N	f	2
+55	SD	South Dakota	\N	\N	\N	2016-01-26 13:34:43.436118	2016-01-26 13:34:43.436118	\N	f	2
+56	TN	Tennessee	\N	\N	\N	2016-01-26 13:34:43.453534	2016-01-26 13:34:43.453534	\N	f	2
+57	TX	Texas	\N	\N	\N	2016-01-26 13:34:43.466829	2016-01-26 13:34:43.466829	\N	f	2
+58	UT	Utah	\N	\N	\N	2016-01-26 13:34:43.48051	2016-01-26 13:34:43.48051	\N	f	2
+59	VT	Vermont	\N	\N	\N	2016-01-26 13:34:43.498101	2016-01-26 13:34:43.498101	\N	f	2
+60	VA	Virginia	\N	\N	\N	2016-01-26 13:34:43.514081	2016-01-26 13:34:43.514081	\N	f	2
+61	WA	Washington	\N	\N	\N	2016-01-26 13:34:43.532318	2016-01-26 13:34:43.532318	\N	f	2
+62	WV	West Virginia	\N	\N	\N	2016-01-26 13:34:43.544898	2016-01-26 13:34:43.544898	\N	f	2
+63	WI	Wisconsin	\N	\N	\N	2016-01-26 13:34:43.561864	2016-01-26 13:34:43.561864	\N	f	2
+64	WY	Wyoming	\N	\N	\N	2016-01-26 13:34:43.581237	2016-01-26 13:34:43.581237	\N	f	2
+\.
+
+
+--
+-- Name: province_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('province_id_seq', 64, true);
+
+
+--
+-- Data for Name: warehouse; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY warehouse (id, short_name, name, address1, address2, city, province_id, country_id, created_at, updated_at, deleted_at, postal_code) FROM stdin;
+3	1290	Miss	1290 Blundell Rd.		Mississauga	10	1	2016-01-26 14:17:27	2016-01-26 14:38:29	\N	L4Y 1M5
+4	test1	test1	123 Any Street	#202	Portland	51	2	2016-01-26 14:38:57	2016-01-26 14:39:07	2016-01-26 14:39:07	97210
+\.
+
+
+--
+-- Name: warehouse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('warehouse_id_seq', 4, true);
+
+
+--
+-- Name: country_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY country
+    ADD CONSTRAINT country_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: province_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY province
+    ADD CONSTRAINT province_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: unique_code; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY country
+    ADD CONSTRAINT unique_code UNIQUE (code);
+
+
+--
+-- Name: unique_name; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY warehouse
+    ADD CONSTRAINT unique_name UNIQUE (name);
+
+
+--
+-- Name: warehouse_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY warehouse
+    ADD CONSTRAINT warehouse_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: index_country_id; Type: INDEX; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE INDEX index_country_id ON province USING btree (country_id);
+
+
+--
+-- Name: warehouse_short_name_unique; Type: INDEX; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE UNIQUE INDEX warehouse_short_name_unique ON warehouse USING btree (short_name);
+
+
+--
+-- Name: lnk_province_country; Type: FK CONSTRAINT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY province
+    ADD CONSTRAINT lnk_province_country FOREIGN KEY (country_id) REFERENCES country(id) MATCH FULL ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+
+--
+-- Name: lnk_warehouse_country; Type: FK CONSTRAINT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY warehouse
+    ADD CONSTRAINT lnk_warehouse_country FOREIGN KEY (country_id) REFERENCES country(id) MATCH FULL ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

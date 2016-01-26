@@ -1,6 +1,7 @@
 /* THERE ARE TWO DEPENDENT VARIABLES THAT MUST BE SET FOR THIS CONTROLLER TO WORK
-    1.  appData = The main data for the app in JSON
-    2.  appURL  = The path to the server to make the AJAX calls to
+    1.  myName  = The name of the list to be used in messages
+    2.  appData = The main data for the app in JSON
+    3.  appURL  = The path to the server to make the AJAX calls to
  */
 
 var app = angular.module('myApp', ['alertService',
@@ -12,19 +13,19 @@ var app = angular.module('myApp', ['alertService',
     'ngMessages']);
 
 app.controller('CountryListController', function(alertService, modalService, $http) {
+    //SET SOME GLOBALS HERE FOR THE CONTROLLER
     var ListController = this;
+    ListController.myName = myName;
 
     /* SET THE DATA */
     ListController.items = appData; //add data is always set in the @section('js-data') in the blade template
     ListController.displayItems = [].concat(ListController.items); //for smart table component
     resetModel(); //make copy of the data for reset
 
-    var newId = ListController.items.length; //remove after testing
-
     /* ADD NEW ITEM */
     ListController.new = function(form) {
         //set the data - we need to convert it to JSON as for some reason the model does not do it automatically
-        var newData = {code:ListController.newItem.code, name:ListController.newItem.name};
+        var newData = ListController.newItem;
 
         //reset form validation
         form.$setPristine();
@@ -39,21 +40,31 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             url: appUrl + '/new',
             data: newData
         }).then(function successCallback(response) {
-            console.log(response);
-            //set alert
-            alertService.add('success', 'Item Added');
+            //do an error check to see if this was a duplicate or something
+            if( response.data.errorMsg ) {
+                //set alert
+                alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', response.data.errorMsg));
+            } else {
+                var id = response.data.id;
 
-            //add to model
-            ListController.items.push({
-                id: response.data.id,
-                code: ListController.newItem.code,
-                name: ListController.newItem.name });
+                //need to check for valid id - there could be situations where this gets screwed up
+                if( !id || isNaN(id) ) {
+                    alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', 'New id was not returned. Please verify your data and try again.'));
+                } else {
+                    //set alert
+                    alertService.add('success', getAlertMsg(ListController.newItem.name, 'added', ''));
 
-            //reset original model
-            ListController.resetModel();
+                    //add to model
+                    newData.id = response.data.id;
+                    ListController.items.push(newData);
+
+                    //reset original model
+                    ListController.resetModel();
+                }
+            }
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', 'The item was not added.  ERROR: ' + response.statusText);
+            alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', response.statusText));
         });
     };
 
@@ -69,13 +80,13 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             data: curItem
         }).then(function successCallback(response) {
             //set alert
-            alertService.add('success', 'Item Updated');
+            alertService.add('success', getAlertMsg(curItem.name, 'updated', ''));
 
             //reset original model
             ListController.resetModel();
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', 'The item was not updated. ERROR: ' + response.statusText);
+            alertService.add('danger', getAlertMsg(curItem.name, 'updated', response.statusText));
         });
     };
 
@@ -103,7 +114,7 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             url: appUrl + '/delete/' + ListController.displayItems[index].id
         }).then(function successCallback(response) {
             //set alert
-            alertService.add('success', 'Item Deleted!');
+            alertService.add('success', getAlertMsg(ListController.displayItems[index].name, 'deleted', ''));
 
             //remove item from model
             ListController.displayItems.splice(index, 1);
@@ -113,7 +124,7 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             ListController.resetModel();
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', 'The item was not deleted. ERROR: ' + response.statusText);
+            alertService.add('danger', getAlertMsg(ListController.displayItems[index].name, 'deleted', response.statusText));
         });
     };
 
@@ -133,7 +144,7 @@ app.controller('CountryListController', function(alertService, modalService, $ht
         ListController.org = angular.copy(ListController.items);
 
         //reset new data
-        ListController.newItem = [];
+        ListController.newItem = {};
     };
 
     /* INITIALIZE THE ALERT SERVICE PASS THROUGH ASSIGNMENTS */
@@ -141,4 +152,14 @@ app.controller('CountryListController', function(alertService, modalService, $ht
     ListController.closeAlert = function(index) {
         alertService.closeAlert(index);
     };
+
+    /* SET THE ALERT MESSAGE */
+    function getAlertMsg(name, action, error)
+    {
+        if( error.length == 0 ) {
+            return 'The ' + ListController.myName + ' ' + name + ' was ' + action + '.';
+        } else {
+            return 'The ' + ListController.myName + ' ' + name + ' was not ' + action + '.' + ' ERROR: ' + error;
+        }
+    }
 });

@@ -33,8 +33,9 @@
         <div class="status-row">
             <div class="col-lg-12">
                 <div class="alert alert-dismissible alert-@{{ item.type }}" ng-repeat="item in countryList.alerts">
+                    <span class="glyphicon glyphicon-@{{ item.type }}"></span>&nbsp;
                     <button type="button" class="close" data-dismiss="item" ng-click="countryList.closeAlert($index)">x</button>
-                    <div ng-bind="item.msg"></div>
+                    <span ng-bind="item.msg"></span>
                 </div>
             </div>
         </div>
@@ -145,7 +146,7 @@
                                                     <button type="submit" class="btn btn-success">Save</button>
                                                 </div>
                                                 <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                                    <a href="#" ng-click="countryList.deleteConfirm($index)"
+                                                    <a ng-click="countryList.deleteConfirm($index)"
                                                        class="btn glyphicon glyphicon-trash btn-delete"
                                                        data-toggle="tooltip" title="Delete"></a>
                                                 </div>
@@ -169,8 +170,9 @@
 
 @section('js-data')
      <script>
-         var appData = {!! $countries !!};
-         var appUrl = '{{ $url }}';
+         var myName  = '{{ $my_name }}';
+         var appUrl  = '{{ $url }}';
+         var appData = {!! $main_data !!};
      </script>
 @stop
 
@@ -185,5 +187,5 @@
     <script src="/js/angular-component/modalService-1.0.js"></script>
     <script src="/js/angular-component/modalService-yesnocontroller.js"></script>
     <script src="/js/angular-component/alertService-1.0.js"></script>
-    <script src="/js/angular-component/countryController-1.0.js"></script>
+    <script src="/js/angular-component/{{ $my_name }}Controller-1.0.js"></script>
 @stop

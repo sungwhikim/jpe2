@@ -151,13 +151,13 @@ body {
     width: 100%;
 }
 .td-form > div > form {
-    padding: 20px 0 0 0;
+    padding: 10px 0 0 0;
     height: 100%;
     position: relative;
     left: 20px;
 }
 .td-form .button-group {
-    margin-bottom: 25px;
+    margin-bottom: 0;
 }
 .td-form .button-group .btn-delete {
     font-size: 22px;
@@ -203,6 +203,20 @@ body {
 /* hack because of error message shifting columns */
 .td-form .form-group {
     height: 70px;
+}
+
+/* ALERT MESSAGES ICONS - REMAP CLASS TO MATCH ALERT CLASSES */
+.glyphicon-success:before {
+    content: "\e013";
+}
+.glyphicon-warning:before {
+    content: "\e209";
+}
+.glyphicon-danger:before {
+    content: "\e209";
+}
+.glyphicon-info:before {
+    content: "\e142";
 }
 
 /* MODAL DIALOG CENTER */

@@ -1,3 +1,12 @@
+/* THERE ARE TWO DEPENDENT VARIABLES THAT MUST BE SET FOR THIS CONTROLLER TO WORK
+ 1.  myName  = The name of the list to be used in messages
+ 2.  appData = The main data for the app in JSON
+ 3.  appURL  = The path to the server to make the AJAX calls to
+
+ ---- specific to this controller ----
+ 4.  countryData = The country data with the list of provinces attached
+ */
+
 var app = angular.module('myApp', ['alertService',
     'ui.bootstrap',
     'angularModalService',
@@ -6,68 +15,24 @@ var app = angular.module('myApp', ['alertService',
     'smart-table',
     'ngMessages']);
 
-app.controller('WarehouseListController', function(alertService, modalService) {
+app.controller('WarehouseListController', function(alertService, modalService, $http) {
+    //SET SOME GLOBALS HERE FOR THE CONTROLLER
     var ListController = this;
+    ListController.myName = myName;
 
-    /* INITIALIZE THE ALERT SERVICE PASS THROUGH ASSIGNMENTS */
-    ListController.alerts = alertService.get();
-    ListController.closeAlert = function(index) {
-        alertService.closeAlert(index);
-    };
+    /* ---- SET DATA SPECIFIC TO THIS CONTROLLER ---- */
+    ListController.countries = countryData;
 
-    /* GET THE COUNTRY DATA */
-    ListController.countries = [
-        {id:1, code:'CA', name:'Canada', provinces:[
-            {id:1, name:'Ontario'},
-            {id:2, name:'BC'},
-            {id:3, name:'QB'}
-        ]},
-        {id:2, code:'US', name:'USA', provinces:[
-            {id:1, name:'Texas'},
-            {id:2, name:'Washington'},
-            {id:3, name:'Oregon'},
-            {id:4, name:'Florida'}
-        ]},
-        {id:3, code:'DE', name:'Germany'},
-        {id:4, code:'BR', name:'Brazil'},
-        {id:5, code:'AU', name:'Australia'},
-        {id:6, code:'CN', name:'China'},
-        {id:7, code:'GR', name:'Greece'},
-        {id:8, code:'IE', name:'Ireland'},
-        {id:9, code:'KE', name:'Kenya'},
-        {id:10, code:'MG', name:'Madagascar'},
-        {id:11, code:'NZ', name:'New Zealand'},
-        {id:12, code:'NO', name:'Norway'},
-        {id:13, code:'ES', name:'Spain'},
-        {id:14, code:'TW', name:'Taiwan'}
-    ];
-
-    /* GET THE MAIN DATA */
-    ListController.items = [
-        {id:1, code:'1290', name:'Miss', country_id:1, province_id:1},
-        {id:2, code:'TC-DAL', name:'Dallas', country_id:2, province_id:1},
-        {id:3, code:'Van', name:'Vancouver', country_id:1, province_id:2}
-    ];
-
-    /* COPY THE DATA FOR SMART TABLE COMPONENT */
-    ListController.displayItems = [].concat(ListController.items);
-
-    var newId = ListController.items.length; //remove after testing
-
-    /* MAKE COPY OF OLD DATA FOR RESET */
-    resetModel();
-
-    /* RESET TO ORIGINAL DATA */
-    ListController.resetData = function() {
-        //clear alerts
-        alertService.clear();
-
-        //reset to original data
-        ListController.items = angular.copy(ListController.org);
-    };
+    /* SET THE DATA */
+    ListController.items = appData; //add data is always set in the @section('js-data') in the blade template
+    ListController.displayItems = [].concat(ListController.items); //for smart table component
+    resetModel(); //make copy of the data for reset
 
     /* ADD NEW ITEM */
     ListController.new = function(form) {
+        //set the data - we need to convert it to JSON as for some reason the model does not do it automatically
+        var newData = ListController.newItem;
+
         //reset form validation
         form.$setPristine();
         form.$setUntouched();
@@ -76,21 +41,37 @@ app.controller('WarehouseListController', function(alertService, modalService) {
         alertService.clear();
 
         //run ajax add
+        $http({
+            method: 'POST',
+            url: appUrl + '/new',
+            data: newData
+        }).then(function successCallback(response) {
+            //do an error check to see if this was a duplicate or something
+            if( response.data.errorMsg ) {
+                //set alert
+                alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', response.data.errorMsg));
+            } else {
+                var id = response.data.id;
 
-        alertService.add('success', 'Item Added!');
+                //need to check for valid id - there could be situations where this gets screwed up
+                if( !id || isNaN(id) ) {
+                    alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', 'New id was not returned. Please verify your data and try again.'));
+                } else {
+                    //set alert
+                    alertService.add('success', getAlertMsg(ListController.newItem.name, 'added', ''));
 
-        newId++; //remove after testing
+                    //add to model
+                    newData.id = response.data.id;
+                    ListController.items.push(newData);
 
-        //add to model
-        ListController.items.push({ id:newId,
-            code: ListController.newItem.code,
-            name: ListController.newItem.name,
-            country_id: ListController.newItem.country_id,
-            province_id: ListController.newItem.province_id
+                    //reset original model
+                    ListController.resetModel();
+                }
+            }
+        }, function errorCallback(response) {
+            //set alert
+            alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', response.statusText));
         });
-
-        //reset original model
-        ListController.resetModel();
     };
 
     /* SAVE THE DATA */
@@ -98,19 +79,27 @@ app.controller('WarehouseListController', function(alertService, modalService) {
         //clear alerts
         alertService.clear();
 
-        //assign item
-        //var curItem = ListController.displayItems[index];
+        //run ajax update
+        $http({
+            method: 'POST',
+            url: appUrl + '/update',
+            data: curItem
+        }).then(function successCallback(response) {
+            //set alert
+            alertService.add('success', getAlertMsg(curItem.name, 'updated', ''));
 
-        alertService.add('success', 'Item Saved!');
-
-        //reset original model
-        ListController.resetModel();
+            //reset original model
+            ListController.resetModel();
+        }, function errorCallback(response) {
+            //set alert
+            alertService.add('danger', getAlertMsg(curItem.name, 'updated', response.statusText));
+        });
     };
 
     /* DELETE CONFIRMATION DIALOG */
     ListController.deleteConfirm = function(index) {
         modalService.showModal({
-            templateUrl: "js/angular-component/modalService-delete.html",
+            templateUrl: "/js/angular-component/modalService-delete.html",
             controller: "YesNoController"
         }).then(function(modal) {
             modal.element.modal();
@@ -126,15 +115,32 @@ app.controller('WarehouseListController', function(alertService, modalService) {
         alertService.clear();
 
         //run ajax delete
+        $http({
+            method: 'PUT',
+            url: appUrl + '/delete/' + ListController.displayItems[index].id
+        }).then(function successCallback(response) {
+            //set alert
+            alertService.add('success', getAlertMsg(ListController.displayItems[index].name, 'deleted', ''));
 
-        alertService.add('success', 'Item Deleted!');
+            //remove item from model
+            ListController.displayItems.splice(index, 1);
+            ListController.items = angular.copy(ListController.displayItems);
 
-        //remove item from model
-        ListController.displayItems.splice(index, 1);
-        ListController.items = angular.copy(ListController.displayItems);
+            //reset original model
+            ListController.resetModel();
+        }, function errorCallback(response) {
+            //set alert
+            alertService.add('danger', getAlertMsg(ListController.displayItems[index].name, 'deleted', response.statusText));
+        });
+    };
 
-        //reset original model
-        ListController.resetModel();
+    /* RESET TO ORIGINAL DATA */
+    ListController.resetData = function() {
+        //clear alerts
+        alertService.clear();
+
+        //reset to original data
+        ListController.items = angular.copy(ListController.org);
     };
 
     /* RESET THE ORIGINAL DATA TO CURRENT UPDATED DATA */
@@ -144,7 +150,22 @@ app.controller('WarehouseListController', function(alertService, modalService) {
         ListController.org = angular.copy(ListController.items);
 
         //reset new data
-        ListController.newItem = [];
+        ListController.newItem = {};
     };
 
+    /* INITIALIZE THE ALERT SERVICE PASS THROUGH ASSIGNMENTS */
+    ListController.alerts = alertService.get();
+    ListController.closeAlert = function(index) {
+        alertService.closeAlert(index);
+    };
+
+    /* SET THE ALERT MESSAGE */
+    function getAlertMsg(name, action, error)
+    {
+        if( error.length == 0 ) {
+            return 'The ' + ListController.myName + ' ' + name + ' was ' + action + '.';
+        } else {
+            return 'The ' + ListController.myName + ' ' + name + ' was not ' + action + '.' + ' ERROR: ' + error;
+        }
+    }
 });
