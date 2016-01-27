@@ -16,12 +16,16 @@ Route::get('/', function()
     return view('welcome');
 });
 
-/* WAREHOUSES */
+/* CUSTOMER */
+Route::controller('/customer', 'CustomerController');
+Route::get('/customers', 'CustomerController@getList');
+
+/* WAREHOUSE */
 Route::controller('/warehouse', 'WarehouseController');
 Route::get('/warehouses', 'WarehouseController@getList');
 
-/* COUNTRIES */
+/* COUNTRY */
 Route::controller('/country', 'CountryController');
 Route::get('/countries', 'CountryController@getList');
 
-/* PROVINCES/STATES */
+/* PROVINCE/STATE */

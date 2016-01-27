@@ -8,7 +8,7 @@
             <div class="col-lg-7 col-md-6 col-sm-5">
                 <h1>Countries</h1>
             </div>
-            <div class="col-lg-5 col-md-6 col-sm-7 col-xs-10">
+            <div class="col-lg-5 col-md-6 col-sm-7 col-xs-10" ng-cloak>
                 <span class="item-total-container"><span id="item-total" class="badge" ng-bind="countryList.items.length"></span>  items</span>
                 <form class="">
                     <div class="form-group">
@@ -32,7 +32,8 @@
         </div>
         <div class="status-row">
             <div class="col-lg-12">
-                <div class="alert alert-dismissible alert-@{{ item.type }}" ng-repeat="item in countryList.alerts">
+                <div class="alert alert-processing text-center" ng-hide="countryList"><strong>Loading Data...</strong></div>
+                <div class="alert alert-dismissible alert-@{{ item.type }}" ng-repeat="item in countryList.alerts" ng-cloak>
                     <span class="glyphicon glyphicon-@{{ item.type }}"></span>&nbsp;
                     <button type="button" class="close" data-dismiss="item" ng-click="countryList.closeAlert($index)">x</button>
                     <span ng-bind="item.msg"></span>
@@ -41,7 +42,7 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <table class="table table-striped table-hover table-form">
+                <table class="table table-striped table-hover table-form" ng-cloak>
                     <thead>
                     <tr>
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>

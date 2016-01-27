@@ -31,8 +31,8 @@ app.controller('CountryListController', function(alertService, modalService, $ht
         form.$setPristine();
         form.$setUntouched();
 
-        //clear alerts
-        alertService.clear();
+        //sends "processing" message to user
+        setProcessingAlert();
 
         //run ajax add
         $http({
@@ -43,16 +43,16 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             //do an error check to see if this was a duplicate or something
             if( response.data.errorMsg ) {
                 //set alert
-                alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', response.data.errorMsg));
+                sendAlert('danger', getAlertMsg(ListController.newItem.name, 'added', response.data.errorMsg));
             } else {
                 var id = response.data.id;
 
                 //need to check for valid id - there could be situations where this gets screwed up
                 if( !id || isNaN(id) ) {
-                    alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', 'New id was not returned. Please verify your data and try again.'));
+                    sendAlert('danger', getAlertMsg(ListController.newItem.name, 'added', 'New id was not returned. Please verify your data and try again.'));
                 } else {
                     //set alert
-                    alertService.add('success', getAlertMsg(ListController.newItem.name, 'added', ''));
+                    sendAlert('success', getAlertMsg(ListController.newItem.name, 'added', ''));
 
                     //add to model
                     newData.id = response.data.id;
@@ -64,14 +64,14 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             }
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', getAlertMsg(ListController.newItem.name, 'added', response.statusText));
+            sendAlert('danger', getAlertMsg(ListController.newItem.name, 'added', response.statusText));
         });
     };
 
     /* SAVE THE DATA */
     ListController.save = function(curItem) {
-        //clear alerts
-        alertService.clear();
+        //sends "processing" message to user
+        setProcessingAlert();
 
         //run ajax update
         $http({
@@ -80,13 +80,13 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             data: curItem
         }).then(function successCallback(response) {
             //set alert
-            alertService.add('success', getAlertMsg(curItem.name, 'updated', ''));
+            sendAlert('success', getAlertMsg(curItem.name, 'updated', ''));
 
             //reset original model
             ListController.resetModel();
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', getAlertMsg(curItem.name, 'updated', response.statusText));
+            sendAlert('danger', getAlertMsg(curItem.name, 'updated', response.statusText));
         });
     };
 
@@ -105,8 +105,8 @@ app.controller('CountryListController', function(alertService, modalService, $ht
 
     /* DELETE THE DATA */
     ListController.delete = function(index) {
-        //clear alerts
-        alertService.clear();
+        //sends "processing" message to user
+        setProcessingAlert();
 
         //run ajax delete
         $http({
@@ -114,7 +114,7 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             url: appUrl + '/delete/' + ListController.displayItems[index].id
         }).then(function successCallback(response) {
             //set alert
-            alertService.add('success', getAlertMsg(ListController.displayItems[index].name, 'deleted', ''));
+            sendAlert('success', getAlertMsg(ListController.displayItems[index].name, 'deleted', ''));
 
             //remove item from model
             ListController.displayItems.splice(index, 1);
@@ -124,7 +124,7 @@ app.controller('CountryListController', function(alertService, modalService, $ht
             ListController.resetModel();
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', getAlertMsg(ListController.displayItems[index].name, 'deleted', response.statusText));
+            sendAlert('danger', getAlertMsg(ListController.displayItems[index].name, 'deleted', response.statusText));
         });
     };
 
@@ -145,7 +145,7 @@ app.controller('CountryListController', function(alertService, modalService, $ht
 
         //reset new data
         ListController.newItem = {};
-    };
+    }
 
     /* INITIALIZE THE ALERT SERVICE PASS THROUGH ASSIGNMENTS */
     ListController.alerts = alertService.get();
@@ -154,12 +154,23 @@ app.controller('CountryListController', function(alertService, modalService, $ht
     };
 
     /* SET THE ALERT MESSAGE */
-    function getAlertMsg(name, action, error)
-    {
+    function getAlertMsg(name, action, error) {
         if( error.length == 0 ) {
             return 'The ' + ListController.myName + ' ' + name + ' was ' + action + '.';
         } else {
             return 'The ' + ListController.myName + ' ' + name + ' was not ' + action + '.' + ' ERROR: ' + error;
         }
+    }
+
+    /* CLEAR ALERTS AND SETS THE PROCESSING MESSAGE */
+    function setProcessingAlert() {
+        alertService.clear();
+        alertService.add('processing', 'Data is being updated.... ')
+    }
+
+    /* SENDS A SINGLE RESPONSE ALERT TO USER AND CLEARS OUT OLD MESSAGE */
+    function sendAlert(type, message) {
+        alertService.clear();
+        alertService.add(type, message);
     }
 });

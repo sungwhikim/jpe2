@@ -12,6 +12,7 @@
 
     <!-- css -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/titatoggle-dist-min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
     <link href="/css/style.media.css" rel="stylesheet">
 
@@ -32,7 +33,7 @@
 
 <footer class="footer">
     <div class="container text-center">
-        <p class="text-muted"><span class="glyphicon glyphicon-copyright-mark"></span> JP Enterprises 2016</p>
+        <p class="text-muted"><span class="glyphicon glyphicon-copyright-mark"></span> JP Enterprises <?php echo date('Y'); ?></p>
     </div>
 </footer>
 

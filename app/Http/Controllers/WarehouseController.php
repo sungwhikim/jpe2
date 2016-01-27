@@ -65,7 +65,7 @@ class WarehouseController extends Controller
         $warehouses = $this->getCheckDuplicate($short_name, $name);
         if( count($warehouses) > 0 )
         {
-            $error_message = array('errorMsg' => 'The warehouse with short name of ' . $short_name . ' and name of ' . $name . ' already exists.');
+            $error_message = array('errorMsg' => 'The warehouse with short name of ' . $short_name . ' and/or name of ' . $name . ' already exists.');
             return response()->json($error_message);
         }
 
@@ -91,6 +91,7 @@ class WarehouseController extends Controller
         $warehouse->postal_code = request()->json('postal_code');
         $warehouse->province_id = request()->json('province_id');
         $warehouse->country_id  = request()->json('country_id');
+        $warehouse->active      = ( !empty(request()->json('active')) ) ? true : false;
         $warehouse->save();
 
         return $warehouse->id;

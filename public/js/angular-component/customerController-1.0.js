@@ -15,7 +15,7 @@ var app = angular.module('myApp', ['alertService',
     'smart-table',
     'ngMessages']);
 
-app.controller('WarehouseListController', function(alertService, modalService, $http) {
+app.controller('CustomerListController', function(alertService, modalService, $http) {
     //SET SOME GLOBALS HERE FOR THE CONTROLLER
     var ListController = this;
     ListController.myName = myName;

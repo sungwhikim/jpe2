@@ -161,11 +161,11 @@ body {
 }
 .td-form .button-group .btn-delete {
     font-size: 22px;
-    padding: 0 10px 0 0;
+    padding: 0 0 0 15px;
 }
-
 .td-form .control-label {
     white-space: nowrap !important;
+    padding-right: 0 !important;
 }
 
 /* TABLE SORTING - SMART TABLE COMPONENT */
@@ -203,6 +203,7 @@ body {
 /* hack because of error message shifting columns */
 .td-form .form-group {
     height: 70px;
+    margin-bottom: 10px;
 }
 
 /* ALERT MESSAGES ICONS - REMAP CLASS TO MATCH ALERT CLASSES */
@@ -216,7 +217,15 @@ body {
     content: "\e209";
 }
 .glyphicon-info:before {
-    content: "\e142";
+    content: "\e086";
+}
+.glyphicon-processing:before {
+    content: "\e178";
+}
+.alert-processing {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1
 }
 
 /* MODAL DIALOG CENTER */
@@ -235,6 +244,23 @@ body {
     display: inline-block;
     text-align: left;
     vertical-align: middle;
+}
+
+/* OVER RIDE STYLING FOR TITATOGGLE */
+.checkbox.checkbox-slider--b {
+    padding: 0;
+}
+.checkbox-slider--b input + span:after {
+    /*top: 7px;*/
+}
+.checkbox-slider--b input:checked + span:before {
+    background: #767976;
+}
+.checkbox-slider-md input + span {
+    padding-left: 45px !important;
+}
+.checkbox-slider--b input+span {
+    padding-left: 25px;
 }
 
 /* --------- BOOTSTRAP BASIC CLASS OVERRIDES ------- */
@@ -314,5 +340,10 @@ fieldset[disabled] .btn-default.focus {
 }
 .box-shadow--16dp {
     box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2)
+}
+
+/* ANGULAR CLOAK */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
 }
 
