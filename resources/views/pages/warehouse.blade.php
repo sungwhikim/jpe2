@@ -47,7 +47,7 @@
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
                         <th class="sort-header" st-sort="short_name" st-sort-default="true">Short Name</th>
                         <th class="sort-header" st-sort="name">Name</th>
-                        <th class="sort-header" st-sort="name">City</th>
+                        <th class="sort-header" st-sort="city">City</th>
                     </tr>
                     <tr>
                         <td colspan="4" class="td-form">
