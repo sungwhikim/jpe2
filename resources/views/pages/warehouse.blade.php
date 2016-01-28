@@ -3,26 +3,27 @@
 @extends('main')
 
 @section('body')
-    <div class="container main-content" ng-controller="WarehouseListController as warehouseList" st-table="warehouseList.displayItems" st-safe-src="warehouseList.items">
+    <div class="container main-content" ng-controller="WarehouseListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
             <div class="col-lg-7 col-md-6 col-sm-5">
                 <h1>Warehouses</h1>
             </div>
             <div class="col-lg-5 col-md-6 col-sm-7 col-xs-10" ng-cloak>
-                <span class="item-total-container"><span id="item-total" class="badge" ng-bind="warehouseList.items.length"></span>  items</span>
+                <span class="item-total-container"><span id="item-total" class="badge" ng-bind="mainList.items.length"></span>  items</span>
                 <form class="">
                     <div class="form-group">
                         <label class="control-label"></label>
                         <div class="input-group">
                         <span class="search-criteria">
-                            <select class="form-control" ng-model="warehouseList.searchCriteria">
+                            <select class="form-control" ng-model="mainList.searchCriteria">
                                 <option value="">All</option>
                                 <option value="short_name">Short Name</option>
                                 <option value="name">Name</option>
                                 <option value="city">City</option>
+                                <option value="active">Active</option>
                             </select>
                         </span>
-                            <input placeholder="Search" st-search="@{{ warehouseList.searchCriteria }}" class="form-control" type="search"/>
+                            <input placeholder="Search" st-search="@{{ mainList.searchCriteria }}" class="form-control" type="search"/>
                         <span class="input-group-btn">
                           <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
@@ -33,10 +34,10 @@
         </div>
         <div class="status-row">
             <div class="col-lg-12">
-                <div class="alert alert-processing text-center" ng-hide="warehouseList"><strong>Loading Data....</strong></div>
-                <div class="alert alert-dismissible alert-@{{ item.type }}" ng-repeat="item in warehouseList.alerts" ng-cloak>
+                <div class="alert alert-processing text-center" ng-hide="mainList"><strong>Loading Data....</strong></div>
+                <div class="alert alert-dismissible alert-@{{ item.type }}" ng-repeat="item in mainList.alerts" ng-cloak>
                     <span class="glyphicon glyphicon-@{{ item.type }}"></span>&nbsp;
-                    <button type="button" class="close" data-dismiss="item" ng-click="warehouseList.closeAlert($index)">x</button>
+                    <button type="button" class="close" data-dismiss="item" ng-click="mainList.closeAlert($index)">x</button>
                     <span ng-bind="item.msg"></span>
                 </div>
             </div>
@@ -50,18 +51,19 @@
                         <th class="sort-header" st-sort="short_name" st-sort-default="true">Short Name</th>
                         <th class="sort-header" st-sort="name">Name</th>
                         <th class="sort-header" st-sort="city">City</th>
+                        <th class="sort-header" st-sort="active">Active</th>
                     </tr>
                     <tr>
-                        <td colspan="4" class="td-form">
+                        <td colspan="5" class="td-form">
                             <div class="collapse" id="new-item">
-                                <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && warehouseList.new(formNew)" novalidate>
+                                <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.new(formNew)" novalidate>
                                     <fieldset>
                                         <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
                                              ng-class="{ 'has-error': (formNew.short_name.$touched || formNew.$submitted) && formNew.short_name.$invalid }">
                                             <label class="col-lg-3 control-label text-right">Short Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <input type="text" class="form-control" name="short_name" placeholder="Short Name"
-                                                       ng-model="warehouseList.newItem.short_name" ng-maxlength="20"
+                                                       ng-model="mainList.newItem.short_name" ng-maxlength="20"
                                                        ng-model-options="{ updateOn: 'blur' }" required>
                                                 <!-- ngMessages goes here -->
                                                 <div class="help-block ng-messages" ng-messages="formNew.short_name.$error"
@@ -75,7 +77,7 @@
                                             <label class="col-lg-3 control-label text-right">Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <input type="text" class="form-control" name="name" placeholder="Name"
-                                                       ng-model="warehouseList.newItem.name" ng-maxlength="50"
+                                                       ng-model="mainList.newItem.name" ng-maxlength="50"
                                                        ng-model-options="{ updateOn: 'blur' }" required>
                                                 <!-- ngMessages goes here -->
                                                 <div class="help-block ng-messages" ng-messages="formNew.name.$error"
@@ -89,7 +91,7 @@
                                             <label class="col-lg-3 control-label text-right">Address 1 <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <input type="text" class="form-control" name="address1" placeholder="Address 1"
-                                                       ng-model="warehouseList.newItem.address1" ng-maxlength="100"
+                                                       ng-model="mainList.newItem.address1" ng-maxlength="100"
                                                        ng-model-options="{ updateOn: 'blur' }" required>
                                                 <!-- ngMessages goes here -->
                                                 <div class="help-block ng-messages" ng-messages="formNew.address1.$error"
@@ -103,7 +105,7 @@
                                             <label class="col-lg-3 control-label text-right">Address 2</label>
                                             <div class="col-lg-8">
                                                 <input type="text" class="form-control" name="address2" placeholder="Address 2"
-                                                       ng-model="warehouseList.newItem.address2" ng-maxlength="100"
+                                                       ng-model="mainList.newItem.address2" ng-maxlength="100"
                                                        ng-model-options="{ updateOn: 'blur' }">
                                                 <!-- ngMessages goes here -->
                                                 <div class="help-block ng-messages" ng-messages="formNew.address2.$error"
@@ -117,7 +119,7 @@
                                             <label class="col-lg-3 control-label text-right">City <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <input type="text" class="form-control" name="city" placeholder="City"
-                                                       ng-model="warehouseList.newItem.city" ng-maxlength="50"
+                                                       ng-model="mainList.newItem.city" ng-maxlength="50"
                                                        ng-model-options="{ updateOn: 'blur' }" required>
                                                 <!-- ngMessages goes here -->
                                                 <div class="help-block ng-messages" ng-messages="formNew.city.$error"
@@ -131,7 +133,7 @@
                                             <label class="col-lg-3 control-label text-right">Postal Code <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <input type="text" class="form-control" name="postal_code" placeholder="Postal Code"
-                                                       ng-model="warehouseList.newItem.postal_code" ng-maxlength="30"
+                                                       ng-model="mainList.newItem.postal_code" ng-maxlength="30"
                                                        ng-model-options="{ updateOn: 'blur' }" required>
                                                 <!-- ngMessages goes here -->
                                                 <div class="help-block ng-messages" ng-messages="formNew.postal_code.$error"
@@ -144,8 +146,8 @@
                                              ng-class="{ 'has-error': (formNew.country_id.$touched || formNew.$submitted) && formNew.country_id.$invalid }">
                                             <label class="col-lg-3 control-label text-right">Country <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
-                                                <select class="form-control" name="country_id" ng-model="warehouseList.newItem.country_id"
-                                                        ng-change="formNew.province_id=null" ng-options="country.id as country.name for country in warehouseList.countries" required>
+                                                <select class="form-control" name="country_id" ng-model="mainList.newItem.country_id"
+                                                        ng-change="formNew.province_id=null" ng-options="country.id as country.name for country in mainList.countries" required>
                                                     <option value="">-- select a country --</option>
                                                 </select>
                                                 <!-- ngMessages goes here -->
@@ -158,8 +160,8 @@
                                              ng-class="{ 'has-error': (formNew.province_id.$touched || formNew.$submitted) && formNew.province_id.$invalid }">
                                             <label class="col-lg-3 control-label text-right">Province/State <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
-                                                <select class="form-control" name="province_id" ng-model="warehouseList.newItem.province_id" required
-                                                        ng-options="province.id as province.name for province in (warehouseList.countries | filter:{id:warehouseList.newItem.country_id})[0].provinces">
+                                                <select class="form-control" name="province_id" ng-model="mainList.newItem.province_id" required
+                                                        ng-options="province.id as province.name for province in (mainList.countries | filter:{id:mainList.newItem.country_id})[0].provinces">
                                                     <option value="">-- select a province/state --</option>
                                                 </select>
                                                 <!-- ngMessages goes here -->
@@ -179,7 +181,7 @@
                                                 <div class="col-lg-3 col-md-4 col-sm-5 col-xs-4">
                                                     <div class="checkbox checkbox-slider--b checkbox-slider-md">
                                                         <label>
-                                                            <input type="checkbox" name="active" value="true" ng-model="warehouseList.newItem.active"><span>Active</span>
+                                                            <input type="checkbox" name="active" value="true" ng-model="mainList.newItem.active"><span>Active</span>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -191,7 +193,7 @@
                         </td>
                     </tr>
                     </thead>
-                    <tbody dir-paginate="item in warehouseList.displayItems | itemsPerPage: 10" class="tbody-form">
+                    <tbody dir-paginate="item in mainList.displayItems | itemsPerPage: 10" class="tbody-form">
                     <tr>
                         <td>
                             <div class="btn-group">
@@ -201,11 +203,12 @@
                         <td ng-bind="item.short_name"></td>
                         <td ng-bind="item.name"></td>
                         <td ng-bind="item.city"></td>
+                        <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
                     </tr>
                     <tr>
-                        <td colspan="4" class="td-form">
+                        <td colspan="5" class="td-form">
                             <div class="collapse col-lg-12" id="item-@{{ item.id }}">
-                                <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && warehouseList.save(item)" novalidate>
+                                <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <input class="item-id" type="hidden" ng-model="item.id" name="id">
                                     <fieldset>
                                         <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
@@ -296,7 +299,7 @@
                                             <label class="col-lg-3 control-label text-right">Country <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <select class="form-control" name="country_id" ng-model="item.country_id" ng-change="item.province_id=null"
-                                                        ng-options="country.id as country.name for country in warehouseList.countries">
+                                                        ng-options="country.id as country.name for country in mainList.countries">
                                                 </select>
                                             </div>
                                         </div>
@@ -305,7 +308,7 @@
                                             <label class="col-lg-3 control-label text-right">Province/State <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <select class="form-control" name="province_id" ng-model="item.province_id" required
-                                                        ng-options="province.id as province.name for province in (warehouseList.countries | filter:{id:item.country_id})[0].provinces">
+                                                        ng-options="province.id as province.name for province in (mainList.countries | filter:{id:item.country_id})[0].provinces">
                                                 </select>
                                                 <!-- ngMessages goes here -->
                                                 <div class="help-block ng-messages" ng-messages="dataForm.province_id.$error"
@@ -318,9 +321,9 @@
                                             <div class="row col-lg-6 col-md-6 col-sm-7 col-xs-12 form-group button-group">
                                                 <div class="col-lg-3 control-label text-right"></div>
                                                 <div class="col-lg-5 col-md-8 col-sm-7 col-xs-6 text-left">
-                                                    <button class="btn btn-default" ng-click="warehouseList.resetData()">Cancel</button>
+                                                    <button class="btn btn-default" ng-click="mainList.resetData()">Cancel</button>
                                                     <button type="submit" class="btn btn-success">Save</button>
-                                                    <a ng-click="warehouseList.deleteConfirm($index)"
+                                                    <a ng-click="mainList.deleteConfirm($index)"
                                                        class="btn glyphicon glyphicon-trash btn-delete"
                                                        data-toggle="tooltip" title="Delete"></a>
                                                 </div>

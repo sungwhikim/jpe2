@@ -12,7 +12,9 @@ class CustomerController extends Controller
     public function getList()
     {
         //get the list data with the default sort set the same as in the angular table
-        $data = Customer::orderBy('name')->get();
+        $data = Customer::select('customer.*', 'province.name as province_name')
+                          ->join('province', 'customer.province_id', '=', 'province.id')
+                          ->orderBy('customer.name')->get();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/customer');

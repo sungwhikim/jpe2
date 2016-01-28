@@ -3,25 +3,25 @@
 @extends('main')
 
 @section('body')
-    <div class="container main-content" ng-controller="CountryListController as countryList" st-table="countryList.displayItems" st-safe-src="countryList.items">
+    <div class="container main-content" ng-controller="CountryListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
             <div class="col-lg-7 col-md-6 col-sm-5">
                 <h1>Countries</h1>
             </div>
             <div class="col-lg-5 col-md-6 col-sm-7 col-xs-10" ng-cloak>
-                <span class="item-total-container"><span id="item-total" class="badge" ng-bind="countryList.items.length"></span>  items</span>
+                <span class="item-total-container"><span id="item-total" class="badge" ng-bind="mainList.items.length"></span>  items</span>
                 <form class="">
                     <div class="form-group">
                         <label class="control-label"></label>
                         <div class="input-group">
                         <span class="search-criteria">
-                            <select class="form-control" ng-model="countryList.searchCriteria">
+                            <select class="form-control" ng-model="mainList.searchCriteria">
                                 <option value="">All</option>
                                 <option value="code">Code</option>
                                 <option value="name">Name</option>
                             </select>
                         </span>
-                            <input placeholder="Search" st-search="@{{ countryList.searchCriteria }}" class="form-control" type="search"/>
+                            <input placeholder="Search" st-search="@{{ mainList.searchCriteria }}" class="form-control" type="search"/>
                         <span class="input-group-btn">
                           <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
@@ -32,10 +32,10 @@
         </div>
         <div class="status-row">
             <div class="col-lg-12">
-                <div class="alert alert-processing text-center" ng-hide="countryList"><strong>Loading Data...</strong></div>
-                <div class="alert alert-dismissible alert-@{{ item.type }}" ng-repeat="item in countryList.alerts" ng-cloak>
+                <div class="alert alert-processing text-center" ng-hide="mainList"><strong>Loading Data...</strong></div>
+                <div class="alert alert-dismissible alert-@{{ item.type }}" ng-repeat="item in mainList.alerts" ng-cloak>
                     <span class="glyphicon glyphicon-@{{ item.type }}"></span>&nbsp;
-                    <button type="button" class="close" data-dismiss="item" ng-click="countryList.closeAlert($index)">x</button>
+                    <button type="button" class="close" data-dismiss="item" ng-click="mainList.closeAlert($index)">x</button>
                     <span ng-bind="item.msg"></span>
                 </div>
             </div>
@@ -52,14 +52,14 @@
                     <tr>
                         <td colspan="3" class="td-form">
                             <div class="collapse" id="new-item">
-                                <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && countryList.new(formNew)" novalidate>
+                                <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.new(formNew)" novalidate>
                                     <fieldset>
                                         <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
                                              ng-class="{ 'has-error': (formNew.code.$touched || formNew.$submitted) && formNew.code.$invalid }">
                                             <label class="col-lg-2 control-label">Code <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <input type="text" class="form-control" name="code"
-                                                       placeholder="Code" ng-model="countryList.newItem.code"
+                                                       placeholder="Code" ng-model="mainList.newItem.code"
                                                        ng-minlength="2"
                                                        ng-maxlength="2"
                                                        required>
@@ -74,7 +74,7 @@
                                             <label class="col-lg-2 control-label">Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
                                             <div class="col-lg-8">
                                                 <input type="text" class="form-control" name="name" placeholder="Name"
-                                                       ng-model="countryList.newItem.name"
+                                                       ng-model="mainList.newItem.name"
                                                        ng-maxlength="100"
                                                        required>
                                                 <!-- ngMessages goes here -->
@@ -98,7 +98,7 @@
                         </td>
                     </tr>
                     </thead>
-                    <tbody dir-paginate="item in countryList.displayItems | itemsPerPage: 10" class="tbody-form">
+                    <tbody dir-paginate="item in mainList.displayItems | itemsPerPage: 10" class="tbody-form">
                     <tr>
                         <td>
                             <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#item-@{{ item.id }}">Edit</button>
@@ -109,7 +109,7 @@
                     <tr>
                         <td colspan="3" class="td-form">
                             <div class="collapse" id="item-@{{ item.id }}">
-                                <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && countryList.save(item)" novalidate>
+                                <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <fieldset>
                                         <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
                                              ng-class="{ 'has-error': (dataForm.code.$touched || dataForm.$submitted) && dataForm.code.$invalid }">
@@ -143,11 +143,11 @@
                                             <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group button-group">
                                                 <div class="col-lg-2 control-label"></div>
                                                 <div class="col-lg-6 col-md-8 col-sm-7 col-xs-5 text-left">
-                                                    <button class="btn btn-default" ng-click="countryList.resetData()">Cancel</button>
+                                                    <button class="btn btn-default" ng-click="mainList.resetData()">Cancel</button>
                                                     <button type="submit" class="btn btn-success">Save</button>
                                                 </div>
                                                 <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                                    <a ng-click="countryList.deleteConfirm($index)"
+                                                    <a ng-click="mainList.deleteConfirm($index)"
                                                        class="btn glyphicon glyphicon-trash btn-delete"
                                                        data-toggle="tooltip" title="Delete"></a>
                                                 </div>
