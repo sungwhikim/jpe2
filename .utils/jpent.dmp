@@ -19,18 +19,25 @@ ALTER TABLE ONLY public.customer DROP CONSTRAINT lnk_customer_country;
 DROP INDEX public.warehouse_short_name_unique;
 DROP INDEX public.index_country_id;
 ALTER TABLE ONLY public.warehouse DROP CONSTRAINT warehouse_pkey;
+ALTER TABLE ONLY public."user" DROP CONSTRAINT user_pkey;
+ALTER TABLE ONLY public."user" DROP CONSTRAINT unique_username;
 ALTER TABLE ONLY public.warehouse DROP CONSTRAINT unique_name;
+ALTER TABLE ONLY public."user" DROP CONSTRAINT unique_email;
 ALTER TABLE ONLY public.country DROP CONSTRAINT unique_code;
 ALTER TABLE ONLY public.province DROP CONSTRAINT province_pkey;
 ALTER TABLE ONLY public.customer DROP CONSTRAINT customer_pkey;
 ALTER TABLE ONLY public.country DROP CONSTRAINT country_pkey;
+ALTER TABLE public."user" ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.province ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.customer ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.country ALTER COLUMN id DROP DEFAULT;
 DROP TABLE public.warehouse;
 DROP SEQUENCE public.warehouse_id_seq;
+DROP SEQUENCE public.user_id_seq;
+DROP TABLE public."user";
 DROP SEQUENCE public.province_id_seq;
 DROP TABLE public.province;
+DROP TABLE public.password_reset;
 DROP SEQUENCE public.customer_id_seq;
 DROP TABLE public.customer;
 DROP SEQUENCE public.country_id_seq;
@@ -156,6 +163,19 @@ ALTER SEQUENCE customer_id_seq OWNED BY customer.id;
 
 
 --
+-- Name: password_reset; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE password_reset (
+    email character varying(100) NOT NULL,
+    token character varying(100) NOT NULL,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE password_reset OWNER TO sungwhikim;
+
+--
 -- Name: province; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
 --
 
@@ -195,6 +215,46 @@ ALTER TABLE province_id_seq OWNER TO sungwhikim;
 --
 
 ALTER SEQUENCE province_id_seq OWNED BY province.id;
+
+
+--
+-- Name: user; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE "user" (
+    id integer NOT NULL,
+    username character varying(20) NOT NULL,
+    name character varying(50) NOT NULL,
+    email character varying(100) NOT NULL,
+    remember_token character varying(100),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    password character varying(100) NOT NULL
+);
+
+
+ALTER TABLE "user" OWNER TO sungwhikim;
+
+--
+-- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE user_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE user_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE user_id_seq OWNED BY "user".id;
 
 
 --
@@ -255,6 +315,13 @@ ALTER TABLE ONLY province ALTER COLUMN id SET DEFAULT nextval('province_id_seq':
 
 
 --
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY "user" ALTER COLUMN id SET DEFAULT nextval('user_id_seq'::regclass);
+
+
+--
 -- Data for Name: country; Type: TABLE DATA; Schema: public; Owner: sungwhikim
 --
 
@@ -268,7 +335,7 @@ COPY country (id, code, name, created_at, updated_at) FROM stdin;
 -- Name: country_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('country_id_seq', 6, true);
+SELECT pg_catalog.setval('country_id_seq', 8, true);
 
 
 --
@@ -276,6 +343,7 @@ SELECT pg_catalog.setval('country_id_seq', 6, true);
 --
 
 COPY customer (id, contact, name, email, address1, address2, city, province_id, country_id, created_at, updated_at, phone, fax, postal_code, active) FROM stdin;
+1	Sung-Whi Kim	Company 1	sungwhikim@gmail.com	234 Any Street	#302	Portland	51	2	2016-01-27 16:07:52	2016-01-28 09:30:10	555-555-5555	444-444-4444	97210	t
 \.
 
 
@@ -283,7 +351,16 @@ COPY customer (id, contact, name, email, address1, address2, city, province_id, 
 -- Name: customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('customer_id_seq', 1, false);
+SELECT pg_catalog.setval('customer_id_seq', 1, true);
+
+
+--
+-- Data for Name: password_reset; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY password_reset (email, token, created_at) FROM stdin;
+sungwhikim@gmail.com	e014d6db6bc7bbc972f97ac991e82fc019f44a7995e4edaed45986ca3e0b3b10	2016-01-29 10:06:00
+\.
 
 
 --
@@ -365,13 +442,29 @@ SELECT pg_catalog.setval('province_id_seq', 64, true);
 
 
 --
+-- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY "user" (id, username, name, email, remember_token, created_at, updated_at, active, password) FROM stdin;
+1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	aqLMptJRG6wpebvyPg4wG1Af44lDkFbnqRRxSdEuIdG1I0PGx4CAASphqhhD	2016-01-29 08:53:18	2016-01-29 09:51:49	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC
+\.
+
+
+--
+-- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('user_id_seq', 1, true);
+
+
+--
 -- Data for Name: warehouse; Type: TABLE DATA; Schema: public; Owner: sungwhikim
 --
 
 COPY warehouse (id, short_name, name, address1, address2, city, province_id, country_id, created_at, updated_at, postal_code, active) FROM stdin;
-6	Test	Testing	123 Any Street	\N	Portland	51	2	2016-01-27 09:55:33	2016-01-27 09:56:00	OR	t
 3	1290	Miss	1290 Blundell Rd.		Mississauga	10	1	2016-01-26 14:17:27	2016-01-27 14:09:54	L4Y 1M5	t
-7	test2	Testing 1111	123 Any Street	\N	Boster	33	2	2016-01-27 14:28:18	2016-01-27 14:28:29	99002	f
+6	Test	Testing	123 Any Street	\N	Portland	51	2	2016-01-27 09:55:33	2016-01-28 09:38:40	OR	f
+8	Test2	Testing 2	123 Any Street	\N	Boston	35	2	2016-01-28 09:39:08	2016-01-28 09:39:08	99000	t
 \.
 
 
@@ -379,7 +472,7 @@ COPY warehouse (id, short_name, name, address1, address2, city, province_id, cou
 -- Name: warehouse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('warehouse_id_seq', 7, true);
+SELECT pg_catalog.setval('warehouse_id_seq', 8, true);
 
 
 --
@@ -415,11 +508,35 @@ ALTER TABLE ONLY country
 
 
 --
+-- Name: unique_email; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY "user"
+    ADD CONSTRAINT unique_email UNIQUE (email);
+
+
+--
 -- Name: unique_name; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
 --
 
 ALTER TABLE ONLY warehouse
     ADD CONSTRAINT unique_name UNIQUE (name);
+
+
+--
+-- Name: unique_username; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY "user"
+    ADD CONSTRAINT unique_username UNIQUE (username);
+
+
+--
+-- Name: user_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY "user"
+    ADD CONSTRAINT user_pkey PRIMARY KEY (id);
 
 
 --
