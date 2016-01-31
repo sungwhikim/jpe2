@@ -7,10 +7,10 @@
 @stop
 
 @section('body')
-    <div class="container main-content" ng-controller="CustomerListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
+    <div class="container main-content" ng-controller="UserListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
             <div class="col-lg-7 col-md-6 col-sm-5">
-                <h1>Customers</h1>
+                <h1>Users</h1>
             </div>
             <div class="col-lg-5 col-md-6 col-sm-7 col-xs-10" ng-cloak>
                 <span class="item-total-container"><span id="item-total" class="badge" ng-bind="mainList.items.length"></span>  items</span>
@@ -21,9 +21,9 @@
                         <span class="search-criteria">
                             <select class="form-control" ng-model="mainList.searchCriteria">
                                 <option value="">All</option>
+                                <option value="username">User Name</option>
                                 <option value="name">Name</option>
-                                <option value="city">City</option>
-                                <option value="province_name">Province/State</option>
+                                <option value="email">Email</option>
                                 <option value="active">Active</option>
                             </select>
                         </span>
@@ -53,8 +53,8 @@
                     <tr>
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
                         <th class="sort-header" st-sort="name" st-sort-default="true">Name</th>
-                        <th class="sort-header" st-sort="city">City</th>
-                        <th class="sort-header" st-sort="province_name">Province/State</th>
+                        <th class="sort-header" st-sort="username">User Name</th>
+                        <th class="sort-header" st-sort="email">Email</th>
                         <th class="sort-header" st-sort="active">Active</th>
                     </tr>
                     <tr>
@@ -62,16 +62,10 @@
                             <div class="collapse" id="new-item">
                                 <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.new(formNew)" novalidate>
                                     <fieldset>
+                                        @include('forms.new-username')
                                         @include('forms.new-name', ['size' => 50])
-                                        @include('forms.new-address1')
-                                        @include('forms.new-address2')
-                                        @include('forms.new-city')
-                                        @include('forms.new-postal-code')
-                                        @include('forms.new-province-state')
-                                        @include('forms.new-contact')
-                                        @include('forms.new-email')
-                                        @include('forms.new-phone')
-                                        @include('forms.new-fax')
+                                        @include('forms.new-email', ['required' => 'required'])
+                                        @include('forms.new-password')
                                         @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
@@ -87,8 +81,8 @@
                             </div>
                         </td>
                         <td ng-bind="item.name"></td>
-                        <td ng-bind="item.city"></td>
-                        <td ng-bind="item.province_name"></td>
+                        <td ng-bind="item.username"></td>
+                        <td ng-bind="item.email"></td>
                         <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
                     </tr>
                     <tr>
@@ -97,16 +91,10 @@
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <input class="item-id" type="hidden" ng-model="item.id" name="id">
                                     <fieldset>
+                                        @include('forms.username')
                                         @include('forms.name', ['size' => 50])
-                                        @include('forms.address1')
-                                        @include('forms.address2')
-                                        @include('forms.city')
-                                        @include('forms.postal-code')
-                                        @include('forms.province-country')
-                                        @include('forms.contact')
-                                        @include('forms.email')
-                                        @include('forms.phone')
-                                        @include('forms.fax')
+                                        @include('forms.email', ['required' => 'required'])
+                                        @include('forms.password')
                                         @include('forms.edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
@@ -129,7 +117,6 @@
          var myName  = '{{ $my_name }}';
          var appUrl  = '{{ $url }}';
          var appData = {!! $main_data !!};
-         var countryData = {!! $country_data !!};
      </script>
 @stop
 
@@ -139,6 +126,7 @@
     <!-- open source components -->
     <script src="/js/angular-library/dirPaginate.js"></script>
     <script src="/js/angular-library/smart-table.js"></script>
+     <script src="/js/angular-library/compareTo.js"></script>
 
     <!-- custom components -->
     <script src="/js/angular-component/modalService-1.0.js"></script>

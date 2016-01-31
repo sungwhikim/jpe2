@@ -12,7 +12,7 @@ class WarehouseController extends Controller
     public function getList()
     {
         //get the list data with the default sort set the same as in the angular table
-        $data = Warehouse::orderBy('short_name')->get();
+        $data = Warehouse::orderBy('name')->get();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/warehouse');
@@ -43,29 +43,22 @@ class WarehouseController extends Controller
         return Warehouse::where('id', '=', $id)->get();
     }
 
-    public function getByShortName($short_name)
+    public function getCheckDuplicate($name)
     {
-        return Warehouse::select('id')->where('short_name', 'ILIKE', $short_name)->take(1)->get();
-    }
-
-    public function getCheckDuplicate($short_name, $name)
-    {
-        return Warehouse::select('id')->where('short_name', 'ILIKE', $short_name)
-                                      ->orWhere('name', 'ILIKE', $name)
+        return Warehouse::select('id')->where('name', 'ILIKE', $name)
                                       ->take(1)->get();
     }
 
     public function postNew()
     {
-        //set to a variables
-        $short_name = request()->json('short_name');
+        //set to a variables;
         $name = request()->json('name');
 
         //first check to make sure this is not a duplicate
-        $warehouses = $this->getCheckDuplicate($short_name, $name);
+        $warehouses = $this->getCheckDuplicate($name);
         if( count($warehouses) > 0 )
         {
-            $error_message = array('errorMsg' => 'The warehouse with short name of ' . $short_name . ' and/or name of ' . $name . ' already exists.');
+            $error_message = array('errorMsg' => 'The warehouse with name of ' . $name . ' already exists.');
             return response()->json($error_message);
         }
 
@@ -83,7 +76,6 @@ class WarehouseController extends Controller
     private function saveItem()
     {
         $warehouse = ( !empty(request()->json('id')) ) ? Warehouse::find(request()->json('id')) : new Warehouse();
-        $warehouse->short_name  = request()->json('short_name');
         $warehouse->name        = request()->json('name');
         $warehouse->address1    = request()->json('address1');
         $warehouse->address2    = request()->json('address2');

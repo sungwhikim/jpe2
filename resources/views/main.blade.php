@@ -3,12 +3,10 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="myApp">
 <head>
-    @section('head')
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JPE 2.0</title>
-    @show
 
     <!-- css -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -16,26 +14,30 @@
     <link href="/css/style.css" rel="stylesheet">
     <link href="/css/style.media.css" rel="stylesheet">
 
-    @section('css')
-    @show
+    @yield('css-head')
+    @yield('script-head')
 
-    @section('script-head')
-    @show
 </head>
 
 <body>
 
-@section('nav')
-    @include('layouts.nav')
-@show
+<!-- navigation -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    @include('layouts.header-bar')
+    @yield('nav')
+</nav>
 
+<!-- main body content -->
 @yield('body')
 
+<!-- footer -->
+@section('footer')
 <footer class="footer">
     <div class="container text-center">
         <p class="text-muted"><span class="glyphicon glyphicon-copyright-mark"></span> JP Enterprises <?php echo date('Y'); ?></p>
     </div>
 </footer>
+@show
 
 @section('js-bootstrap')
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -43,12 +45,9 @@
 <script src="/js/bootstrap.min.js"></script>
 @show
 
-@section('js-data')
-@show
-
+@yield('js-data')
 @yield('js-footer')
+@yield('script-footer')
 
-@section('script-footer')
-@show
 </body>
 </html>

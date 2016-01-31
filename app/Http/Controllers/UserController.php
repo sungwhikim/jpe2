@@ -2,50 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\User;
+use DebugBar\DebugBar;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
-class CountryController extends Controller
+class UserController extends Controller
 {
-    protected $my_name = 'country';
+    protected $my_name = 'user';
+
+    public function getDashboard()
+    {
+        return view('pages.dashboard');
+    }
 
     public function getList()
     {
         //get the list data with the default sort set the same as in the angular table
-        $data = Country::select('id', 'code', 'name')->orderBy('code')->get();
+        $data = User::orderBy('name')->get();
 
         //we need to send the url to do Ajax queries back here
-        $url = url('/country');
+        $url = url('/user');
 
-        return view('pages.country', ['main_data' => $data, 'url' => $url, 'my_name' => $this->my_name]);
+        return view('pages.user', ['main_data' => $data, 'url' => $url, 'my_name' => $this->my_name]);
     }
 
     public function getById($id)
     {
-        return Country::where('id', '=', $id)->get();
+        return User::where('id', '=', $id)->get();
     }
 
-    public function getByCode($code)
+    public function getCheckDuplicate($username)
     {
-        return Country::select('id')->where('code', 'ILIKE', $code)->take(1)->get();
+        $users = User::where('username', 'ILIKE', $username)->get();
+        debugbar()->info($users);
+        return $users;
     }
 
     public function postNew()
     {
-        //set code to a variable
-        $code = request()->json('code');
+        //validate password
+        $this->validatePassword();
 
+        //set username to a variable
+        $username = request()->json('username');
+        debugbar()->info($username);
         //first check to make sure this is not a duplicate
-        $countries = $this->getByCode($code);
-        if( count($countries) > 0 )
+        $users = $this->getCheckDuplicate($username);
+        if( count($users) > 0 )
         {
-            $error_message = array('errorMsg' => 'The country code of ' . $code . ' already exists.');
+            $error_message = array('errorMsg' => 'The User Name ' . $username . ' already exists.');
             return response()->json($error_message);
         }
 
         //create new item
-        $country_id = $this->saveItem();
+        $user_id = $this->saveItem();
 
-        return response()->json(['id' => $country_id]);
+        return response()->json(['id' => $user_id]);
     }
 
     public function postUpdate()
@@ -55,18 +68,41 @@ class CountryController extends Controller
 
     private function saveItem()
     {
-        $country = ( !empty(request()->json('id')) ) ? Country::find(request()->json('id')) : new Country();
-        $country->code = request()->json('code');
-        $country->name = request()->json('name');
-        $country->save();
+        $user = ( !empty(request()->json('id')) ) ? User::find(request()->json('id')) : new User();
+        $user->username = request()->json('username');
+        $user->name     = request()->json('name');
+        $user->email    = request()->json('email');
+        $user->active      = ( !empty(request()->json('active')) ) ? true : false;
 
-        return $country->id;
+        //Only update/add password if it was set
+        if( !empty(request()->json('password')) )
+        {
+            //first make sure they are the same
+            $this->validatePassword();
+
+            //set password
+            $user->password = bcrypt(request()->json('password'));
+        }
+
+        $user->save();
+
+        return $user->id;
     }
 
     public function putDelete($id)
     {
-        Country::find($id)->delete();
+        User::find($id)->delete();
 
-        return Country::all();
+        return User::all();
     }
+
+    protected function validatePassword()
+    {
+        if( request()->json('password') !== request()->json('password_validate') )
+        {
+            $error_message = array('errorMsg' => 'The passwords must match.');
+            return response()->json($error_message);
+        }
+    }
+
 }

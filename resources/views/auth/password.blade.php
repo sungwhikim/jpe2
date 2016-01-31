@@ -3,7 +3,7 @@
 @section('body')
 
     <div class="container">
-        <div style="margin-top:150px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+        <div style="margin-top:150px;" class="mainbox col-lg-4 col-md-4 col-md-offset-3 col-sm-6 col-sm-offset-2 col-xs-8 col-xs-offset-1">
             <div class="panel panel-default box-shadow--4dp" >
                 <div class="panel-heading">
                     <div class="panel-title">Reset Password</div>
@@ -14,11 +14,9 @@
                         {!! csrf_field() !!}
 
                         @if (count($errors) > 0)
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li class="alert alert-danger"><span class="glyphicon glyphicon-danger">{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                            @foreach ($errors->all() as $error)
+                                <p class="alert alert-danger"><span class="glyphicon glyphicon-danger"> {{ $error }}</p>
+                            @endforeach
                         @endif
 
                         <div class="form-group">

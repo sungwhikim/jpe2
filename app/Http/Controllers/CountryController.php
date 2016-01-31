@@ -29,13 +29,18 @@ class CountryController extends Controller
         return Country::select('id')->where('code', 'ILIKE', $code)->take(1)->get();
     }
 
+    public function getCheckDuplicate($code)
+    {
+        return $this->getByCode($code);
+    }
+
     public function postNew()
     {
         //set code to a variable
         $code = request()->json('code');
 
         //first check to make sure this is not a duplicate
-        $countries = $this->getByCode($code);
+        $countries = $this->getCheckDuplicate($code);
         if( count($countries) > 0 )
         {
             $error_message = array('errorMsg' => 'The country code of ' . $code . ' already exists.');

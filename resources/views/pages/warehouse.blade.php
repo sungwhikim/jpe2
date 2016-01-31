@@ -2,6 +2,10 @@
 
 @extends('main')
 
+@section('nav')
+    @include('layouts.nav')
+@stop
+
 @section('body')
     <div class="container main-content" ng-controller="WarehouseListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
@@ -17,7 +21,6 @@
                         <span class="search-criteria">
                             <select class="form-control" ng-model="mainList.searchCriteria">
                                 <option value="">All</option>
-                                <option value="short_name">Short Name</option>
                                 <option value="name">Name</option>
                                 <option value="city">City</option>
                                 <option value="active">Active</option>
@@ -48,145 +51,22 @@
                     <thead>
                     <tr>
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
-                        <th class="sort-header" st-sort="short_name" st-sort-default="true">Short Name</th>
-                        <th class="sort-header" st-sort="name">Name</th>
+                        <th class="sort-header" st-sort="name" st-sort-default="true">Name</th>
                         <th class="sort-header" st-sort="city">City</th>
                         <th class="sort-header" st-sort="active">Active</th>
                     </tr>
                     <tr>
-                        <td colspan="5" class="td-form">
+                        <td colspan="4" class="td-form">
                             <div class="collapse" id="new-item">
                                 <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.new(formNew)" novalidate>
                                     <fieldset>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.short_name.$touched || formNew.$submitted) && formNew.short_name.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Short Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="short_name" placeholder="Short Name"
-                                                       ng-model="mainList.newItem.short_name" ng-maxlength="20"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.short_name.$error"
-                                                     ng-if="formNew.$submitted || formNew.short_name.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.name.$touched || formNew.$submitted) && formNew.name.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="name" placeholder="Name"
-                                                       ng-model="mainList.newItem.name" ng-maxlength="50"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.name.$error"
-                                                     ng-if="formNew.$submitted || formNew.name.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.address1.$touched || formNew.$submitted) && formNew.address1.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Address 1 <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="address1" placeholder="Address 1"
-                                                       ng-model="mainList.newItem.address1" ng-maxlength="100"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.address1.$error"
-                                                     ng-if="formNew.$submitted || formNew.address1.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.address2.$touched || formNew.$submitted) && formNew.address2.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Address 2</label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="address2" placeholder="Address 2"
-                                                       ng-model="mainList.newItem.address2" ng-maxlength="100"
-                                                       ng-model-options="{ updateOn: 'blur' }">
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.address2.$error"
-                                                     ng-if="formNew.$submitted || formNew.address2.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.city.$touched || formNew.$submitted) && formNew.city.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">City <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="city" placeholder="City"
-                                                       ng-model="mainList.newItem.city" ng-maxlength="50"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.city.$error"
-                                                     ng-if="formNew.$submitted || formNew.city.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.postal_code.$touched || formNew.$submitted) && formNew.postal_code.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Postal Code <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="postal_code" placeholder="Postal Code"
-                                                       ng-model="mainList.newItem.postal_code" ng-maxlength="30"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.postal_code.$error"
-                                                     ng-if="formNew.$submitted || formNew.postal_code.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.country_id.$touched || formNew.$submitted) && formNew.country_id.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Country <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <select class="form-control" name="country_id" ng-model="mainList.newItem.country_id"
-                                                        ng-change="formNew.province_id=null" ng-options="country.id as country.name for country in mainList.countries" required>
-                                                    <option value="">-- select a country --</option>
-                                                </select>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.country_id.$error" ng-if="formNew.$submitted || formNew.country_id.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.province_id.$touched || formNew.$submitted) && formNew.province_id.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Province/State <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <select class="form-control" name="province_id" ng-model="mainList.newItem.province_id" required
-                                                        ng-options="province.id as province.name for province in (mainList.countries | filter:{id:mainList.newItem.country_id})[0].provinces">
-                                                    <option value="">-- select a province/state --</option>
-                                                </select>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.province_id.$error"
-                                                     ng-if="formNew.$submitted || formNew.province_id.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-12 col-md-12 col-sm-12">
-                                            <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group button-group">
-                                                <div class="col-lg-3 control-label text-right"></div>
-                                                <div class="col-lg-5 col-md-8 col-sm-7 col-xs-6 text-left">
-                                                    <button class="btn btn-default" type="reset" data-toggle="collapse" data-target="#new-item">Cancel</button>
-                                                    <button type="submit" class="btn btn-success">Add</button>
-                                                </div>
-                                                <div class="col-lg-3 col-md-4 col-sm-5 col-xs-4">
-                                                    <div class="checkbox checkbox-slider--b checkbox-slider-md">
-                                                        <label>
-                                                            <input type="checkbox" name="active" value="true" ng-model="mainList.newItem.active"><span>Active</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @include('forms.new-name', ['size' => 50])
+                                        @include('forms.new-address1')
+                                        @include('forms.new-address2')
+                                        @include('forms.new-city')
+                                        @include('forms.new-postal-code')
+                                        @include('forms.new-province-state')
+                                        @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
                             </div>
@@ -200,142 +80,24 @@
                                 <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#item-@{{ item.id }}">Edit</button>
                             </div>
                         </td>
-                        <td ng-bind="item.short_name"></td>
                         <td ng-bind="item.name"></td>
                         <td ng-bind="item.city"></td>
                         <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
                     </tr>
                     <tr>
-                        <td colspan="5" class="td-form">
+                        <td colspan="4" class="td-form">
                             <div class="collapse col-lg-12" id="item-@{{ item.id }}">
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
+                                    {!! csrf_field() !!}
                                     <input class="item-id" type="hidden" ng-model="item.id" name="id">
                                     <fieldset>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.short_name.$touched || dataForm.$submitted) && dataForm.short_name.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Short Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="short_name" placeholder="Short Name"
-                                                       ng-model="item.short_name" ng-maxlength="20"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.short_name.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.short_name.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.name.$touched || dataForm.$submitted) && dataForm.name.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="name" placeholder="Name"
-                                                       ng-model="item.name" ng-maxlength="50"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.name.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.name.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.address1.$touched || dataForm.$submitted) && dataForm.address1.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Address 1 <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="address1" placeholder="Address 1"
-                                                       ng-model="item.address1" ng-maxlength="100"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.address1.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.address1.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.address2.$touched || dataForm.$submitted) && dataForm.address2.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Address 2</label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="address2" placeholder="Address 2"
-                                                       ng-model="item.address2" ng-maxlength="100"
-                                                       ng-model-options="{ updateOn: 'blur' }">
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.address2.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.address2.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.city.$touched || dataForm.$submitted) && dataForm.city.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">City <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="city" placeholder="City"
-                                                       ng-model="item.city" ng-maxlength="50"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.city.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.city.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.postal_code.$touched || dataForm.$submitted) && dataForm.postal_code.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Postal Code <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="postal_code" placeholder="Postal Code"
-                                                       ng-model="item.postal_code" ng-maxlength="30"
-                                                       ng-model-options="{ updateOn: 'blur' }" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.postal_code.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.postal_code.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group">
-                                            <label class="col-lg-3 control-label text-right">Country <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <select class="form-control" name="country_id" ng-model="item.country_id" ng-change="item.province_id=null"
-                                                        ng-options="country.id as country.name for country in mainList.countries">
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.province_id.$touched || dataForm.$submitted) && dataForm.province_id.$invalid }">
-                                            <label class="col-lg-3 control-label text-right">Province/State <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <select class="form-control" name="province_id" ng-model="item.province_id" required
-                                                        ng-options="province.id as province.name for province in (mainList.countries | filter:{id:item.country_id})[0].provinces">
-                                                </select>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.province_id.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.province_id.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-12 col-md-12 col-sm-12">
-                                            <div class="row col-lg-6 col-md-6 col-sm-7 col-xs-12 form-group button-group">
-                                                <div class="col-lg-3 control-label text-right"></div>
-                                                <div class="col-lg-5 col-md-8 col-sm-7 col-xs-6 text-left">
-                                                    <button class="btn btn-default" ng-click="mainList.resetData()">Cancel</button>
-                                                    <button type="submit" class="btn btn-success">Save</button>
-                                                    <a ng-click="mainList.deleteConfirm($index)"
-                                                       class="btn glyphicon glyphicon-trash btn-delete"
-                                                       data-toggle="tooltip" title="Delete"></a>
-                                                </div>
-                                                <div class="col-lg-3 col-md-4 col-sm-5 col-xs-3">
-                                                    <div class="checkbox checkbox-slider--b checkbox-slider-md">
-                                                        <label>
-                                                            <input type="checkbox" name="active" value="true" ng-model="item.active"><span>Active</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @include('forms.name', ['size' => 50])
+                                        @include('forms.address1')
+                                        @include('forms.address2')
+                                        @include('forms.city')
+                                        @include('forms.postal-code')
+                                        @include('forms.province-country')
+                                        @include('forms.edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
                             </div>

@@ -16,7 +16,6 @@ ALTER TABLE ONLY public.warehouse DROP CONSTRAINT lnk_warehouse_country;
 ALTER TABLE ONLY public.province DROP CONSTRAINT lnk_province_country;
 ALTER TABLE ONLY public.customer DROP CONSTRAINT lnk_customer_province;
 ALTER TABLE ONLY public.customer DROP CONSTRAINT lnk_customer_country;
-DROP INDEX public.warehouse_short_name_unique;
 DROP INDEX public.index_country_id;
 ALTER TABLE ONLY public.warehouse DROP CONSTRAINT warehouse_pkey;
 ALTER TABLE ONLY public."user" DROP CONSTRAINT user_pkey;
@@ -277,7 +276,6 @@ ALTER TABLE warehouse_id_seq OWNER TO sungwhikim;
 
 CREATE TABLE warehouse (
     id integer DEFAULT nextval('warehouse_id_seq'::regclass) NOT NULL,
-    short_name character varying(20) NOT NULL,
     name character varying(50) NOT NULL,
     address1 character varying(100) NOT NULL,
     address2 character varying(100),
@@ -326,8 +324,8 @@ ALTER TABLE ONLY "user" ALTER COLUMN id SET DEFAULT nextval('user_id_seq'::regcl
 --
 
 COPY country (id, code, name, created_at, updated_at) FROM stdin;
-1	CA	Canada	2016-01-11 20:09:42	2016-01-26 14:09:09
 2	US	United States	2016-01-11 20:16:45	2016-01-11 20:45:32
+1	CA	Canada	2016-01-11 20:09:42	2016-01-30 08:48:53
 \.
 
 
@@ -335,7 +333,7 @@ COPY country (id, code, name, created_at, updated_at) FROM stdin;
 -- Name: country_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('country_id_seq', 8, true);
+SELECT pg_catalog.setval('country_id_seq', 9, true);
 
 
 --
@@ -343,7 +341,7 @@ SELECT pg_catalog.setval('country_id_seq', 8, true);
 --
 
 COPY customer (id, contact, name, email, address1, address2, city, province_id, country_id, created_at, updated_at, phone, fax, postal_code, active) FROM stdin;
-1	Sung-Whi Kim	Company 1	sungwhikim@gmail.com	234 Any Street	#302	Portland	51	2	2016-01-27 16:07:52	2016-01-28 09:30:10	555-555-5555	444-444-4444	97210	t
+1	Sung-Whi Kim	Company 1	sungwhikim@gmail.com	234 Any Street	#302	Portland	51	2	2016-01-27 16:07:52	2016-01-30 08:57:53	555-555-5555	444-444-4444	97210	t
 \.
 
 
@@ -351,7 +349,7 @@ COPY customer (id, contact, name, email, address1, address2, city, province_id, 
 -- Name: customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('customer_id_seq', 1, true);
+SELECT pg_catalog.setval('customer_id_seq', 2, true);
 
 
 --
@@ -446,7 +444,9 @@ SELECT pg_catalog.setval('province_id_seq', 64, true);
 --
 
 COPY "user" (id, username, name, email, remember_token, created_at, updated_at, active, password) FROM stdin;
-1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	aqLMptJRG6wpebvyPg4wG1Af44lDkFbnqRRxSdEuIdG1I0PGx4CAASphqhhD	2016-01-29 08:53:18	2016-01-29 09:51:49	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC
+2	jpent	Jpent Admin	admin@jpent.com	soExfRCF1TxUaSENcXSE4AAi6vmdW4uhdmZpj6vseG040EXxJQEliPAA2pDH	2016-01-31 11:04:23	2016-01-31 11:19:49	t	$2y$10$dcCbEgDiYURDd/SEWurozeOJDTVD36OTquvVnNhin7iW2yhKW.lpu
+1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	YvEIZbW08RDAQKROsKCmKkQj4tTqRueADPlSRa5Sx7doBWEmwW1UORUjnKFX	2016-01-29 08:53:18	2016-01-31 11:19:51	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC
+3	larkin	Jim Larkin	jim@larkinweb.com	\N	2016-01-31 11:25:23	2016-01-31 11:25:23	t	$2y$10$S6xmG95IBXaFnHchqEKVbOtVrpw.R.mbFAmfkXsOY0YGYWisp8F6S
 \.
 
 
@@ -454,17 +454,16 @@ COPY "user" (id, username, name, email, remember_token, created_at, updated_at, 
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('user_id_seq', 1, true);
+SELECT pg_catalog.setval('user_id_seq', 3, true);
 
 
 --
 -- Data for Name: warehouse; Type: TABLE DATA; Schema: public; Owner: sungwhikim
 --
 
-COPY warehouse (id, short_name, name, address1, address2, city, province_id, country_id, created_at, updated_at, postal_code, active) FROM stdin;
-3	1290	Miss	1290 Blundell Rd.		Mississauga	10	1	2016-01-26 14:17:27	2016-01-27 14:09:54	L4Y 1M5	t
-6	Test	Testing	123 Any Street	\N	Portland	51	2	2016-01-27 09:55:33	2016-01-28 09:38:40	OR	f
-8	Test2	Testing 2	123 Any Street	\N	Boston	35	2	2016-01-28 09:39:08	2016-01-28 09:39:08	99000	t
+COPY warehouse (id, name, address1, address2, city, province_id, country_id, created_at, updated_at, postal_code, active) FROM stdin;
+3	Miss	1290 Blundell Rd.		Mississauga	10	1	2016-01-26 14:17:27	2016-01-27 14:09:54	L4Y 1M5	t
+6	Testing	123 Any Street	\N	Portland	51	2	2016-01-27 09:55:33	2016-01-28 09:38:40	OR	f
 \.
 
 
@@ -552,13 +551,6 @@ ALTER TABLE ONLY warehouse
 --
 
 CREATE INDEX index_country_id ON province USING btree (country_id);
-
-
---
--- Name: warehouse_short_name_unique; Type: INDEX; Schema: public; Owner: sungwhikim; Tablespace: 
---
-
-CREATE UNIQUE INDEX warehouse_short_name_unique ON warehouse USING btree (short_name);
 
 
 --

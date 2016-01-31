@@ -10,9 +10,10 @@ var app = angular.module('myApp', ['alertService',
     'ngAnimate',
     'angularUtils.directives.dirPagination',
     'smart-table',
-    'ngMessages']);
+    'ngMessages',
+    'compareTo']);
 
-app.controller('CountryListController', function(alertService, modalService, $http) {
+app.controller('UserListController', function(alertService, modalService, $http) {
     //SET SOME GLOBALS HERE FOR THE CONTROLLER
     var ListController = this;
     ListController.myName = myName;
@@ -145,6 +146,9 @@ app.controller('CountryListController', function(alertService, modalService, $ht
 
         //reset new data
         ListController.newItem = {};
+
+        //set active flag to true for new item as a default so the checkbox toggles correctly upon load
+        ListController.newItem.active = true;
     }
 
     /* INITIALIZE THE ALERT SERVICE PASS THROUGH ASSIGNMENTS */

@@ -2,6 +2,10 @@
 
 @extends('main')
 
+@section('nav')
+    @include('layouts.nav')
+@stop
+
 @section('body')
     <div class="container main-content" ng-controller="CountryListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
@@ -54,44 +58,9 @@
                             <div class="collapse" id="new-item">
                                 <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.new(formNew)" novalidate>
                                     <fieldset>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.code.$touched || formNew.$submitted) && formNew.code.$invalid }">
-                                            <label class="col-lg-2 control-label">Code <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="code"
-                                                       placeholder="Code" ng-model="mainList.newItem.code"
-                                                       ng-minlength="2"
-                                                       ng-maxlength="2"
-                                                       required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.code.$error" ng-if="formNew.$submitted || formNew.code.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (formNew.name.$touched || formNew.$submitted) && formNew.name.$invalid }">
-                                            <label class="col-lg-2 control-label">Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="name" placeholder="Name"
-                                                       ng-model="mainList.newItem.name"
-                                                       ng-maxlength="100"
-                                                       required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="formNew.name.$error" ng-if="formNew.$submitted || formNew.name.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-12 col-md-12 col-sm-12">
-                                            <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group button-group">
-                                                <div class="col-lg-2 control-label"></div>
-                                                <div class="col-lg-6 col-md-8 col-sm-7 col-xs-5 text-left">
-                                                    <button class="btn btn-default" type="reset" data-toggle="collapse" data-target="#new-item">Cancel</button>
-                                                    <button type="submit" class="btn btn-success">Add</button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @include('forms.new-code', ['size' => 2])
+                                        @include('forms.new-name', ['size' => 100])
+                                        @include('forms.new-edit-buttons')
                                     </fieldset>
                                 </form>
                             </div>
@@ -111,48 +80,9 @@
                             <div class="collapse" id="item-@{{ item.id }}">
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <fieldset>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.code.$touched || dataForm.$submitted) && dataForm.code.$invalid }">
-                                            <label class="col-lg-2 control-label">Code <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="code" placeholder="Code"
-                                                       ng-model="item.code"
-                                                       ng-minlength="2" ng-maxlength="2"
-                                                       required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.code.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.code.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group"
-                                             ng-class="{ 'has-error': (dataForm.name.$touched || dataForm.$submitted) && dataForm.name.$invalid }">
-                                            <label class="col-lg-2 control-label">Name <span class="required-field glyphicon glyphicon-asterisk" /></label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" name="name" placeholder="Name"
-                                                       ng-model="item.name" ng-maxlength="100" required>
-                                                <!-- ngMessages goes here -->
-                                                <div class="help-block ng-messages" ng-messages="dataForm.name.$error"
-                                                     ng-if="dataForm.$submitted || dataForm.name.$touched">
-                                                    @include('layouts.validate-message')
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row col-lg-12 col-md-12 col-sm-12">
-                                            <div class="row col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group button-group">
-                                                <div class="col-lg-2 control-label"></div>
-                                                <div class="col-lg-6 col-md-8 col-sm-7 col-xs-5 text-left">
-                                                    <button class="btn btn-default" ng-click="mainList.resetData()">Cancel</button>
-                                                    <button type="submit" class="btn btn-success">Save</button>
-                                                </div>
-                                                <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                                    <a ng-click="mainList.deleteConfirm($index)"
-                                                       class="btn glyphicon glyphicon-trash btn-delete"
-                                                       data-toggle="tooltip" title="Delete"></a>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @include('forms.code', ['size' => 2])
+                                        @include('forms.name', ['size' => 100])
+                                        @include('forms.edit-buttons')
                                     </fieldset>
                                 </form>
                             </div>

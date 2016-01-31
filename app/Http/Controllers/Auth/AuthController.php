@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use Validator;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
@@ -23,6 +24,9 @@ class AuthController extends Controller
 
     use AuthenticatesAndRegistersUsers, ThrottlesLogins;
 
+    protected $redirectPath = '/home';
+    protected $loginPath = '/login';
+
     /**
      * Create a new authentication controller instance.
      *
@@ -34,6 +38,68 @@ class AuthController extends Controller
     }
 
     /**
+     * The login form
+     *
+     * @param Request $request
+     *
+     * @return view::login page
+     */
+    public function getIndex(Request $request)
+    {
+        return view('pages.login');
+    }
+
+    /**
+     * Process login
+     *
+     * @return redirect to dashboard or back to home page
+     */
+    public function postLogin()
+    {
+        //set variables
+        $username = request()->get('username');
+        $password = request()->get('password');
+        $remember_me = request()->get('remember_me', 0);
+
+        //flash it so it is available in case we need to direct the user back to login page
+        request()->flashOnly('username');
+
+        if( auth()->attempt(['username' => $username, 'password' => $password, 'active' => true], $remember_me) )
+        {
+            // Authentication passed...
+            return redirect()->intended('/dashboard');
+        }
+        else
+        {
+            //--Authentication failed--
+            //log failure
+
+            //set flash message and send back to login page
+            session()->flash('alert-type', 'danger');
+            session()->flash('alert-message', 'Username and/or password invalid.');
+            return redirect('/login');
+        }
+    }
+
+    /**
+     * Logout - override default method to flash data
+     *
+     * @return redirect to home page
+     */
+    public function getLogout()
+    {
+        //set flash message
+        session()->flash('alert-type', 'info');
+        session()->flash('alert-message', 'You have been logged out.');
+
+        //logout user
+        auth()->logout();
+
+        //send back to home page
+        return redirect('/');
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
@@ -42,24 +108,30 @@ class AuthController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|confirmed|min:6',
+            'username' => 'required|max:20|unique:user',
+            'name' => 'required|max:100',
+            'email' => 'required|email|max:100|unique:user',
+            'password' => 'required|confirmed|min:8',
         ]);
     }
 
     /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return User
+     * Register - used for testing only
      */
-    protected function create(array $data)
+    public function getRegister()
+    {
+        return view('pages.register');
+    }
+
+    public function postRegister()
     {
         return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'username' => request()->get('username'),
+            'name' => request()->get('name'),
+            'email' => request()->get('email'),
+            'password' => bcrypt(request()->get('password')),
         ]);
+
+        //return view('pages.register');
     }
 }
