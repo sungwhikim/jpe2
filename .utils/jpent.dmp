@@ -445,8 +445,8 @@ SELECT pg_catalog.setval('province_id_seq', 64, true);
 
 COPY "user" (id, username, name, email, remember_token, created_at, updated_at, active, password) FROM stdin;
 2	jpent	Jpent Admin	admin@jpent.com	soExfRCF1TxUaSENcXSE4AAi6vmdW4uhdmZpj6vseG040EXxJQEliPAA2pDH	2016-01-31 11:04:23	2016-01-31 11:19:49	t	$2y$10$dcCbEgDiYURDd/SEWurozeOJDTVD36OTquvVnNhin7iW2yhKW.lpu
-1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	YvEIZbW08RDAQKROsKCmKkQj4tTqRueADPlSRa5Sx7doBWEmwW1UORUjnKFX	2016-01-29 08:53:18	2016-01-31 11:19:51	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC
 3	larkin	Jim Larkin	jim@larkinweb.com	\N	2016-01-31 11:25:23	2016-01-31 11:25:23	t	$2y$10$S6xmG95IBXaFnHchqEKVbOtVrpw.R.mbFAmfkXsOY0YGYWisp8F6S
+1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	6SKxWJZFWzQ6AAyso2OZESoa1vQeYLdgic65Gje1r80gdH9FBJd3RArx27PC	2016-01-29 08:53:18	2016-02-01 10:17:56	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC
 \.
 
 

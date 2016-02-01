@@ -3,21 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\User;
-use DebugBar\DebugBar;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 
 class UserController extends Controller
 {
     protected $my_name = 'user';
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
 
     public function getDashboard()
     {
         return view('pages.dashboard');
     }
 
-    public function getList()
+    public function getListView()
     {
+
         //get the list data with the default sort set the same as in the angular table
         $data = User::orderBy('name')->get();
 

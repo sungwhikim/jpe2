@@ -1,4 +1,4 @@
-<!-- app/views/page/country.blade.php -->
+<!-- app/views/page/user.blade.php -->
 
 @extends('main')
 

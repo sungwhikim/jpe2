@@ -16,10 +16,6 @@
     return view('welcome');
 });*/
 
-// Registration routes for testing data only
-Route::get('/auth/register', 'Auth\AuthController@getRegister');
-Route::post('/auth/register', 'Auth\AuthController@postRegister');
-
 /* HOME PAGE AND ROUTE TO LOGIN/LOGOUT PAGES */
 Route::get('/', 'Auth\AuthController@getIndex');
 Route::get('/home', 'UserController@getDashboard');
@@ -36,21 +32,30 @@ Route::post('password/email', 'Auth\PasswordController@postEmail');
 Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
 Route::post('password/reset', 'Auth\PasswordController@postReset');
 
-
 /* USER */
 Route::controller('/user', 'UserController');
-Route::get('/users', 'UserController@getList');
+Route::get('/users', 'UserController@getListView');
+
+/* USER FUNCTION */
+Route::controller('/user-function', 'UserFunctionController');
+Route::get('/user-functions', 'UserFunctionController@getListView');
+
+/* USER FUNCTION CATEGORY */
+Route::controller('/user-function-category', 'UserFunctionCategoryController');
+Route::get('/user-function-categories', 'UserFunctionCatgoryController@getListView');
 
 /* CUSTOMER */
 Route::controller('/customer', 'CustomerController');
-Route::get('/customers', 'CustomerController@getList');
+Route::get('/customers', 'CustomerController@getListView');
 
 /* WAREHOUSE */
 Route::controller('/warehouse', 'WarehouseController');
-Route::get('/warehouses', 'WarehouseController@getList');
+Route::get('/warehouses', 'WarehouseController@getListView');
 
 /* COUNTRY */
 Route::controller('/country', 'CountryController');
-Route::get('/countries', 'CountryController@getList');
+Route::get('/countries', 'CountryController@getListView');
 
 /* PROVINCE/STATE */
+Route::controller('/province', 'ProvinceController');
+Route::get('/provinces', 'ProvinceController@getListView');

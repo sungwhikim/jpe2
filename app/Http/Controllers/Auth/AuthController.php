@@ -115,23 +115,4 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Register - used for testing only
-     */
-    public function getRegister()
-    {
-        return view('pages.register');
-    }
-
-    public function postRegister()
-    {
-        return User::create([
-            'username' => request()->get('username'),
-            'name' => request()->get('name'),
-            'email' => request()->get('email'),
-            'password' => bcrypt(request()->get('password')),
-        ]);
-
-        //return view('pages.register');
-    }
 }

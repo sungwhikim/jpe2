@@ -8,7 +8,12 @@ class CountryController extends Controller
 {
     protected $my_name = 'country';
 
-    public function getList()
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    public function getListView()
     {
         //get the list data with the default sort set the same as in the angular table
         $data = Country::select('id', 'code', 'name')->orderBy('code')->get();
