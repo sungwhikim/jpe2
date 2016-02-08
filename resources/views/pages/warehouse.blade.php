@@ -7,33 +7,12 @@
 @stop
 
 @section('body')
-    <div class="container main-content" ng-controller="WarehouseListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
+    <div class="container main-content" ng-controller="ListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
             <div class="col-lg-7 col-md-6 col-sm-5">
                 <h1>Warehouses</h1>
             </div>
-            <div class="col-lg-5 col-md-6 col-sm-7 col-xs-10" ng-cloak>
-                <span class="item-total-container"><span id="item-total" class="badge" ng-bind="mainList.items.length"></span>  items</span>
-                <form class="">
-                    <div class="form-group">
-                        <label class="control-label"></label>
-                        <div class="input-group">
-                        <span class="search-criteria">
-                            <select class="form-control" ng-model="mainList.searchCriteria">
-                                <option value="">All</option>
-                                <option value="name">Name</option>
-                                <option value="city">City</option>
-                                <option value="active">Active</option>
-                            </select>
-                        </span>
-                            <input placeholder="Search" st-search="@{{ mainList.searchCriteria }}" class="form-control" type="search"/>
-                        <span class="input-group-btn">
-                          <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
-                        </span>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            @include('layouts.search-bar', ['criterias' => ['name' => 'Name', 'city' => 'City', 'active' => 'Active']])
         </div>
         <div class="status-row">
             <div class="col-lg-12">
@@ -58,9 +37,10 @@
                     <tr>
                         <td colspan="4" class="td-form">
                             <div class="collapse" id="new-item">
-                                <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.new(formNew)" novalidate>
+                                <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.add(formNew)" novalidate>
                                     <fieldset>
                                         @include('forms.new-name', ['size' => 50])
+                                        @include('forms.new-care-of')
                                         @include('forms.new-address1')
                                         @include('forms.new-address2')
                                         @include('forms.new-city')
@@ -92,6 +72,7 @@
                                     <input class="item-id" type="hidden" ng-model="item.id" name="id">
                                     <fieldset>
                                         @include('forms.name', ['size' => 50])
+                                        @include('forms.care-of')
                                         @include('forms.address1')
                                         @include('forms.address2')
                                         @include('forms.city')
@@ -125,14 +106,5 @@
 
 @section('js-footer')
     @include('layouts.angular-js')
-
-    <!-- open source components -->
-    <script src="/js/angular-library/dirPaginate.js"></script>
-    <script src="/js/angular-library/smart-table.js"></script>
-
-    <!-- custom components -->
-    <script src="/js/angular-component/modalService-1.0.js"></script>
-    <script src="/js/angular-component/modalService-yesnocontroller.js"></script>
-    <script src="/js/angular-component/alertService-1.0.js"></script>
-    <script src="/js/angular-component/{{ $my_name }}Controller-1.0.js"></script>
+    @include('layouts.js-lists')
 @stop

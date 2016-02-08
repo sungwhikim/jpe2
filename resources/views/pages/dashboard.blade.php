@@ -73,7 +73,9 @@
                             <li><a href="#">Taxes</a></li>
                             <li class="divider"></li>
                             <li><a href="/users">Users</a></li>
-                            <li><a href="#">User Groups</a></li>
+                            <li><a href="/user-groups">User Groups</a></li>
+                            <li><a href="/user-function-categories">User Function Categories</a></li>
+                            <li><a href="/user-functions">User Functions</a></li>
                             <li><a href="#">Menu Items</a></li>
                             <li class="divider"></li>
                             <li><a href="/countries">Countries</a></li>

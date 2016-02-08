@@ -1,60 +1,75 @@
-/* THERE ARE TWO DEPENDENT VARIABLES THAT MUST BE SET FOR THIS SERVICE TO WORK
-    1.  appData = The main data for the app in JSON
-    2.  appURL  = The path to the server to make the AJAX calls to
-    3.  myName  = The name of the list to be used to identiy itself in messages
- */
+/**
+ * ---------------------------------------
+ * See countryController-1.1.js for usage
+ * ---------------------------------------
+ * */
 
-angular.module('listService', [])
-    .factory('listService', function () {
+angular.module('listService',
+       ['alertService',
+        'ui.bootstrap',
+        'angularModalService',
+        'ngAnimate',
+        'angularUtils.directives.dirPagination',
+        'smart-table',
+        'ngMessages'])
+    .factory('ListService', function (alertService, modalService, $http) {
 
-    //SET SOME GLOBALS HERE FOR THE CONTROLLER
-    var ListService = this;
-    ListService.myName = myName;
+    //SET THE INTERFACE HERE
+    var ListService = {
+            add: add,
+            save: save,
+            deleteConfirm: deleteConfirm,
+            deleteItem: deleteItem,
+            resetData: resetData,
+            resetModel: resetModel,
+            closeAlert: closeAlert
+        },
+        myName  = '',
+        appUrl = '',
+        alerts = [],
+        mainCtl = {}; //we have to set this reference back to the main controller due to the data in the
+                      //model data becoming disconnected and the references not not working.  A kludge, but
+                      //is the cleanest way I could find to resolve this issue.  Yes, I tried injecting a value
+                      //and a service to hold the model data in a separate container.
 
-    /* SET THE DATA */
-    ListService.items = appData; //add data is always set in the @section('js-data') in the blade template
-    ListService.displayItems = [].concat(ListService.items); //for smart table component
-    resetModel(); //make copy of the data for reset
+    return ListService;
 
     /* ADD NEW ITEM */
-    ListService.new = function(form) {
-        //set the data - we need to convert it to JSON as for some reason the model does not do it automatically
-        var newData = {code:ListService.newItem.code, name:ListService.newItem.name};
+    function add(form) {
+        //set the data
+        var newData = ListService.mainCtl.newItem;
+        var itemName = newData.name;
 
         //reset form validation
         form.$setPristine();
         form.$setUntouched();
 
-        //clear alerts
-        alertService.clear();
+        //sends "processing" message to user
+        setProcessingAlert();
 
         //run ajax add
         $http({
             method: 'POST',
-            url: appUrl + '/new',
+            url: ListService.appUrl + '/new',
             data: newData
         }).then(function successCallback(response) {
-            console.log(response);
             //do an error check to see if this was a duplicate or something
             if( response.data.errorMsg ) {
                 //set alert
-                alertService.add('danger', getAlertMsg(ListService.newItem.name, 'added', response.data.errorMsg));
+                sendAlert('danger', getAlertMsg(itemName, 'added', response.data.errorMsg));
             } else {
                 var id = response.data.id;
 
                 //need to check for valid id - there could be situations where this gets screwed up
                 if( !id || isNaN(id) ) {
-                    alertService.add('danger', getAlertMsg(ListService.newItem.name, 'added', 'New id was not returned. Please verify your data and try again.'));
+                    sendAlert('danger', getAlertMsg(itemName, 'added', 'New id was not returned. Please verify your data and try again.'));
                 } else {
                     //set alert
-                    alertService.add('success', getAlertMsg(ListService.newItem.name, 'added', ''));
+                    sendAlert('success', getAlertMsg(itemName, 'added', ''));
 
                     //add to model
-                    ListService.items.push({
-                        id: response.data.id,
-                        code: ListService.newItem.code,
-                        name: ListService.newItem.name
-                    });
+                    newData.id = response.data.id;
+                    ListService.mainCtl.items.push(newData);
 
                     //reset original model
                     ListService.resetModel();
@@ -62,88 +77,92 @@ angular.module('listService', [])
             }
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', getAlertMsg(ListService.newItem.name, 'added', response.statusText));
+            sendAlert('danger', getAlertMsg(itemName, 'added', response.statusText));
         });
-    };
+    }
 
     /* SAVE THE DATA */
-    ListService.save = function(curItem) {
-        //clear alerts
-        alertService.clear();
+    function save(curItem) {
+        //sends "processing" message to user
+        setProcessingAlert();
 
         //run ajax update
         $http({
             method: 'POST',
-            url: appUrl + '/update',
+            url: ListService.appUrl + '/update',
             data: curItem
         }).then(function successCallback(response) {
             //set alert
-            alertService.add('success', getAlertMsg(curItem.name, 'updated', ''));
+            sendAlert('success', getAlertMsg(curItem.name, 'updated', ''));
 
             //reset original model
             ListService.resetModel();
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', getAlertMsg(curItem.name, 'updated', response.statusText));
+            sendAlert('danger', getAlertMsg(curItem.name, 'updated', response.statusText));
         });
-    };
+    }
 
     /* DELETE CONFIRMATION DIALOG */
-    ListService.deleteConfirm = function(index) {
+    function deleteConfirm(index) {
         modalService.showModal({
             templateUrl: "/js/angular-component/modalService-delete.html",
             controller: "YesNoController"
         }).then(function(modal) {
             modal.element.modal();
             modal.close.then(function(result) {
-                if( result === true ) { ListService.delete(index); }
+                if( result === true ) { ListService.deleteItem(index); }
             });
         });
-    };
+    }
 
     /* DELETE THE DATA */
-    ListService.delete = function(index) {
-        //clear alerts
-        alertService.clear();
+    function deleteItem(index) {
+        //sends "processing" message to user
+        setProcessingAlert();
 
         //run ajax delete
         $http({
             method: 'PUT',
-            url: appUrl + '/delete/' + ListService.displayItems[index].id
+            url: ListService.appUrl + '/delete/' + ListService.mainCtl.displayItems[index].id
         }).then(function successCallback(response) {
             //set alert
-            alertService.add('success', getAlertMsg(ListService.displayItems[index].name, 'deleted', ''));
+            sendAlert('success', getAlertMsg(ListService.mainCtl.displayItems[index].name, 'deleted', ''));
 
             //remove item from model
-            ListService.displayItems.splice(index, 1);
-            ListService.items = angular.copy(ListService.displayItems);
+            //ListService.displayItems.splice(index, 1);
+            ListService.mainCtl.displayItems.splice(index, 1);
+            ListService.mainCtl.items = angular.copy(ListService.mainCtl.displayItems);
 
             //reset original model
             ListService.resetModel();
         }, function errorCallback(response) {
             //set alert
-            alertService.add('danger', getAlertMsg(ListService.displayItems[index].name, 'deleted', response.statusText));
+            sendAlert('danger', getAlertMsg(ListService.mainCtl.displayItems[index].name, 'deleted', response.statusText));
         });
-    };
+    }
 
     /* RESET TO ORIGINAL DATA */
-    ListService.resetData = function() {
+    function resetData() {
         //clear alerts
         alertService.clear();
 
         //reset to original data
-        ListService.items = angular.copy(ListService.org);
+        ListService.mainCtl.items = angular.copy(ListService.org);
+        ListService.mainCtl.displayItems = ListService.mainCtl.items;
     };
 
     /* RESET THE ORIGINAL DATA TO CURRENT UPDATED DATA */
-    ListService.resetModel = resetModel; //this is set this way so this function can be called on init
     function resetModel() {
         //reset existing data
-        ListService.org = angular.copy(ListService.items);
+        ListService.org = angular.copy(ListService.mainCtl.items);
 
         //reset new data
-        ListService.newItem = [];
-    };
+        ListService.mainCtl.newItem = {};
+
+        //set active flag to true for new item as a default so the checkbox toggles correctly upon load
+        ListService.mainCtl.newItem.active = true;
+    }
 
     /* SET THE ALERT MESSAGE */
     function getAlertMsg(name, action, error)
@@ -154,4 +173,22 @@ angular.module('listService', [])
             return 'The ' + ListService.myName + ' ' + name + ' was not ' + action + '.' + ' ERROR: ' + error;
         }
     }
+
+    /* INITIALIZE THE ALERT SERVICE PASS THROUGH ASSIGNMENTS */
+    function closeAlert(index) {
+        alertService.closeAlert(index);
+    }
+
+    /* CLEAR ALERTS AND SETS THE PROCESSING MESSAGE */
+    function setProcessingAlert() {
+        alertService.clear();
+        alertService.add('processing', 'Data is being updated.... ')
+    }
+
+    /* SENDS A SINGLE RESPONSE ALERT TO USER AND CLEARS OUT OLD MESSAGE */
+    function sendAlert(type, message) {
+        alertService.clear();
+        alertService.add(type, message);
+    }
+
 });

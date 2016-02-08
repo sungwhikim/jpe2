@@ -82,6 +82,7 @@ class WarehouseController extends Controller
     {
         $warehouse = ( !empty(request()->json('id')) ) ? Warehouse::find(request()->json('id')) : new Warehouse();
         $warehouse->name        = request()->json('name');
+        $warehouse->care_of     = request()->json('care_of');
         $warehouse->address1    = request()->json('address1');
         $warehouse->address2    = request()->json('address2');
         $warehouse->city        = request()->json('city');

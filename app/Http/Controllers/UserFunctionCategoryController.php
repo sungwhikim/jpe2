@@ -6,7 +6,7 @@ use App\Models\UserFunctionCategory;
 
 class UserFunctionCategoryController extends Controller
 {
-    protected $my_name = 'user-function-category';
+    protected $my_name = 'user function category';
 
     public function __construct()
     {
@@ -16,12 +16,12 @@ class UserFunctionCategoryController extends Controller
     public function getListView()
     {
         //get the list data with the default sort set the same as in the angular table
-        $data = UserFunctionCategory::select('id', 'name', 'sort_order')->orderBy('sort_order')->get();
+        $data = UserFunctionCategory::orderBy('sort_order')->get();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/user-function-category');
 
-        return view('pages.user-function-category', ['main_data' => $data->to_array(), 'url' => $url, 'my_name' => $this->my_name]);
+        return view('pages.user-function-category', ['main_data' => $data, 'url' => $url, 'my_name' => $this->my_name]);
     }
 
     public function getById($id)

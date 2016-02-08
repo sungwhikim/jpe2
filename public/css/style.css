@@ -167,6 +167,10 @@ body {
     white-space: nowrap !important;
     padding-right: 0 !important;
 }
+.td-form .checkbox-list {
+    overflow-y: scroll;
+    height: 300px;
+}
 
 /* TABLE SORTING - SMART TABLE COMPONENT */
 .st-sort-ascent {

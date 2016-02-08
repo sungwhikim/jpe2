@@ -2,11 +2,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserFunction;
+use App\Models\UserFunctionCategory;
 
 
 class UserFunctionController extends Controller
 {
-    protected $my_name = 'user_function';
+    protected $my_name = 'user function';
 
     public function __construct()
     {
@@ -16,15 +17,25 @@ class UserFunctionController extends Controller
     public function getListView()
     {
         //get the list data with the default sort set the same as in the angular table
-        $data = UserFunction::join('user_function u2', 'u2.parent_id', '=', 'user_function.id')
-                          ->orderBy('user_function.name')->get();
+        $data = UserFunction::select('user_function.*', 'user_function_category.name as category_name', 'user_function_category.id as category_id')
+                              ->join('user_function_category', 'user_function.user_function_category_id', '=', 'user_function_category.id')
+                              ->orderBy('user_function.name')->get();
 
         //we need to send the url to do Ajax queries back here
-        $url = url('/user_function');
+        $url = url('/user-function');
 
-        return response()->view('pages.user_function', ['main_data' => $data,
+        //get user function category data
+        $user_function_categories = UserFunctionCategory::orderBy('name')->get();
+
+        return response()->view('pages.user-function', ['main_data' => $data,
                                                         'url' => $url,
-                                                        'my_name' => $this->my_name]);
+                                                        'my_name' => $this->my_name,
+                                                        'category_data' => $user_function_categories]);
+    }
+
+    public function getListMenu()
+    {
+
     }
 
     public function getById($id)
@@ -46,8 +57,9 @@ class UserFunctionController extends Controller
         $user_functions = $this->getCheckDuplicate($name);
         if( count($user_functions) > 0 )
         {
-            $error_message = array('errorMsg' => 'The user_function with name of ' . $name . ' already exists.');
-            return response()->json($error_message);
+            //don't check for duplicates at this time as we need to allow multiple spacers
+            //$error_message = array('errorMsg' => 'The user function with name of ' . $name . ' already exists.');
+            //return response()->json($error_message);
         }
 
         //create new item
@@ -65,16 +77,9 @@ class UserFunctionController extends Controller
     {
         $user_function = ( !empty(request()->json('id')) ) ? UserFunction::find(request()->json('id')) : new UserFunction();
         $user_function->name        = request()->json('name');
-        $user_function->contact     = request()->json('contact');
-        $user_function->email       = request()->json('email');
-        $user_function->phone       = request()->json('phone');
-        $user_function->fax         = request()->json('fax');
-        $user_function->address1    = request()->json('address1');
-        $user_function->address2    = request()->json('address2');
-        $user_function->city        = request()->json('city');
-        $user_function->postal_code = request()->json('postal_code');
-        $user_function->province_id = request()->json('province_id');
-        $user_function->country_id  = request()->json('country_id');
+        $user_function->url         = request()->json('url');
+        $user_function->sort_order  = request()->json('sort_order');
+        $user_function->user_function_category_id = request()->json('category_id');
         $user_function->active      = ( !empty(request()->json('active')) ) ? true : false;
         $user_function->save();
 

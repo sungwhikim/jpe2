@@ -1,3 +1,10 @@
+@media (min-width: 1200px) {
+    /* hack because of error message shifting columns */
+    .td-form .form-group {
+        height: 55px !important;
+    }
+}
+
 @media (max-width: 1200px) {
     .panel-nav {
         margin: 30px 0px;

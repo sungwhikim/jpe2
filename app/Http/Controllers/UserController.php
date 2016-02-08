@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Models\UserGroup;
 
 class UserController extends Controller
 {
@@ -27,7 +28,13 @@ class UserController extends Controller
         //we need to send the url to do Ajax queries back here
         $url = url('/user');
 
-        return view('pages.user', ['main_data' => $data, 'url' => $url, 'my_name' => $this->my_name]);
+        //get user groups
+        $user_groups = UserGroup::where('active', '=', true)->orderBy('name')->get();
+
+        return view('pages.user', ['main_data' => $data,
+                                   'url' => $url,
+                                   'my_name' => $this->my_name,
+                                   'user_group_data' => $user_groups]);
     }
 
     public function getById($id)
@@ -72,10 +79,11 @@ class UserController extends Controller
     private function saveItem()
     {
         $user = ( !empty(request()->json('id')) ) ? User::find(request()->json('id')) : new User();
-        $user->username = request()->json('username');
-        $user->name     = request()->json('name');
-        $user->email    = request()->json('email');
-        $user->active      = ( !empty(request()->json('active')) ) ? true : false;
+        $user->username      = request()->json('username');
+        $user->name          = request()->json('name');
+        $user->email         = request()->json('email');
+        $user->user_group_id = request()->json('user_group_id');
+        $user->active        = ( !empty(request()->json('active')) ) ? true : false;
 
         //Only update/add password if it was set
         if( !empty(request()->json('password')) )

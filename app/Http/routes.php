@@ -36,13 +36,17 @@ Route::post('password/reset', 'Auth\PasswordController@postReset');
 Route::controller('/user', 'UserController');
 Route::get('/users', 'UserController@getListView');
 
+/* USER GROUP */
+Route::controller('/user-group', 'UserGroupController');
+Route::get('/user-groups', 'UserGroupController@getListView');
+
 /* USER FUNCTION */
 Route::controller('/user-function', 'UserFunctionController');
 Route::get('/user-functions', 'UserFunctionController@getListView');
 
 /* USER FUNCTION CATEGORY */
 Route::controller('/user-function-category', 'UserFunctionCategoryController');
-Route::get('/user-function-categories', 'UserFunctionCatgoryController@getListView');
+Route::get('/user-function-categories', 'UserFunctionCategoryController@getListView');
 
 /* CUSTOMER */
 Route::controller('/customer', 'CustomerController');
