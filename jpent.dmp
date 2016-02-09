@@ -13,6 +13,8 @@ SET search_path = public, pg_catalog;
 
 ALTER TABLE ONLY public.warehouse DROP CONSTRAINT lnk_warehouse_province;
 ALTER TABLE ONLY public.warehouse DROP CONSTRAINT lnk_warehouse_country;
+ALTER TABLE ONLY public.user_group_to_user_function DROP CONSTRAINT lnk_user_group_to_user_function_user_group;
+ALTER TABLE ONLY public.user_group_to_user_function DROP CONSTRAINT lnk_user_group_to_user_function_user_function;
 ALTER TABLE ONLY public.user_function DROP CONSTRAINT lnk_user_function_user_function_category;
 ALTER TABLE ONLY public.province DROP CONSTRAINT lnk_province_country;
 ALTER TABLE ONLY public.customer DROP CONSTRAINT lnk_customer_province;
@@ -21,6 +23,9 @@ DROP INDEX public.index_country_id;
 ALTER TABLE ONLY public.warehouse DROP CONSTRAINT warehouse_pkey;
 ALTER TABLE ONLY public.warehouse_migrate DROP CONSTRAINT warehouse_migrate_pkey;
 ALTER TABLE ONLY public."user" DROP CONSTRAINT user_pkey;
+ALTER TABLE ONLY public.user_group_to_user_function DROP CONSTRAINT user_group_to_user_function_unique;
+ALTER TABLE ONLY public.user_group_to_user_function DROP CONSTRAINT user_group_to_user_function_pkey;
+ALTER TABLE ONLY public.user_group DROP CONSTRAINT user_group_pkey;
 ALTER TABLE ONLY public.user_function DROP CONSTRAINT user_function_pkey;
 ALTER TABLE ONLY public.user_function_category DROP CONSTRAINT user_function_category_pkey;
 ALTER TABLE ONLY public."user" DROP CONSTRAINT unique_username;
@@ -31,6 +36,8 @@ ALTER TABLE ONLY public.province DROP CONSTRAINT province_pkey;
 ALTER TABLE ONLY public.customer DROP CONSTRAINT customer_pkey;
 ALTER TABLE ONLY public.customer_migrate DROP CONSTRAINT customer_migrate_pkey;
 ALTER TABLE ONLY public.country DROP CONSTRAINT country_pkey;
+ALTER TABLE public.user_group_to_user_function ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE public.user_group ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.user_function_category ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.user_function ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public."user" ALTER COLUMN id DROP DEFAULT;
@@ -41,6 +48,10 @@ DROP TABLE public.warehouse_migrate;
 DROP TABLE public.warehouse;
 DROP SEQUENCE public.warehouse_id_seq;
 DROP SEQUENCE public.user_id_seq;
+DROP SEQUENCE public.user_group_to_user_function_id_seq;
+DROP TABLE public.user_group_to_user_function;
+DROP SEQUENCE public.user_group_id_seq;
+DROP TABLE public.user_group;
 DROP SEQUENCE public.user_function_id_seq;
 DROP SEQUENCE public.user_function_category_id_seq;
 DROP TABLE public.user_function_category;
@@ -270,7 +281,8 @@ CREATE TABLE "user" (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     active boolean DEFAULT true NOT NULL,
-    password character varying(100) NOT NULL
+    password character varying(100) NOT NULL,
+    user_group_id integer
 );
 
 
@@ -283,12 +295,13 @@ ALTER TABLE "user" OWNER TO sungwhikim;
 CREATE TABLE user_function (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
-    url character varying(50),
+    url character varying(100),
     sort_order smallint DEFAULT 0::smallint,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     active boolean NOT NULL,
-    user_function_category_id integer NOT NULL
+    user_function_category_id integer NOT NULL,
+    user_function_category_name character varying(30)
 );
 
 
@@ -300,10 +313,11 @@ ALTER TABLE user_function OWNER TO sungwhikim;
 
 CREATE TABLE user_function_category (
     id integer NOT NULL,
-    name character varying(50) NOT NULL,
+    name character varying(30) NOT NULL,
     sort_order smallint DEFAULT 0::smallint,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    active boolean NOT NULL
 );
 
 
@@ -349,6 +363,78 @@ ALTER TABLE user_function_id_seq OWNER TO sungwhikim;
 --
 
 ALTER SEQUENCE user_function_id_seq OWNED BY user_function.id;
+
+
+--
+-- Name: user_group; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE user_group (
+    id integer NOT NULL,
+    name character varying(30) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    active boolean NOT NULL
+);
+
+
+ALTER TABLE user_group OWNER TO sungwhikim;
+
+--
+-- Name: user_group_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE user_group_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE user_group_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: user_group_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE user_group_id_seq OWNED BY user_group.id;
+
+
+--
+-- Name: user_group_to_user_function; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE user_group_to_user_function (
+    user_group_id integer NOT NULL,
+    user_function_id integer NOT NULL,
+    id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE user_group_to_user_function OWNER TO sungwhikim;
+
+--
+-- Name: user_group_to_user_function_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE user_group_to_user_function_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE user_group_to_user_function_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: user_group_to_user_function_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE user_group_to_user_function_id_seq OWNED BY user_group_to_user_function.id;
 
 
 --
@@ -473,12 +559,26 @@ ALTER TABLE ONLY user_function_category ALTER COLUMN id SET DEFAULT nextval('use
 
 
 --
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY user_group ALTER COLUMN id SET DEFAULT nextval('user_group_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY user_group_to_user_function ALTER COLUMN id SET DEFAULT nextval('user_group_to_user_function_id_seq'::regclass);
+
+
+--
 -- Data for Name: country; Type: TABLE DATA; Schema: public; Owner: sungwhikim
 --
 
 COPY country (id, code, name, created_at, updated_at) FROM stdin;
+1	CA	Canada	2016-01-11 20:09:42	2016-02-04 16:21:44
 2	US	United States	2016-01-11 20:16:45	2016-01-11 20:45:32
-1	CA	Canada	2016-01-11 20:09:42	2016-02-01 12:24:56
 \.
 
 
@@ -486,7 +586,7 @@ COPY country (id, code, name, created_at, updated_at) FROM stdin;
 -- Name: country_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('country_id_seq', 9, true);
+SELECT pg_catalog.setval('country_id_seq', 33, true);
 
 
 --
@@ -4443,7 +4543,6 @@ COPY customer (id, contact, name, email, address1, address2, city, province_id, 
 4547		Simcoe North Fixtures and Packaging		8-166 Saunders Road		Barrie	10	1	2016-02-02 15:15:54	2016-02-02 15:15:54			L4N 9A4	t
 4548		Bayercorp Science Canada 		C/O Doug Nichols 	295 Henderson Drive 	Regina	13	1	2016-02-02 15:15:54	2016-02-02 15:15:54			S4N 6C2	t
 4549		Hawco Products 		61 Shaver Street 		Brantford	10	1	2016-02-02 15:15:54	2016-02-02 15:15:54			N3T5V6	t
-4550		 Canadian Food Insp Agency		C/O Garry Cherneske 	116 Veterinary Rd	Saskatoon	13	1	2016-02-02 15:15:54	2016-02-02 15:15:54			S7N 2R3	t
 4551		E.D. Smith Foods, LTD		944 Highway  #8		Winona	10	1	2016-02-02 15:15:54	2016-02-02 15:15:54			L8E5S3	t
 4552		Aysha Ibrahim 		31 River Lane #406		Bedford 	8	1	2016-02-02 15:15:54	2016-02-02 15:15:54			B4A3Y7	t
 4553	Randell Porter	Island Designs &Gifts	randellporter@nl.rogers.com	170 Water Street		ST Johns	6	1	2016-02-02 15:15:54	2016-02-02 15:15:54	709 7810684		A1C1A9	t
@@ -11143,6 +11242,7 @@ COPY customer (id, contact, name, email, address1, address2, city, province_id, 
 12049	JOHNNY	LISI MECHANICAL		160 DISCO RD		TORONTO	10	1	2016-02-02 15:15:54	2016-02-02 15:15:54				t
 12050		AMATI PLUMBING		105 DONCASTER AVENUE		THORNHILL	10	1	2016-02-02 15:15:54	2016-02-02 15:15:54			L3T1L6	t
 5471		Asmaa Boubekri	boubekriasmaa@yahoo.fr	204-460 Springbank Drive		LONDON	10	1	2016-02-02 15:15:54	2016-02-02 15:15:54	5192030338		N6J0A8	t
+4550		 Canadian Food Insp Agency		C/O Garry Cherneske 	116 Veterinary Rd	Saskatoon	13	1	2016-02-02 15:15:54	2016-02-05 15:35:17			S7N 2R3	t
 \.
 
 
@@ -23225,268 +23325,267 @@ SELECT pg_catalog.setval('province_id_seq', 64, true);
 -- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: sungwhikim
 --
 
-COPY "user" (id, username, name, email, remember_token, created_at, updated_at, active, password) FROM stdin;
-11	dculbert	Dave Culbert	dculbert@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-7	Bay	Master Client	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	lAhIJ4KevmF2AL5V6R356Rj93CC5pALYrTEMN1cfy2fmPxrPaRP0KwqiANcx	2016-02-01 17:59:53	2016-02-02 11:56:23	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC
-3	larkin	Jim Larkin	jim@larkinweb.com	exlVejXIdk40lLRIcIhuKefd14QaWOx6lLUjrJ4Dx35ooxDKSZpIFrxpNwCp	2016-02-01 17:59:53	2016-02-02 11:56:34	t	$2y$10$Y2CjjBSoM9u0akjt.Kc76eSyTj1hZL2qF1LmXLHZeQp2gUqwjPt4a
-29	kchu	Kam Joi Chu	kamjoi.chu@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-31	cyan	Claire Yan	claire.yan@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-32	lmorse	Laura Morse	lmorse@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-34	ikhan	Imran Khan	supplyline@istop.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-35	rob	Rob	jassupply@cogeco.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-37	mlash	Marty Lash	mlash@transco.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-38	glopackinc	GLOPACKINC	STse@glopackinc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-39	rlian	Rena Lian	RLian@glopackinc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-40	mlee	Mary Lee	mlee@bagempackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-43	aporter	Allison Porter	aporter@sutus.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-44	smoy	Stephanie Moy	smoy@recochem.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-48	mbillings	Michael Billings	mbillings@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-49	bpajnigara	Burzin Pajnigara	pajnigara@hotmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-50	lstephenson	Linda Stephenson	linda@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-52	larkinjp	Jim Larkin	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-53	mhnuta	Michael Hnuta	mhnuta@bcimporters.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-54	jeliashevsky	John Eliashevsky	mungdahl@magma.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-55	vchan	Vivian Chan	vchan@bcimporters.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-57	charles	Charles	expressgreenpackaging@rogers.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-58	lisa	Lisa Dell	lisa.janmar@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-64	rmiller	Renee Miller	rmiller@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-67	mps	MPS	mps@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-68	ldalgard	Linda Dalgard	linda@geandb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-69	jwildoner	Jamie Wildoner	jwildoner@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-70	swalker	Stephanie Walker	swalker@sierrahomeproducts.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-71	sbrown	Stacie Brown	sbrown@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-10	newuser	New User	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-72	rparsons	Robin Parsons	rparsons@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-76	ghahn	Greg Hahn	greg.hahn@seastone.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-77	lgriep	Lisa Griep	lgriep@seastone.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-79	lgilman	Lynne Gilman	lgilman@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-80	kfilippone	Kim Filippone	kfilippone@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-81	malshaweesh	Martha Alshaweesh	ca_fulfillment@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-82	melqabbany	Moustafa Elqabbany	moustafa@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-84	nabushmais	Nirmeen Abushmais	nirmeen@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-86	sensient	Sensient	sdf.canada@sensient-tech.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-87	mrappaport	Matthew Rappaport	mrappaport@transco.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-88	larkin123	Jim Larkin	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-92	pgoodwin	Paul Goodwin	mg.sales@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-94	rpaterson	Rod Paterson	info@aspaterson.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-95	ablake	Arlene Blake	ablake@aspaterson.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-98	ssharieha	Safa Abu Sharieha	ssharieha@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-99	cyoung	Cody Young	cody@carmensvacuum.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-100	ddurbin	Drew Durbin	drew@carmensvacuum.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-103	plim	Pauline Lim	pyuping@dongshengfoodsusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-106	mpsdist	MPS Distributor	mps@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-111	aalrabie	Amina Alrabie	amina@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-113	rmacphee	Rob MacPhee	csr@htgriffin.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-120	ccrews	Chris Crews	chrisc@eventivemarketing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-121	valerie	Valerie Burke	valerie.burke@organiccolorsystems.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-123	rleguillou	Robert Leguillou	robert.leguillou@sensient.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-125	turlock	turlock	sally.wiley@sensient.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-127	jcolburn	James Colburn	orders@pbwc.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-130	spadidar	Sia Padidar	cwm@intergate.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-131	jwhite	Jessica White	Jessica@carmensvacuum.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-132	dkamien	Debbie Kamien	dkamien@transco.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-137	jmartindill	Jennifer Martindill	services@sunraygroup.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-138	pkoon	Prakash Koon	prakash_koon_koon@bradycorp.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-139	seton	Seton	DMNAPurchasing@bradycorp.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-142	rgrossman	Ryan Grossman	ryan@maracaibodistribution.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-144	maxine	Maxine	max@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-145	pyung	Pamela Yung	pamela.yung1@pepsico.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-151	Laura	Laura	laura@organiccolorsystems.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-152	lflorent	Louise Florent	louise@florent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-153	cflorent	Claude Florent	claude@florent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-154	bkerr	Brad Kerr	brad@tactical-inc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-157	schippa	Sabir Chippa	impexinternational@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-159	jpent	Giselle Palumbo	gpalumbo@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-161	nmeyer	Nate Meyer	nmeyer@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-162	eshneur	Elana Shneur	eshneur@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-163	dblack	Danielle Black	dblack@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-164	abrown	Anne Brown	abrown@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-165	ipc	Ipc Orders	ipcorders@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-166	food	Scoular Food	food@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-168	arahmey	Albert Rahmey	arahmey@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-169	kstoyer	Keri Stoyer	kstoyer@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-170	ysmith	Yvonne Smith	ysmith@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-171	kmooney	Kris Mooney	kmoone@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-172	mclemente	Mark Clemente	mclemente@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-173	avalencia	Alta Valencia	avalen@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-174	hluo	Haijun Luo	hluo@axiombrands.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-175	ykorner	YellowKorner	gc@yellowkorner.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-176	rkerr	Robert Kerr	rjkerr@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-177	sharvest	Season Harvest	denise@seasonharvestfoods.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-178	marisol	Marisol	marisol@yellowkorner.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-179	psikorski	Patti Sikorski	patti.sikorski@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-180	dalbarq	Dalia Albarq	dalia@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-181	mnaas	Mehdi Naas	mnaas@axiombrands.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-182	elisha	Elisha	cs@aspaterson.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-184	shussien	Sumaya Hussien	sumaya@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-185	mdoucette	Melinda Doucette	mdoucette@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-186	Amanda	Amanda	Amanda@organiccolorsystems.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-188	edweck	Ezra Dweck	ezra@daicompany.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-189	kmclaughlin	Kevin Mclaughlin	Kevin@golifeworks.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-191	emcgrath	Euan McGrath	euan.mcgrath@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-192	gtawil	George Tawil	GeorgeT@gmaaccessories.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-193	mng	Maggie Ng	maggie@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-194	mshama	Marc Shama	mshama@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-195	rjenetti	Robert Jenetti	robert@gourmettrading.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-196	rstaple	Roz Staple	roz@smartrink.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-197	mthoson	Malena Thoson	mthoson@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-198	ealinas	Erick Alinas	npsisuppliesmgmt.external@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-202	vgualtieri	Victoria Gualtieri	Victoria@avaises.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-203	dvilleda	Daniel Villeda	dvilleda@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-205	lvann	Lee-Ann Vann	leeannv@superiorfinishesinc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-206	jphillips	Joann Phillips	jphillips@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-207	rhansbrar	Rani Hans-Brar	rhansbrar@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-208	fshukayr	Farah Shukayr	farah.sh@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-209	ayeung	Adam Yeung	adam@giantairsupplies.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-210	dtatoy	Denver Tatoy	Denver.Tatoy@bionime.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-211	kpark	Kim Park	order@superiorfinishesinc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-213	malejo	Mary Lou Alejo	marylou@jwlamerica.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-215	llosada	Luis Losada	llosada@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-216	gsuleiman	Ghassan Suleiman	ghassan@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-217	tdula	Tiffany Dula	tdula@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-218	jlee	Justine Lee	iconna@netvigator.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-219	aharrigan	Amy Harrigan	aharrigan@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-221	jramirez	Jose Ramirez	jramirez@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-222	ashgour	Aliaa Shgour	aliaa.sh@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-223	aburridge	Andrea Burridge	andrea@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	f	placeholder
-224	bellery	Barbro Ellery	barbro@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-228	gstratakos	Gary Stratakos	gary@neo-image.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-229	SUNGWHIKIM	Sung Whi Kim	sungwhikim@gmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-231	djaser	Dania Jaser	dania@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-232	aanandani	Ash Anandani	ash@jwlamerica.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-233	rdemko	Rich Demko	rdemko@jwlamerica.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-234	jrodriguez	Juan Rodriguez	Juanr@jwlamerica.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-235	ferani	Fred Erani	FErani@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-237	abrown2	Ann Brown	abrown@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-238	Ecom1	Rino	spadafina@rogers.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-241	thomson	Thomson Group	sshoemaker@thomsongroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-242	klai	Kristi Lai	chankristi@yahoo.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-243	SUNGWHIKIM1	sung whi client	sungwhikim@gmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-244	enauth	Elisha Nauth	cs@aspaterson.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-245	drailey	Dominique Railey	DRailey@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-246	shashash	Sarah Hashash	sarah.ha@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-247	msousa	Margaret Sousa	msousa@classicpkg.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-248	hobeidat	Haneen Obeidat	haneen@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-249	kbarbour	Kevin Barbour	kbarbour@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	f	placeholder
-250	isasson	Israel Sasson	isasson@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-251	nkarr	Nicole Karr	Accounts.receivable@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-252	mzaret	Michele Zaret	Michele.zaret@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-253	jstrnad	Jim Strnad	jstrnad@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-254	jmooney	Jay Mooney	jay@mooneysales.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-255	rhernandez	Rosa Hernandez	rosa@rainguard.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-256	mlessa	Mike Lessa	Customer.Service@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-257	kboudaeva	Kristina Boudaeva	kristina@kristinsgifts.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-258	kanderson	Kyle Anderson	kyle@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-260	bman	Bliss Man	bliss@monsterfactory.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-262	hreider	Hayley Reider	hreider@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-263	client	Test Login	test@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-264	vsoni	Vridula Soni	vsoni@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-265	jdriehorst	Jack Driehorst	jdriehorst@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-266	lshama	Leon Shama	lshama@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-268	mimperato	Mellissa Imperato	mellissa.imperato@yahoo.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-269	ibbusa	IBB User	ibbwal@ibbusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-270	IndRivet	IndRivet	indrivet@indrivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-271	pgaskin	Peter Gaskin	peter@golifeworks.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-273	AceRiv	Ace Rivet	acerivet@acerivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-274	StepRiv	Stephens Rivet	stephens@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-278	tmyers	Tonya Myers	tmyers@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-279	jwalker	Jayde Walker	jwalker@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-280	GTranz	Global Tranz	scm@globaltranz.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	f	placeholder
-281	dparker	Dee Parker	dparker@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-282	3pl	3 PL Links	dispatch@3pllinks.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-283	wrdisplay	WR Display	mattwalford@wrdisplay.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-284	nlau	Natalie Lau	natalielau@dongshengfoodsusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-285	mmissry	Michelle Missry	mmissry@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-286	JPprod	JP Enterprises	estachulak@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-287	kristin	Kristins Gifts	info@kristinsgifts.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-288	dsomerville	David Somerville	dsomerville@sterlingmed.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-290	gburicea	Gabby Buricea	gburicea@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-291	kburton	Kim Burton	kimb@roneymk.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-292	lhuang	Lulu Huang	luluhuang@sakoura.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-293	ccampbell	Christian Campbell	christian@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-295	nwu	Ning Wu	ning.wu@tycheinternationalgroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-296	mking	Mei King	Mei.King@c-lifegroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-297	mcohen	Morris Cohen	morris.cohen@c-lifegroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-298	msalguero	Manuela Salguero	Manuela.SalgueroGarcia@xt-t.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-299	modani	Modani	iva@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-301	jessica	Jessica	jessica@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-302	dpellegrin	David Pellegrin	davidpellegrin@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-303	snapav	snapav	admin@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-304	alfredo	Alfredo	Edi@golifeworks.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-305	ekoh	Evon Koh	evon.cpg@gmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-306	jcohen	Joey Cohen	joey@creativepetgroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-307	dpellegrin2	David Pellegrin 2	purchasing@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-308	mkemp	Mark Kemp	mark.kemp@advpackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-309	bmay	Brian May	brian.may@advpackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-312	jhuang	John Huang	johnhuang@dongshengfoodsusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-313	aliu	Ansel Liu	ansel.liu@spaceways.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-314	ssondheimer	Sebastian Sondheimer	sebastian.sondheimer@spaceways.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-315	dfuchs	David Fuchs	david.fuchs@spaceways.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-316	hnjones	Hal Neville-Jones	hal.neville-jones@spaceways.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-318	dwilliams	Donna Williams	Donna.Williams@advpackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-320	anita	Anita Giri	agiri@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	f	placeholder
-321	lpetrenko	Lyuba Petrenko	lyuba@neo-image.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-322	lle	Lien Le	cs@dongshengfoodsusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-12	cmathis	Colette Mathis	cmathis@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-15	joneill	John ONeill	jponeill@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-17	rmathis	Rachel Mathis	rmathis@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-19	dkerr	Dave Kerr	dkerr@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-22	lshafer	Luke Shafer	luke@flowercitytissue.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-23	ebaker	Elizabeth Baker	elizabeth@geandb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-24	cbishop	Carmen Bishop	carmen@superseal.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-28	jyu	Joseph Yu	joseph.yu@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-323	dbisaccio	Doreen Bisaccio	doreen@us-group.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-324	rmcgiffin	Rebecca McGiffin	rebecca1@us-group.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-325	jquillen	John Quillen	jquillen@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-326	jgarcia	Jocelynne Garcia	whse@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-349	rjohnson	Ron Johnson	ronjohnson@prestonwoodchristian.org	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-350	dtharpe	Dan Tharpe	dtharpe@prestonwoodchristian.org	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-351	Path	Path Impact	bill@mooneysales.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-352	ahawkins	Amy Hawkins	Amy.Hawkins@mg-dev.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-353	dspozarski	Danielle Spozarski	Danielle.Spozarski@mg-dev.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-354	boltsplus	Bolts Plus	bill@mooneysales.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-355	jpdrec	Jacmel Rec	JPDREC@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-356	aalighazi	Ashraf Alighazi	info@dimesproducts.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-357	malighazi	Maqsud Alighazi	MA@dimesproducts.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-358	ameltz	Adam Meltz	adam@cantrio.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-359	advir	Assaf Dvir	assaf@cantrio.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-360	tsukraj	Tracy Sukraj	tracy@cantrio.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-362	fnestel	Fred Nestel	fred.nestel@scouting.org	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-363	smirkovic	Sandra Mirkovic	Sandra@bravoeducation.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-364	rmirkovic	Rob Mirkovic	Rob@bravoeducation.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-365	cosmic	Cosmic Box	cosmicbox@rogers.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-366	kinksology	Kinksology	kinkshairstudioandspa@gmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-367	mgillum	Michelle Gillum	MGillum@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-368	Sagotoys	Samson James Lee	slee@sagosago.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-369	Sago1	Nicole Sago	sales@sagosago.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-370	tharrison	Tray Harrison	TrayHarr@aol.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-371	dsigouin	Darren Sigouin	darren@cupro.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-372	bryan	Bryan Cantrio	bryan@cantrio.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-373	Sensient2	Sensient 2	sni.inventory@sensient.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-374	dmabee	Dan Mabee	dan.mabee@bcfoods.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-375	dtrigiani	David Trigiani	davidtrigiani@sbcglobal.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-327	jmcginnis	John  McGinnis	jmcginnis@morbern.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-328	cwhitesell	Chris Whitsell	cwhitesell@morbern.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-329	shargett	Susie Hargett	shargett@morbern.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-331	reebok	Reebok	SBrown@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-332	dadams	Diane Adams	Diane.Adams@advpackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-333	mchristie	Meghan Christie	mchristie@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-334	kmithcell	Karen Mitchell	sales@flowercitytissue.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-335	nfidler	Nancy Fidler	nancyf@hailiangusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-336	test	test		\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-337	dbuie	Denise Buie	denise@simplyorganicbeauty.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-338	kdonovan	Kelly Donovan	kelly@organiccolorsystems.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-339	mshaikh	Mubbashir Shaikh	magnus.inco@gmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-340	cparris	Catherine Parris	cparris@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-341	rb1	Reebok Manger 1	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-342	lrobinson	Lynn Robinson	lrobinson@wrgtexas.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-343	cblouin	Christina Blouin	cblouin@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-344	bvanjahnke	Bill Van Jahnke	bill@goliathgames.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-345	cmugisha	Christian Mugisha	christian.mugisha@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-346	Jwong	Jean Wong	jean@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-347	skane	Shelly Kane	skane@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
-348	BVolk	Brian Volk	bill@mooneysales.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder
+COPY "user" (id, username, name, email, remember_token, created_at, updated_at, active, password, user_group_id) FROM stdin;
+229	SUNGWHIKIM	Sung Whi Kim	sungwhikim@gmail.com	\N	2016-02-01 17:59:53	2016-02-07 12:21:44	t	placeholder	1
+11	dculbert	Dave Culbert	dculbert@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+7	Bay	Master Client	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+243	SUNGWHIKIM1	sung whi client	sungwhikim@gmail.com	WEEMnMrBVgsMXnblhCkso5WS4HEoPH0TEbx5Sjo9cEgrvIzZLFIkyXaph7Ms	2016-02-01 17:59:53	2016-02-09 16:04:24	t	$2y$10$b83Bmu0etcFC5AA7bfIGY.VDzEIbq1CaC6btlb0QU5LxYLGvvuEii	4
+3	larkin	Jim Larkin	jim@larkinweb.com	exlVejXIdk40lLRIcIhuKefd14QaWOx6lLUjrJ4Dx35ooxDKSZpIFrxpNwCp	2016-02-01 17:59:53	2016-02-09 15:58:20	t	$2y$10$Y2CjjBSoM9u0akjt.Kc76eSyTj1hZL2qF1LmXLHZeQp2gUqwjPt4a	1
+88	larkin123	Jim Larkin	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-09 15:58:28	t	placeholder	1
+1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	WuLeo3g5iUaUcMBc4FLRUIuTcDl8ASvcFvq5o0SzXKf3Hf6nJOLgfbqCoP5v	2016-02-01 17:59:53	2016-02-09 16:03:49	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC	1
+29	kchu	Kam Joi Chu	kamjoi.chu@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+31	cyan	Claire Yan	claire.yan@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+32	lmorse	Laura Morse	lmorse@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+34	ikhan	Imran Khan	supplyline@istop.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+35	rob	Rob	jassupply@cogeco.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+37	mlash	Marty Lash	mlash@transco.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+38	glopackinc	GLOPACKINC	STse@glopackinc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+39	rlian	Rena Lian	RLian@glopackinc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+40	mlee	Mary Lee	mlee@bagempackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+43	aporter	Allison Porter	aporter@sutus.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+44	smoy	Stephanie Moy	smoy@recochem.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+48	mbillings	Michael Billings	mbillings@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+49	bpajnigara	Burzin Pajnigara	pajnigara@hotmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+50	lstephenson	Linda Stephenson	linda@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+52	larkinjp	Jim Larkin	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+53	mhnuta	Michael Hnuta	mhnuta@bcimporters.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+54	jeliashevsky	John Eliashevsky	mungdahl@magma.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+55	vchan	Vivian Chan	vchan@bcimporters.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+57	charles	Charles	expressgreenpackaging@rogers.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+58	lisa	Lisa Dell	lisa.janmar@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+64	rmiller	Renee Miller	rmiller@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+67	mps	MPS	mps@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+68	ldalgard	Linda Dalgard	linda@geandb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+69	jwildoner	Jamie Wildoner	jwildoner@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+70	swalker	Stephanie Walker	swalker@sierrahomeproducts.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+71	sbrown	Stacie Brown	sbrown@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+10	newuser	New User	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+72	rparsons	Robin Parsons	rparsons@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+76	ghahn	Greg Hahn	greg.hahn@seastone.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+77	lgriep	Lisa Griep	lgriep@seastone.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+79	lgilman	Lynne Gilman	lgilman@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+80	kfilippone	Kim Filippone	kfilippone@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+81	malshaweesh	Martha Alshaweesh	ca_fulfillment@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+82	melqabbany	Moustafa Elqabbany	moustafa@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+84	nabushmais	Nirmeen Abushmais	nirmeen@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+86	sensient	Sensient	sdf.canada@sensient-tech.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+87	mrappaport	Matthew Rappaport	mrappaport@transco.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+92	pgoodwin	Paul Goodwin	mg.sales@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+94	rpaterson	Rod Paterson	info@aspaterson.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+95	ablake	Arlene Blake	ablake@aspaterson.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+98	ssharieha	Safa Abu Sharieha	ssharieha@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+99	cyoung	Cody Young	cody@carmensvacuum.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+100	ddurbin	Drew Durbin	drew@carmensvacuum.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+103	plim	Pauline Lim	pyuping@dongshengfoodsusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+106	mpsdist	MPS Distributor	mps@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+111	aalrabie	Amina Alrabie	amina@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+113	rmacphee	Rob MacPhee	csr@htgriffin.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+120	ccrews	Chris Crews	chrisc@eventivemarketing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+121	valerie	Valerie Burke	valerie.burke@organiccolorsystems.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+123	rleguillou	Robert Leguillou	robert.leguillou@sensient.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+125	turlock	turlock	sally.wiley@sensient.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+127	jcolburn	James Colburn	orders@pbwc.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+130	spadidar	Sia Padidar	cwm@intergate.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+131	jwhite	Jessica White	Jessica@carmensvacuum.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+132	dkamien	Debbie Kamien	dkamien@transco.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+137	jmartindill	Jennifer Martindill	services@sunraygroup.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+138	pkoon	Prakash Koon	prakash_koon_koon@bradycorp.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+139	seton	Seton	DMNAPurchasing@bradycorp.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+142	rgrossman	Ryan Grossman	ryan@maracaibodistribution.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+144	maxine	Maxine	max@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+145	pyung	Pamela Yung	pamela.yung1@pepsico.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+151	Laura	Laura	laura@organiccolorsystems.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+152	lflorent	Louise Florent	louise@florent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+153	cflorent	Claude Florent	claude@florent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+154	bkerr	Brad Kerr	brad@tactical-inc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+157	schippa	Sabir Chippa	impexinternational@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+159	jpent	Giselle Palumbo	gpalumbo@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+161	nmeyer	Nate Meyer	nmeyer@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+162	eshneur	Elana Shneur	eshneur@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+163	dblack	Danielle Black	dblack@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+164	abrown	Anne Brown	abrown@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+165	ipc	Ipc Orders	ipcorders@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+166	food	Scoular Food	food@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+168	arahmey	Albert Rahmey	arahmey@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+169	kstoyer	Keri Stoyer	kstoyer@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+170	ysmith	Yvonne Smith	ysmith@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+171	kmooney	Kris Mooney	kmoone@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+172	mclemente	Mark Clemente	mclemente@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+173	avalencia	Alta Valencia	avalen@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+174	hluo	Haijun Luo	hluo@axiombrands.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+175	ykorner	YellowKorner	gc@yellowkorner.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+176	rkerr	Robert Kerr	rjkerr@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+177	sharvest	Season Harvest	denise@seasonharvestfoods.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+178	marisol	Marisol	marisol@yellowkorner.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+179	psikorski	Patti Sikorski	patti.sikorski@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+180	dalbarq	Dalia Albarq	dalia@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+181	mnaas	Mehdi Naas	mnaas@axiombrands.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+182	elisha	Elisha	cs@aspaterson.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+184	shussien	Sumaya Hussien	sumaya@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+185	mdoucette	Melinda Doucette	mdoucette@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+186	Amanda	Amanda	Amanda@organiccolorsystems.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+188	edweck	Ezra Dweck	ezra@daicompany.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+189	kmclaughlin	Kevin Mclaughlin	Kevin@golifeworks.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+191	emcgrath	Euan McGrath	euan.mcgrath@sympatico.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+192	gtawil	George Tawil	GeorgeT@gmaaccessories.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+193	mng	Maggie Ng	maggie@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+194	mshama	Marc Shama	mshama@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+195	rjenetti	Robert Jenetti	robert@gourmettrading.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+196	rstaple	Roz Staple	roz@smartrink.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+197	mthoson	Malena Thoson	mthoson@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+198	ealinas	Erick Alinas	npsisuppliesmgmt.external@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+202	vgualtieri	Victoria Gualtieri	Victoria@avaises.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+203	dvilleda	Daniel Villeda	dvilleda@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+205	lvann	Lee-Ann Vann	leeannv@superiorfinishesinc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+206	jphillips	Joann Phillips	jphillips@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+207	rhansbrar	Rani Hans-Brar	rhansbrar@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+208	fshukayr	Farah Shukayr	farah.sh@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+209	ayeung	Adam Yeung	adam@giantairsupplies.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+210	dtatoy	Denver Tatoy	Denver.Tatoy@bionime.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+211	kpark	Kim Park	order@superiorfinishesinc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+213	malejo	Mary Lou Alejo	marylou@jwlamerica.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+215	llosada	Luis Losada	llosada@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+216	gsuleiman	Ghassan Suleiman	ghassan@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+217	tdula	Tiffany Dula	tdula@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+218	jlee	Justine Lee	iconna@netvigator.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+219	aharrigan	Amy Harrigan	aharrigan@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+221	jramirez	Jose Ramirez	jramirez@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+222	ashgour	Aliaa Shgour	aliaa.sh@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+223	aburridge	Andrea Burridge	andrea@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	f	placeholder	\N
+224	bellery	Barbro Ellery	barbro@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+228	gstratakos	Gary Stratakos	gary@neo-image.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+231	djaser	Dania Jaser	dania@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+232	aanandani	Ash Anandani	ash@jwlamerica.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+233	rdemko	Rich Demko	rdemko@jwlamerica.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+234	jrodriguez	Juan Rodriguez	Juanr@jwlamerica.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+235	ferani	Fred Erani	FErani@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+237	abrown2	Ann Brown	abrown@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+238	Ecom1	Rino	spadafina@rogers.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+241	thomson	Thomson Group	sshoemaker@thomsongroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+242	klai	Kristi Lai	chankristi@yahoo.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+244	enauth	Elisha Nauth	cs@aspaterson.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+245	drailey	Dominique Railey	DRailey@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+246	shashash	Sarah Hashash	sarah.ha@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+247	msousa	Margaret Sousa	msousa@classicpkg.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+248	hobeidat	Haneen Obeidat	haneen@shukrclothing.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+249	kbarbour	Kevin Barbour	kbarbour@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	f	placeholder	\N
+250	isasson	Israel Sasson	isasson@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+251	nkarr	Nicole Karr	Accounts.receivable@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+252	mzaret	Michele Zaret	Michele.zaret@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+253	jstrnad	Jim Strnad	jstrnad@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+254	jmooney	Jay Mooney	jay@mooneysales.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+255	rhernandez	Rosa Hernandez	rosa@rainguard.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+256	mlessa	Mike Lessa	Customer.Service@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+257	kboudaeva	Kristina Boudaeva	kristina@kristinsgifts.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+258	kanderson	Kyle Anderson	kyle@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+260	bman	Bliss Man	bliss@monsterfactory.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+262	hreider	Hayley Reider	hreider@scoular.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+263	client	Test Login	test@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+264	vsoni	Vridula Soni	vsoni@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+265	jdriehorst	Jack Driehorst	jdriehorst@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+266	lshama	Leon Shama	lshama@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+268	mimperato	Mellissa Imperato	mellissa.imperato@yahoo.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+269	ibbusa	IBB User	ibbwal@ibbusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+270	IndRivet	IndRivet	indrivet@indrivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+271	pgaskin	Peter Gaskin	peter@golifeworks.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+273	AceRiv	Ace Rivet	acerivet@acerivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+274	StepRiv	Stephens Rivet	stephens@rivet.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+278	tmyers	Tonya Myers	tmyers@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+279	jwalker	Jayde Walker	jwalker@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+280	GTranz	Global Tranz	scm@globaltranz.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	f	placeholder	\N
+281	dparker	Dee Parker	dparker@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+282	3pl	3 PL Links	dispatch@3pllinks.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+283	wrdisplay	WR Display	mattwalford@wrdisplay.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+284	nlau	Natalie Lau	natalielau@dongshengfoodsusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+285	mmissry	Michelle Missry	mmissry@accutimewatch.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+286	JPprod	JP Enterprises	estachulak@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+287	kristin	Kristins Gifts	info@kristinsgifts.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+288	dsomerville	David Somerville	dsomerville@sterlingmed.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+290	gburicea	Gabby Buricea	gburicea@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+291	kburton	Kim Burton	kimb@roneymk.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+292	lhuang	Lulu Huang	luluhuang@sakoura.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+293	ccampbell	Christian Campbell	christian@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+295	nwu	Ning Wu	ning.wu@tycheinternationalgroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+296	mking	Mei King	Mei.King@c-lifegroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+297	mcohen	Morris Cohen	morris.cohen@c-lifegroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+298	msalguero	Manuela Salguero	Manuela.SalgueroGarcia@xt-t.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+299	modani	Modani	iva@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+301	jessica	Jessica	jessica@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+302	dpellegrin	David Pellegrin	davidpellegrin@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+303	snapav	snapav	admin@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+304	alfredo	Alfredo	Edi@golifeworks.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+305	ekoh	Evon Koh	evon.cpg@gmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+306	jcohen	Joey Cohen	joey@creativepetgroup.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+307	dpellegrin2	David Pellegrin 2	purchasing@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+308	mkemp	Mark Kemp	mark.kemp@advpackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+309	bmay	Brian May	brian.may@advpackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+312	jhuang	John Huang	johnhuang@dongshengfoodsusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+313	aliu	Ansel Liu	ansel.liu@spaceways.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+314	ssondheimer	Sebastian Sondheimer	sebastian.sondheimer@spaceways.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+315	dfuchs	David Fuchs	david.fuchs@spaceways.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+316	hnjones	Hal Neville-Jones	hal.neville-jones@spaceways.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+318	dwilliams	Donna Williams	Donna.Williams@advpackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+320	anita	Anita Giri	agiri@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	f	placeholder	\N
+321	lpetrenko	Lyuba Petrenko	lyuba@neo-image.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+322	lle	Lien Le	cs@dongshengfoodsusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+12	cmathis	Colette Mathis	cmathis@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+15	joneill	John ONeill	jponeill@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+17	rmathis	Rachel Mathis	rmathis@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+19	dkerr	Dave Kerr	dkerr@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+22	lshafer	Luke Shafer	luke@flowercitytissue.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+23	ebaker	Elizabeth Baker	elizabeth@geandb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+24	cbishop	Carmen Bishop	carmen@superseal.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+28	jyu	Joseph Yu	joseph.yu@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+323	dbisaccio	Doreen Bisaccio	doreen@us-group.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+324	rmcgiffin	Rebecca McGiffin	rebecca1@us-group.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+325	jquillen	John Quillen	jquillen@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+326	jgarcia	Jocelynne Garcia	whse@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+349	rjohnson	Ron Johnson	ronjohnson@prestonwoodchristian.org	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+350	dtharpe	Dan Tharpe	dtharpe@prestonwoodchristian.org	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+351	Path	Path Impact	bill@mooneysales.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+352	ahawkins	Amy Hawkins	Amy.Hawkins@mg-dev.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+353	dspozarski	Danielle Spozarski	Danielle.Spozarski@mg-dev.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+354	boltsplus	Bolts Plus	bill@mooneysales.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+355	jpdrec	Jacmel Rec	JPDREC@jacmel.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+356	aalighazi	Ashraf Alighazi	info@dimesproducts.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+357	malighazi	Maqsud Alighazi	MA@dimesproducts.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+358	ameltz	Adam Meltz	adam@cantrio.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+359	advir	Assaf Dvir	assaf@cantrio.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+360	tsukraj	Tracy Sukraj	tracy@cantrio.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+362	fnestel	Fred Nestel	fred.nestel@scouting.org	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+363	smirkovic	Sandra Mirkovic	Sandra@bravoeducation.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+364	rmirkovic	Rob Mirkovic	Rob@bravoeducation.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+365	cosmic	Cosmic Box	cosmicbox@rogers.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+366	kinksology	Kinksology	kinkshairstudioandspa@gmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+367	mgillum	Michelle Gillum	MGillum@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+368	Sagotoys	Samson James Lee	slee@sagosago.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+369	Sago1	Nicole Sago	sales@sagosago.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+370	tharrison	Tray Harrison	TrayHarr@aol.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+371	dsigouin	Darren Sigouin	darren@cupro.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+372	bryan	Bryan Cantrio	bryan@cantrio.ca	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+373	Sensient2	Sensient 2	sni.inventory@sensient.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+374	dmabee	Dan Mabee	dan.mabee@bcfoods.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+375	dtrigiani	David Trigiani	davidtrigiani@sbcglobal.net	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+327	jmcginnis	John  McGinnis	jmcginnis@morbern.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+328	cwhitesell	Chris Whitsell	cwhitesell@morbern.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+329	shargett	Susie Hargett	shargett@morbern.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+331	reebok	Reebok	SBrown@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+332	dadams	Diane Adams	Diane.Adams@advpackaging.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+333	mchristie	Meghan Christie	mchristie@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+334	kmithcell	Karen Mitchell	sales@flowercitytissue.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+335	nfidler	Nancy Fidler	nancyf@hailiangusa.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+337	dbuie	Denise Buie	denise@simplyorganicbeauty.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+338	kdonovan	Kelly Donovan	kelly@organiccolorsystems.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+339	mshaikh	Mubbashir Shaikh	magnus.inco@gmail.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+340	cparris	Catherine Parris	cparris@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+341	rb1	Reebok Manger 1	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+342	lrobinson	Lynn Robinson	lrobinson@wrgtexas.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+343	cblouin	Christina Blouin	cblouin@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+344	bvanjahnke	Bill Van Jahnke	bill@goliathgames.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+345	cmugisha	Christian Mugisha	christian.mugisha@modani.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+346	Jwong	Jean Wong	jean@mereadesso.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+347	skane	Shelly Kane	skane@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
+348	BVolk	Brian Volk	bill@mooneysales.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
 \.
 
 
@@ -23494,7 +23593,50 @@ COPY "user" (id, username, name, email, remember_token, created_at, updated_at, 
 -- Data for Name: user_function; Type: TABLE DATA; Schema: public; Owner: sungwhikim
 --
 
-COPY user_function (id, name, url, sort_order, created_at, updated_at, active, user_function_category_id) FROM stdin;
+COPY user_function (id, name, url, sort_order, created_at, updated_at, active, user_function_category_id, user_function_category_name) FROM stdin;
+34	Import Customers	/import/customer	140	2016-02-07 11:52:45	2016-02-07 11:52:45	t	3	Lists
+33	Client-Carrier-Warehouse	/client-carrier-warehouse	130	2016-02-07 11:52:17	2016-02-07 11:52:17	t	3	Lists
+32	Warehouses	/warehouses	120	2016-02-07 11:51:54	2016-02-07 11:51:54	t	3	Lists
+31	Carriers	/carriers	110	2016-02-07 11:51:29	2016-02-07 11:51:29	t	3	Lists
+30	Customers	/customers	100	2016-02-07 11:51:11	2016-02-07 11:51:11	t	3	Lists
+29	Clients	/clients	90	2016-02-07 11:50:57	2016-02-07 11:50:57	t	3	Lists
+28	divider	divider	80	2016-02-07 11:50:41	2016-02-07 11:50:41	t	3	Lists
+27	Import Products	/import/product	60	2016-02-07 11:50:28	2016-02-07 11:50:28	t	3	Lists
+25	Inventory Adjustment	/inventory	30	2016-02-07 11:49:17	2016-02-07 11:50:02	t	3	Lists
+26	Lot Price Adj.	/lot-price	40	2016-02-07 11:49:33	2016-02-07 11:49:33	t	3	Lists
+24	Bin Locations	/bin-locations	20	2016-02-07 11:48:52	2016-02-07 11:48:52	t	3	Lists
+23	Products	/products	10	2016-02-07 11:48:26	2016-02-07 11:48:26	t	3	Lists
+35	Excel Extracts	/export/product	150	2016-02-07 11:53:35	2016-02-07 11:53:35	t	2	Reports
+22	divider	divider	130	2016-02-07 11:47:05	2016-02-07 11:47:05	t	2	Reports
+21	Client Billing Reports	/report/client-billing	120	2016-02-07 11:46:55	2016-02-07 11:46:55	t	2	Reports
+20	Billing Reports	/report/billing	110	2016-02-07 11:46:36	2016-02-07 11:46:36	t	2	Reports
+19	divider	divider	100	2016-02-07 11:45:55	2016-02-07 11:45:55	t	2	Reports
+18	ReOrder Report	/report/reorder	90	2016-02-07 11:45:41	2016-02-07 11:45:41	t	2	Reports
+17	Zero Report	/report/zero	80	2016-02-07 11:45:21	2016-02-07 11:45:21	t	2	Reports
+16	Bin Location Details	/report/bin-location-details	70	2016-02-07 11:45:03	2016-02-07 11:45:03	t	2	Reports
+15	Transactions - Yearly	/report/transactions-yearly	50	2016-02-07 11:44:39	2016-02-07 11:44:39	t	2	Reports
+14	CSR Report	/report/csr	40	2016-02-07 11:44:15	2016-02-07 11:44:15	t	2	Reports
+13	divider	divider	30	2016-02-07 11:44:03	2016-02-07 11:44:03	t	2	Reports
+12	Shipping Report	/report/shipping	30	2016-02-07 11:43:43	2016-02-07 11:43:43	t	2	Reports
+11	Inventory - By Warehouse	/report/inventory-warehouse	20	2016-02-07 11:43:13	2016-02-07 11:43:13	t	2	Reports
+10	Inventory - Pallet Detail Report	/report/inventory-pallet-detail	10	2016-02-07 11:42:51	2016-02-07 11:42:51	t	2	Reports
+44	Countries	/countries	110	2016-02-07 12:02:25	2016-02-07 12:02:25	t	5	Site
+43	Province/State	/provinces	100	2016-02-07 12:02:06	2016-02-07 12:02:06	t	5	Site
+42	Companies	/companies	90	2016-02-07 11:57:10	2016-02-07 11:57:10	t	5	Site
+36	Client Fees	/client/fees	80	2016-02-07 11:54:08	2016-02-07 11:56:44	t	5	Site
+41	divider	divider	60	2016-02-07 11:56:23	2016-02-07 11:56:23	t	5	Site
+40	User Function Catogories	/user-function-categories	50	2016-02-07 11:56:07	2016-02-07 11:56:07	t	5	Site
+39	User Functions	/user-functions	30	2016-02-07 11:55:47	2016-02-07 11:55:47	t	5	Site
+38	User Groups	/user-groups	20	2016-02-07 11:55:30	2016-02-07 11:55:30	t	5	Site
+37	Users	/users	10	2016-02-07 11:54:49	2016-02-07 11:54:49	t	5	Site
+8	divider	divider	70	2016-02-07 11:38:07	2016-02-07 11:40:04	t	1	Transactions
+3	divider	divider	20	2016-02-07 11:31:21	2016-02-07 11:39:53	t	1	Transactions
+9	WarehouseTransfer	/warehouse-transfer	80	2016-02-07 11:38:31	2016-02-07 11:38:31	t	1	Transactions
+6	ASN - Ship	/asn/ship	50	2016-02-07 11:32:41	2016-02-07 11:33:17	t	1	Transactions
+5	Shipping	/ship	40	2016-02-07 11:32:08	2016-02-07 11:32:08	t	1	Transactions
+4	Receiving	/receive	30	2016-02-07 11:31:44	2016-02-07 11:31:44	t	1	Transactions
+2	Transaction Finder	/transaction/find	10	2016-02-07 11:30:27	2016-02-07 11:30:27	t	1	Transactions
+45	ASN - Receiving	/transaction/asn/receive	45	2016-02-08 16:47:58	2016-02-09 15:05:16	t	1	Transactions
 \.
 
 
@@ -23502,7 +23644,11 @@ COPY user_function (id, name, url, sort_order, created_at, updated_at, active, u
 -- Data for Name: user_function_category; Type: TABLE DATA; Schema: public; Owner: sungwhikim
 --
 
-COPY user_function_category (id, name, sort_order, created_at, updated_at) FROM stdin;
+COPY user_function_category (id, name, sort_order, created_at, updated_at, active) FROM stdin;
+3	Lists	30	2016-02-05 16:23:50	2016-02-05 16:28:35	t
+2	Reports	20	2016-02-05 16:23:38	2016-02-05 16:28:49	t
+5	Site	40	2016-02-05 16:29:05	2016-02-05 16:29:05	t
+1	Transactions	10	2016-02-05 16:23:28	2016-02-05 16:29:12	t
 \.
 
 
@@ -23510,21 +23656,102 @@ COPY user_function_category (id, name, sort_order, created_at, updated_at) FROM 
 -- Name: user_function_category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('user_function_category_id_seq', 1, false);
+SELECT pg_catalog.setval('user_function_category_id_seq', 5, true);
 
 
 --
 -- Name: user_function_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('user_function_id_seq', 1, false);
+SELECT pg_catalog.setval('user_function_id_seq', 46, true);
+
+
+--
+-- Data for Name: user_group; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY user_group (id, name, created_at, updated_at, active) FROM stdin;
+1	Admin	2016-02-05 16:06:48	2016-02-05 16:06:48	t
+3	Billing	2016-02-05 16:08:59	2016-02-05 16:08:59	t
+4	Client	2016-02-05 16:09:06	2016-02-05 16:09:06	t
+\.
+
+
+--
+-- Name: user_group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('user_group_id_seq', 4, true);
+
+
+--
+-- Data for Name: user_group_to_user_function; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY user_group_to_user_function (user_group_id, user_function_id, id, created_at, updated_at) FROM stdin;
+3	20	103	2016-02-08 16:46:15	2016-02-08 16:46:15
+3	21	104	2016-02-08 16:46:15	2016-02-08 16:46:15
+4	45	141	2016-02-08 16:48:41	2016-02-08 16:48:41
+4	6	142	2016-02-08 16:48:41	2016-02-08 16:48:41
+4	14	143	2016-02-08 16:48:41	2016-02-08 16:48:41
+1	5	144	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	2	145	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	14	146	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	24	147	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	10	148	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	11	149	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	12	150	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	4	151	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	6	152	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	9	153	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	15	154	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	16	155	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	17	156	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	18	157	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	20	158	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	21	159	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	35	160	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	37	161	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	38	162	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	39	163	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	40	164	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	36	165	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	42	166	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	43	167	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	44	168	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	23	169	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	25	170	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	26	171	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	27	172	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	29	173	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	30	174	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	31	175	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	32	176	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	33	177	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	34	178	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	45	179	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	28	180	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	8	181	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	3	182	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	13	183	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	41	184	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	19	185	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	22	186	2016-02-09 15:56:53	2016-02-09 15:56:53
+\.
+
+
+--
+-- Name: user_group_to_user_function_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('user_group_to_user_function_id_seq', 186, true);
 
 
 --
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('user_id_seq', 3, true);
+SELECT pg_catalog.setval('user_id_seq', 5, true);
 
 
 --
@@ -23570,7 +23797,7 @@ COPY warehouse (id, name, address1, address2, city, province_id, country_id, cre
 -- Name: warehouse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('warehouse_id_seq', 8, true);
+SELECT pg_catalog.setval('warehouse_id_seq', 9, true);
 
 
 --
@@ -23693,6 +23920,30 @@ ALTER TABLE ONLY user_function
 
 
 --
+-- Name: user_group_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY user_group
+    ADD CONSTRAINT user_group_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_group_to_user_function_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY user_group_to_user_function
+    ADD CONSTRAINT user_group_to_user_function_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_group_to_user_function_unique; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY user_group_to_user_function
+    ADD CONSTRAINT user_group_to_user_function_unique UNIQUE (user_group_id, user_function_id);
+
+
+--
 -- Name: user_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
 --
 
@@ -23753,6 +24004,22 @@ ALTER TABLE ONLY province
 
 ALTER TABLE ONLY user_function
     ADD CONSTRAINT lnk_user_function_user_function_category FOREIGN KEY (user_function_category_id) REFERENCES user_function_category(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: lnk_user_group_to_user_function_user_function; Type: FK CONSTRAINT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY user_group_to_user_function
+    ADD CONSTRAINT lnk_user_group_to_user_function_user_function FOREIGN KEY (user_function_id) REFERENCES user_function(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: lnk_user_group_to_user_function_user_group; Type: FK CONSTRAINT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY user_group_to_user_function
+    ADD CONSTRAINT lnk_user_group_to_user_function_user_group FOREIGN KEY (user_group_id) REFERENCES user_group(id) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
