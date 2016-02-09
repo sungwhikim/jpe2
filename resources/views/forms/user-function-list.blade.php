@@ -14,7 +14,12 @@
                 <ul class="nav nav-pills nav-stacked">
                 @foreach( $user_function['functions'] as $function)
                     @if( strtolower($function['name']) == 'divider' || strtolower($function['url']) == 'divider' )
-                    <li class="divider"></li>
+                    <li>
+                        <input type="checkbox" name="user_function_id[]" value="{{ $function['id'] }}"
+                               ng-click="mainList.toggleCheckBox(item.user_function_id, {{ $function['id'] }}, item)"
+                               ng-checked="item.user_function_id.indexOf({{ $function['id'] }}) > -1">
+                        <div class="divider-checkbox"></div>
+                    </li>
                     @else
                     <li class="checkbox">
                         <label>

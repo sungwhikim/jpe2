@@ -9,64 +9,20 @@
         </div>
         <ul class="nav navbar-nav navbar-collapse hidden-xs">
             <li><a href="/dashboard">Dashboard</a></li>
+            @foreach( Auth::user()->userFunctions() as $category => $functions )
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Transactions<span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">{{ $category }}<span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Transaction Finder</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Receiving</a></li>
-                    <li><a href="#">Shipping</a></li>
-                    <li><a href="#">Advanced Receiving Notice</a></li>
-                    <li><a href="#">Advanced Shipping Notice</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Warehouse Transfer</a></li>
+                    @foreach( $functions as $user_function )
+                        @if( $user_function->name == 'divider' || $user_function->url == 'divider ')
+                        <li class="divider"></li>
+                        @else
+                        <li><a href="{{ $user_function->url }}">{{ $user_function->name }}</a></li>
+                        @endif
+                    @endforeach
                 </ul>
             </li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Reports<span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Inventory - Pallet Detail Report</a></li>
-                    <li><a href="#">Inventory - By Warehouse</a></li>
-                    <li><a href="#">Shipping Report</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">CSR Report</a></li>
-                    <li><a href="#">Transactions - Yearly</a></li>
-                    <li><a href="#">Bin Location Details</a></li>
-                    <li><a href="#">Zero Report</a></li>
-                    <li><a href="#">ReOrder Report</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Billing Reports</a></li>
-                    <li><a href="#">Client Billing Reports</a></li>
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Lists<span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Products</a></li>
-                    <li><a href="#">Bin Locations</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Clients</a></li>
-                    <li><a href="/warehouses">Warehouses</a></li>
-                    <li><a href="/customers">Customers</a></li>
-                    <li><a href="#">Carriers</a></li>
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Site<span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Fees</a></li>
-                    <li><a href="#">Taxes</a></li>
-                    <li class="divider"></li>
-                    <li><a href="/users">Users</a></li>
-                    <li><a href="/user-groups">User Groups</a></li>
-                    <li><a href="/user-function-categories">User Function Categories</a></li>
-                    <li><a href="/user-functions">User Functions</a></li>
-                    <li><a href="#">Menu Items</a></li>
-                    <li class="divider"></li>
-                    <li><a href="/countries">Countries</a></li>
-                    <li><a href="#">Provinces / States</a></li>
-                </ul>
-            </li>
+            @endforeach
         </ul>
         <ul class="nav navbar-nav navbar-right hidden-xs">
             <li><a href="#"><span class="glyphicon glyphicon-wrench"></span> 1290 / DC</a></li>

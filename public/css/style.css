@@ -171,6 +171,15 @@ body {
     overflow-y: scroll;
     height: 300px;
 }
+.td-form .divider-checkbox {
+    height: 1px;
+    position: relative;
+    top: -10px;
+    left: 20px;
+    overflow: hidden;
+    background-color: #e5e5e5;
+    width: 90%;
+}
 
 /* TABLE SORTING - SMART TABLE COMPONENT */
 .st-sort-ascent {

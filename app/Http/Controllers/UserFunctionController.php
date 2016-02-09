@@ -17,9 +17,8 @@ class UserFunctionController extends Controller
     public function getListView()
     {
         //get the list data with the default sort set the same as in the angular table
-        $data = UserFunction::select('user_function.*', 'user_function_category.name as category_name', 'user_function_category.id as category_id')
-                              ->join('user_function_category', 'user_function.user_function_category_id', '=', 'user_function_category.id')
-                              ->orderBy('user_function.name')->get();
+        $data = UserFunction::select('user_function.*', 'user_function_category_name as category_name', 'user_function_category_id as category_id')
+                              ->orderBy('name')->get();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/user-function');
@@ -80,6 +79,7 @@ class UserFunctionController extends Controller
         $user_function->url         = request()->json('url');
         $user_function->sort_order  = request()->json('sort_order');
         $user_function->user_function_category_id = request()->json('category_id');
+        $user_function->user_function_category_name = UserFunctionCategory::where('id', '=', request()->json('category_id'))->value('name');
         $user_function->active      = ( !empty(request()->json('active')) ) ? true : false;
         $user_function->save();
 

@@ -87,5 +87,4 @@
 @section('js-footer')
     @include('layouts.angular-js')
     @include('layouts.js-lists');
-    {{--<script src="/js/checkbox.js"></script>--}}
 @stop

@@ -16,12 +16,13 @@ class UserController extends Controller
 
     public function getDashboard()
     {
-        return view('pages.dashboard');
+        debugbar()->info(request()->route()->uri());
+
+        return view('pages.dashboard', ['user_functions' => auth()->user()->userFunctions()->toArray()]);
     }
 
     public function getListView()
     {
-
         //get the list data with the default sort set the same as in the angular table
         $data = User::orderBy('name')->get();
 

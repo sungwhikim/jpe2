@@ -26,8 +26,6 @@ class UserGroupController extends Controller
             $item->user_function_id = UserGroupToUserFunction::where('user_group_id', '=', $item->id)->lists('user_function_id');
         }
 
-        debugbar()->info($data);
-
         return response()->view('pages.user-group', ['main_data' => $data,
                                                      'url' => url('/user-group'),
                                                      'my_name' => $this->my_name,
