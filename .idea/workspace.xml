@@ -2,64 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8b9ea3d5-e855-400c-b43a-5e66d44853ac" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/Http/Controllers/UserGroupController.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/models/UserGroup.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/models/UserGroupToUserFunction.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/migrate-data/customer.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/migrate-data/province.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/migrate-data/sql_server.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/migrate-data/warehouse.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/js/angular-component/ListController-1.0.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/care-of.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/category.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/new-care-of.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/new-category.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/new-sort-order.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/new-url.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/new-user-group.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/sort-order.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/url.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/user-function-list.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/user-group.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/layouts/js-lists.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/layouts/search-bar.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/pages/user-function-category.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/pages/user-function.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/pages/user-group.blade.php" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.utils/load_dv.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/app/Http/Controllers/Test.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/resources/views/forms/password-validate.blade.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/resources/views/pages/register.blade.php" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/public/js/angular-component/countryController-1.0.js" afterPath="$PROJECT_DIR$/public/js/angular-component/archive/countryController-1.0.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/public/js/angular-component/customerController-1.0.js" afterPath="$PROJECT_DIR$/public/js/angular-component/archive/customerController-1.0.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/public/js/angular-component/userController-1.0.js" afterPath="$PROJECT_DIR$/public/js/angular-component/archive/userController-1.0.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/public/js/angular-component/warehouseController-1.0.js" afterPath="$PROJECT_DIR$/public/js/angular-component/archive/warehouseController-1.0.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/resources/views/pages/test.blade.php" afterPath="$PROJECT_DIR$/database/migrate-data/clean-up-data.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dataSources.ids" afterPath="$PROJECT_DIR$/.idea/dataSources.ids" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dataSources.xml" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/js/angular-component/checkboxService.1.0.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/js/checkbox.js" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angular-component/ListController-1.0.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angular-component/alertService-1.0.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angular-component/listService-1.0.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angular-component/modalService-1.0.js" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.utils/jpent.dmp" afterPath="$PROJECT_DIR$/.utils/jpent.dmp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/UserController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/UserController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/UserFunctionCategoryController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/UserFunctionCategoryController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/UserFunctionController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/UserFunctionController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/WarehouseController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/WarehouseController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/routes.php" afterPath="$PROJECT_DIR$/app/Http/routes.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/UserFunction.php" afterPath="$PROJECT_DIR$/app/models/UserFunction.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/UserFunctionCategory.php" afterPath="$PROJECT_DIR$/app/models/UserFunctionCategory.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jpent.dmp" afterPath="$PROJECT_DIR$/jpent.dmp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/css/style.css" afterPath="$PROJECT_DIR$/public/css/style.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/css/style.media.css" afterPath="$PROJECT_DIR$/public/css/style.media.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/js/angular-component/listService-1.0.js" afterPath="$PROJECT_DIR$/public/js/angular-component/listService-1.0.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/forms/edit-buttons.blade.php" afterPath="$PROJECT_DIR$/resources/views/forms/edit-buttons.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/forms/new-password.blade.php" afterPath="$PROJECT_DIR$/resources/views/forms/new-password.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/forms/password.blade.php" afterPath="$PROJECT_DIR$/resources/views/forms/password.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/layouts/nav.blade.php" afterPath="$PROJECT_DIR$/resources/views/layouts/nav.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/pages/country.blade.php" afterPath="$PROJECT_DIR$/resources/views/pages/country.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/pages/customer.blade.php" afterPath="$PROJECT_DIR$/resources/views/pages/customer.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/pages/dashboard.blade.php" afterPath="$PROJECT_DIR$/resources/views/pages/dashboard.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/pages/user.blade.php" afterPath="$PROJECT_DIR$/resources/views/pages/user.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/pages/warehouse.blade.php" afterPath="$PROJECT_DIR$/resources/views/pages/warehouse.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/UserGroupController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/UserGroupController.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/UserGroup.php" afterPath="$PROJECT_DIR$/app/models/UserGroup.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/forms/user-function-list.blade.php" afterPath="$PROJECT_DIR$/resources/views/forms/user-function-list.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/layouts/js-lists.blade.php" afterPath="$PROJECT_DIR$/resources/views/layouts/js-lists.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/pages/user-group.blade.php" afterPath="$PROJECT_DIR$/resources/views/pages/user-group.blade.php" />
     </list>
     <ignored path="jpe2.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -158,11 +112,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="user-group.blade.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="user-group.blade.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/resources/views/pages/user-group.blade.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-15.692307">
-              <caret line="59" column="78" selection-start-line="59" selection-start-column="78" selection-end-line="59" selection-end-column="78" />
+            <state vertical-scroll-proportion="0.8649262">
+              <caret line="89" column="4" selection-start-line="89" selection-start-column="8" selection-end-line="89" selection-end-column="47" />
               <folding />
             </state>
           </provider>
@@ -171,8 +125,8 @@
       <file leaf-file-name="UserGroupController.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/Http/Controllers/UserGroupController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-9.807693">
-              <caret line="19" column="50" selection-start-line="19" selection-start-column="50" selection-end-line="19" selection-end-column="50" />
+            <state vertical-scroll-proportion="-16.884615">
+              <caret line="100" column="59" selection-start-line="100" selection-start-column="59" selection-end-line="100" selection-end-column="59" />
               <folding>
                 <element signature="e#39#64#0#PHP" expanded="true" />
               </folding>
@@ -180,21 +134,33 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UserGroup.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/Models/UserGroup.php">
+      <file leaf-file-name="UserGroupToUserFunction.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/Models/UserGroupToUserFunction.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-8.5">
-              <caret line="13" column="1" selection-start-line="13" selection-start-column="1" selection-end-line="13" selection-end-column="1" />
+            <state vertical-scroll-proportion="-3.2692308">
+              <caret line="5" column="29" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="29" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="user-function-list.blade.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="UserGroup.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/Models/UserGroup.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-2.6153846">
+              <caret line="4" column="39" selection-start-line="4" selection-start-column="39" selection-end-line="4" selection-end-column="39" />
+              <folding>
+                <element signature="e#29#68#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="user-function-list.blade.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/resources/views/forms/user-function-list.blade.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3280363">
-              <caret line="17" column="77" selection-start-line="17" selection-start-column="77" selection-end-line="17" selection-end-column="77" />
+            <state vertical-scroll-proportion="-6.5384617">
+              <caret line="10" column="121" selection-start-line="10" selection-start-column="121" selection-end-line="10" selection-end-column="121" />
               <folding>
                 <element signature="n#style#0;n#label#0;n#div#0;n#div#0;n#!!top" expanded="true" />
               </folding>
@@ -202,34 +168,34 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sort-order.blade.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/views/forms/sort-order.blade.php">
+      <file leaf-file-name="checkbox.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/public/js/checkbox.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-1.3076923">
-              <caret line="2" column="64" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="64" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="style.css" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/public/css/style.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-17.0">
-              <caret line="171" column="18" selection-start-line="171" selection-start-column="18" selection-end-line="171" selection-end-column="18" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="UserController.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/Http/Controllers/UserController.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-12.423077">
-              <caret line="19" column="5" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
               <folding>
-                <element signature="e#40#53#0#PHP" expanded="true" />
+                <element signature="n#!!doc;n#allCheckBoxes#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ListController.1.0.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/public/js/angular-component/ListController.1.0.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="41" column="67" selection-start-line="41" selection-start-column="67" selection-end-line="41" selection-end-column="67" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="checkBoxService.1.0.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/public/js/angular-component/checkBoxService.1.0.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="3" column="46" selection-start-line="3" selection-start-column="46" selection-end-line="3" selection-end-column="46" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -250,11 +216,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/database/migrate-data/province.sql" />
-        <option value="$PROJECT_DIR$/database/migrate-data/customer.sql" />
-        <option value="$APPLICATION_CONFIG_DIR$/consoles/db/c5da5adb-ca4b-4803-b0d2-35dc3de0ef0a/console.sql" />
-        <option value="$PROJECT_DIR$/app/Http/Controllers/WarehouseController.php" />
-        <option value="$PROJECT_DIR$/resources/views/forms/new-care-of.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/forms/care-of.blade.php" />
         <option value="$PROJECT_DIR$/database/migrate-data/warehouse.sql" />
         <option value="$APPLICATION_CONFIG_DIR$/consoles/db/c984734c-0137-4d65-b000-a7b6ff77c5c4/console.sql" />
@@ -270,7 +231,6 @@
         <option value="$PROJECT_DIR$/resources/views/pages/country.blade.php" />
         <option value="$PROJECT_DIR$/public/js/angular-controller/ListController-1.0.js" />
         <option value="$PROJECT_DIR$/resources/views/pages/warehouse.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/layouts/js-lists.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/pages/customer.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/forms/sort-order.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/forms/new-sort-order.blade.php" />
@@ -295,12 +255,18 @@
         <option value="$PROJECT_DIR$/resources/views/forms/password.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/forms/new-password.blade.php" />
         <option value="$PROJECT_DIR$/public/css/style.css" />
-        <option value="$PROJECT_DIR$/resources/views/pages/user-group.blade.php" />
-        <option value="$PROJECT_DIR$/app/Http/Controllers/UserGroupController.php" />
         <option value="$PROJECT_DIR$/app/Models/UserGroupToUserFunction.php" />
-        <option value="$PROJECT_DIR$/app/Models/UserGroup.php" />
-        <option value="$PROJECT_DIR$/resources/views/forms/user-function-list.blade.php" />
         <option value="$PROJECT_DIR$/public/js/angular-library/checklist-model.js" />
+        <option value="$PROJECT_DIR$/public/js/angular-component/listService.1.0.js" />
+        <option value="$PROJECT_DIR$/resources/views/layouts/js-lists.blade.php" />
+        <option value="$PROJECT_DIR$/public/js/angular-component/checkboxService.1.0.js" />
+        <option value="$PROJECT_DIR$/app/Models/UserGroup.php" />
+        <option value="$PROJECT_DIR$/app/Http/Controllers/UserGroupController.php" />
+        <option value="$PROJECT_DIR$/public/js/angular-component/checkBoxService.1.0.js" />
+        <option value="$PROJECT_DIR$/public/js/angular-component/ListController.1.0.js" />
+        <option value="$PROJECT_DIR$/public/js/checkbox.js" />
+        <option value="$PROJECT_DIR$/resources/views/forms/user-function-list.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/user-group.blade.php" />
       </list>
     </option>
   </component>
@@ -820,8 +786,8 @@
       <recent name="$PROJECT_DIR$/public/js/angular-controller" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/public/js/angular-component/archive" />
       <recent name="$PROJECT_DIR$/public/js/angular-component" />
+      <recent name="$PROJECT_DIR$/public/js/angular-component/archive" />
       <recent name="$PROJECT_DIR$/public/js/angular-controller" />
       <recent name="$PROJECT_DIR$/resources/views/auth" />
       <recent name="$PROJECT_DIR$/public/css" />
@@ -903,11 +869,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1602" height="1027" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Gulp" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32948717" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20897436" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20897436" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.50256413" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2717949" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -948,13 +914,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/c5da5adb-ca4b-4803-b0d2-35dc3de0ef0a/console.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3431677">
-          <caret line="13" column="17" selection-start-line="13" selection-start-column="17" selection-end-line="13" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/pages/login.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -987,13 +946,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/js/angular-component/alertService-1.0.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.03740374">
-          <caret line="2" column="1" selection-start-line="2" selection-start-column="1" selection-end-line="10" selection-end-column="23" />
         </state>
       </provider>
     </entry>
@@ -1036,13 +988,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-10.461538">
           <caret line="16" column="18" selection-start-line="16" selection-start-column="18" selection-end-line="16" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/layouts/js-lists.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.17366628">
-          <caret line="9" column="63" selection-start-line="9" selection-start-column="63" selection-end-line="9" selection-end-column="63" />
         </state>
       </provider>
     </entry>
@@ -1190,22 +1135,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/js/angular-component/ListController-1.0.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="29" selection-start-line="33" selection-start-column="29" selection-end-line="33" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/js/angular-component/listService-1.0.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="26" column="14" selection-start-line="26" selection-start-column="8" selection-end-line="26" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/forms/password.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-1.9615384">
@@ -1274,16 +1203,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/UserGroupController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-9.807693">
-          <caret line="19" column="50" selection-start-line="19" selection-start-column="50" selection-end-line="19" selection-end-column="50" />
-          <folding>
-            <element signature="e#39#64#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/pages/user.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.7707151">
@@ -1292,47 +1211,109 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/pages/user-group.blade.php">
+    <entry file="file://$PROJECT_DIR$/public/js/angular-component/alertService.1.0.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-15.692307">
-          <caret line="59" column="78" selection-start-line="59" selection-start-column="78" selection-end-line="59" selection-end-column="78" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="33" column="7" selection-start-line="0" selection-start-column="0" selection-end-line="33" selection-end-column="7" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/Models/UserGroupToUserFunction.php">
+    <entry file="file://$PROJECT_DIR$/public/js/angular-component/listService.1.0.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.24366042">
+          <caret line="13" column="20" selection-start-line="13" selection-start-column="20" selection-end-line="13" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/layouts/js-lists.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.15437004">
-          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Models/UserGroup.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-8.5">
-          <caret line="13" column="1" selection-start-line="13" selection-start-column="1" selection-end-line="13" selection-end-column="1" />
+          <caret line="8" column="43" selection-start-line="8" selection-start-column="43" selection-end-line="8" selection-end-column="43" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/Http/Controllers/UserController.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-12.423077">
+        <state vertical-scroll-proportion="0.36662883">
           <caret line="19" column="5" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
           <folding>
-            <element signature="e#40#53#0#PHP" expanded="true" />
+            <element signature="e#40#53#0#PHP" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/js/angular-component/checkBoxService.1.0.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="3" column="46" selection-start-line="3" selection-start-column="46" selection-end-line="3" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/js/angular-component/ListController.1.0.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="41" column="67" selection-start-line="41" selection-start-column="67" selection-end-line="41" selection-end-column="67" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Models/UserGroup.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.6153846">
+          <caret line="4" column="39" selection-start-line="4" selection-start-column="39" selection-end-line="4" selection-end-column="39" />
+          <folding>
+            <element signature="e#29#68#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Models/UserGroupToUserFunction.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-3.2692308">
+          <caret line="5" column="29" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/UserGroupController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-16.884615">
+          <caret line="100" column="59" selection-start-line="100" selection-start-column="59" selection-end-line="100" selection-end-column="59" />
+          <folding>
+            <element signature="e#39#64#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/js/checkbox.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+          <folding>
+            <element signature="n#!!doc;n#allCheckBoxes#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/forms/user-function-list.blade.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3280363">
-          <caret line="17" column="77" selection-start-line="17" selection-start-column="77" selection-end-line="17" selection-end-column="77" />
+        <state vertical-scroll-proportion="-6.5384617">
+          <caret line="10" column="121" selection-start-line="10" selection-start-column="121" selection-end-line="10" selection-end-column="121" />
           <folding>
             <element signature="n#style#0;n#label#0;n#div#0;n#div#0;n#!!top" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/user-group.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8649262">
+          <caret line="89" column="4" selection-start-line="89" selection-start-column="8" selection-end-line="89" selection-end-column="47" />
+          <folding />
         </state>
       </provider>
     </entry>

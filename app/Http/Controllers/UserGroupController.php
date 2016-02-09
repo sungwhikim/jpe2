@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\UserGroup;
 use App\Models\UserFunction;
 use App\Models\UserFunctionCategory;
+use App\Models\UserGroupToUserFunction;
 
 class UserGroupController extends Controller
 {
@@ -19,11 +20,16 @@ class UserGroupController extends Controller
         //get the list data with the default sort set the same as in the angular table
         $data = UserGroup::orderBy('name')->get();
 
-        //we need to send the url to do Ajax queries back here
-        $url = url('/user-group');
+        //add the user functions
+        foreach( $data as $item )
+        {
+            $item->user_function_id = UserGroupToUserFunction::where('user_group_id', '=', $item->id)->lists('user_function_id');
+        }
+
+        debugbar()->info($data);
 
         return response()->view('pages.user-group', ['main_data' => $data,
-                                                     'url' => $url,
+                                                     'url' => url('/user-group'),
                                                      'my_name' => $this->my_name,
                                                      'user_functions' => $this->getUserFunctionList()]);
     }
@@ -91,6 +97,19 @@ class UserGroupController extends Controller
         $user_group->name        = request()->json('name');
         $user_group->active      = ( !empty(request()->json('active')) ) ? true : false;
         $user_group->save();
+
+        //delete all user functions before adding them back
+        UserGroupToUserFunction::where('user_group_id', '=', $user_group->id)->delete();
+
+        //process user functions
+        foreach( request()->json('user_function_id') as $user_function_id )
+        {
+            //add them all back
+            $user_group_to_user_function = new UserGroupToUserFunction();
+            $user_group_to_user_function->user_group_id = $user_group->id;
+            $user_group_to_user_function->user_function_id = $user_function_id;
+            $user_group_to_user_function->save();
+        }
 
         return $user_group->id;
     }

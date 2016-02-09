@@ -4,9 +4,9 @@
     3.  appUrl  = The path to the server to make the AJAX calls to
  */
 
-var app = angular.module('myApp', ['listService']);
+var app = angular.module('myApp', ['listService', 'checkBoxService']);
 
-app.controller('ListController', function(ListService, alertService) {
+app.controller('ListController', function(ListService, alertService, checkBoxService) {
     //set object to variable to prevent self reference collisions
     var ListController = this;
 
@@ -39,4 +39,5 @@ app.controller('ListController', function(ListService, alertService) {
     ListController.deleteConfirm = ListService.deleteConfirm;
     ListController.resetData = ListService.resetData;
     ListController.closeAlert = ListService.closeAlert;
+    ListController.toggleCheckBox = checkBoxService.toggleCheckBox;
 });
