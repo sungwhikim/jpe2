@@ -59,8 +59,26 @@ class User extends Model implements AuthenticatableContract,
                             ->join('user_function', 'user_function.id', '=', 'user_group_to_user_function.user_function_id')
                             ->join('user_function_category', 'user_function.user_function_category_id', '=', 'user_function_category.id')
                             ->where('user_group.id', '=', $this->user_group_id)
+                            ->where('user_function.active', '=', true)
                             ->orderBy('user_function_category.sort_order')->orderBy('user_function.sort_order')->get();
 
         return $result->groupBy('user_function_category_name');
+    }
+
+    /**
+     * Authenticate access to the path/route
+     */
+    public function validateRoute()
+    {
+        $route = '/' . request()->route()->uri();
+   debugbar()->info($route);
+        $result = UserGroup::select('user_function.*')
+                            ->join('user_group_to_user_function', 'user_group.id', '=', 'user_group_to_user_function.user_group_id')
+                            ->join('user_function', 'user_function.id', '=', 'user_group_to_user_function.user_function_id')
+                            ->where('user_group.id', '=', $this->user_group_id)
+                            ->where('user_function.active', '=', true)
+                            ->where('user_function.url', '=', $route)->get();
+
+        debugbar()->info($result);
     }
 }

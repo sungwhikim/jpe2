@@ -10,7 +10,7 @@
                 {{--<button class="btn btn-xs btn-default" onclick="allCheckBoxes(this)" type="button">All</button>--}}
                 {{--<button class="btn btn-xs btn-default" onclick="noneCheckBoxes(this)" type="button">None</button>--}}
             </div>
-            <div class="panel-body checkbox-list">
+            <div class="panel-body checkbox-list-body">
                 <ul class="nav nav-pills nav-stacked">
                 @foreach( $user_function['functions'] as $function)
                     @if( strtolower($function['name']) == 'divider' || strtolower($function['url']) == 'divider' )

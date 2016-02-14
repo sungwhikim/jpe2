@@ -29,6 +29,21 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
     if( typeof countryData != "undefined" ) { ListController.countries = countryData; }
     if( typeof categoryData != "undefined" ) { ListController.categories = categoryData; }
     if( typeof userGroupData != "undefined" ) { ListController.user_groups = userGroupData; }
+    if( typeof warehouseData != "undefined" ) { ListController.warehouses = warehouseData; }
+    if( typeof companyData != "undefined" ) { ListController.companies = companyData; }
+    if( typeof checkboxData != "undefined" ) {
+        ListController.checkboxItems = checkboxData;
+        checkBoxService.items = checkboxData;
+    }
+
+    /* CREATE OVER-LOADED FUNCTION TO RESET THE DATA */
+    /* -- This is mostly to initialize the new item model members -- */
+    ListService.resetModelPublic = function (mainController) {
+        //the mainController is a circular reference back to ListController, but needs to be so due to scope reasons in JavaScript
+        mainController.newItem.user_function_id = [];
+        mainController.newItem.invoice_attachment_type = 'excel';
+        mainController.newItem.taxable = 'true';
+    };
 
     /* INIT DATA */
     ListService.resetModel();
@@ -40,4 +55,6 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
     ListController.resetData = ListService.resetData;
     ListController.closeAlert = ListService.closeAlert;
     ListController.toggleCheckBox = checkBoxService.toggleCheckBox;
+    ListController.allCheckBoxes = checkBoxService.allCheckBoxes;
+    ListController.noneCheckBoxes = checkBoxService.noneCheckBoxes;
 });

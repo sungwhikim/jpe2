@@ -4,7 +4,7 @@
         <div class="col-lg-8">
             <input type="password" class="form-control" name="password"
                    ng-model="mainList.newItem.password" ng-maxlength="30" ng-minlength="6"
-                   autocomplete="off" required>
+                   autocomplete="off" required style="margin-bottom: 5px;">
             <!-- ngMessages goes here -->
             <div class="help-block ng-messages" ng-messages="formNew.password.$error"
                  ng-if="formNew.$submitted || formNew.password.$touched">

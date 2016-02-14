@@ -150,6 +150,9 @@ body {
     border-top: none !important;
     width: 100%;
 }
+.td-form:hover {
+    background-color: #fff;
+}
 .td-form > div > form {
     padding: 10px 0 0 0;
     height: 100%;
@@ -167,9 +170,22 @@ body {
     white-space: nowrap !important;
     padding-right: 0 !important;
 }
-.td-form .checkbox-list {
+.td-form .panel-checkbox {
+    max-width: 410px;
+}
+.td-form .checkbox-list-body {
     overflow-y: scroll;
     height: 300px;
+}
+.td-form .checkbox-list-left {
+    width: inherit;
+}
+.td-form .checkbox-list-left .panel-checkbox {
+    width: 410px;
+    margin: 0 45px 30px 55px;
+}
+.td-form .checkbox-list-left .panel-checkbox .checkbox-list-body {
+    height: 200px;
 }
 .td-form .divider-checkbox {
     height: 1px;
@@ -179,6 +195,12 @@ body {
     overflow: hidden;
     background-color: #e5e5e5;
     width: 90%;
+}
+.form-divider {
+    margin: 10px 0;
+    width: 97%;
+    position: relative;
+    top: -15px;
 }
 
 /* TABLE SORTING - SMART TABLE COMPONENT */

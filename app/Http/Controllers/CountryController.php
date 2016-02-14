@@ -68,6 +68,8 @@ class CountryController extends Controller
         $country = ( !empty(request()->json('id')) ) ? Country::find(request()->json('id')) : new Country();
         $country->code = request()->json('code');
         $country->name = request()->json('name');
+        $country->currency_name = request()->json('currency_name');
+        $country->currency_prefix = request()->json('currency_prefix');
         $country->save();
 
         return $country->id;
@@ -76,7 +78,5 @@ class CountryController extends Controller
     public function putDelete($id)
     {
         Country::find($id)->delete();
-
-        return Country::all();
     }
 }

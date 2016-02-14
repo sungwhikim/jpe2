@@ -1,8 +1,11 @@
 angular.module('checkBoxService', [])
     .factory('checkBoxService', function () {
         var service = {
-                toggleCheckBox: toggleCheckBox
-            };
+                toggleCheckBox: toggleCheckBox,
+                allCheckBoxes: allCheckBoxes,
+                noneCheckBoxes: noneCheckBoxes
+            },
+            items = [];
         return service;
 
         function toggleCheckBox(selectedList, id) {
@@ -17,5 +20,18 @@ angular.module('checkBoxService', [])
             else {
                 selectedList.push(id);
             }
+        }
+
+        function allCheckBoxes(selectedList) {
+            //this is because direct assignments of array by reference does not work in js.
+            for( i = 0; i < service.items.length; i++ ) {
+                if( selectedList.indexOf(service.items[i]) == -1 ) {
+                    selectedList.push(service.items[i]);
+                }
+            }
+        }
+
+        function noneCheckBoxes(selectedList) {
+            selectedList.length = 0;
         }
     });

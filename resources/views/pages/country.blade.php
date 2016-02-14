@@ -40,6 +40,14 @@
                                     <fieldset>
                                         @include('forms.new-code', ['size' => 2])
                                         @include('forms.new-name', ['size' => 100])
+                                        @include('forms.new-text', ['title' => 'Currency Name',
+                                                                    'name' => 'currency_name',
+                                                                    'size' => 30,
+                                                                    'required' => 'required'])
+                                        @include('forms.new-text', ['title' => 'Currency Prefix',
+                                                                    'name' => 'currency_prefix',
+                                                                    'size' => 30,
+                                                                    'required' => 'required'])
                                         @include('forms.new-edit-buttons')
                                     </fieldset>
                                 </form>
@@ -62,6 +70,14 @@
                                     <fieldset>
                                         @include('forms.code', ['size' => 2])
                                         @include('forms.name', ['size' => 100])
+                                        @include('forms.text', ['title' => 'Currency Name',
+                                                                'name' => 'currency_name',
+                                                                'size' => 30,
+                                                                'required' => 'required'])
+                                        @include('forms.text', ['title' => 'Currency Prefix',
+                                                                    'name' => 'currency_prefix',
+                                                                    'size' => 30,
+                                                                    'required' => 'required'])
                                         @include('forms.edit-buttons')
                                     </fieldset>
                                 </form>

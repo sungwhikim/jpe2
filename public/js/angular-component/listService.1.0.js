@@ -22,6 +22,7 @@ angular.module('listService',
             deleteItem: deleteItem,
             resetData: resetData,
             resetModel: resetModel,
+            resetModelPublic: resetModelPublic,
             closeAlert: closeAlert
         },
         myName  = '',
@@ -162,6 +163,14 @@ angular.module('listService',
 
         //set active flag to true for new item as a default so the checkbox toggles correctly upon load
         ListService.mainCtl.newItem.active = true;
+
+        //call over loadable function to reset model collections from the controller
+        ListService.resetModelPublic(ListService.mainCtl);
+    }
+
+    /* OVER-LOADABLE FUNCTION TO RESET DATA. THIS IS NEEDED DUE TO ISSUE WITH INITIALIZING NEW OBJECT MODELS */
+    function resetModelPublic(mainController) {
+
     }
 
     /* SET THE ALERT MESSAGE */

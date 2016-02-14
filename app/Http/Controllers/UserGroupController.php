@@ -26,10 +26,14 @@ class UserGroupController extends Controller
             $item->user_function_id = UserGroupToUserFunction::where('user_group_id', '=', $item->id)->lists('user_function_id');
         }
 
+        //create user function list just for the checkbox service
+        $user_function_ids = UserFunction::lists('id');
+
         return response()->view('pages.user-group', ['main_data' => $data,
                                                      'url' => url('/user-group'),
                                                      'my_name' => $this->my_name,
-                                                     'user_functions' => $this->getUserFunctionList()]);
+                                                     'user_functions' => $this->getUserFunctionList(),
+                                                     'user_function_ids' => $user_function_ids]);
     }
 
     public function getUserFunctionList()
@@ -100,13 +104,16 @@ class UserGroupController extends Controller
         UserGroupToUserFunction::where('user_group_id', '=', $user_group->id)->delete();
 
         //process user functions
-        foreach( request()->json('user_function_id') as $user_function_id )
+        if( request()->json('user_function_id') !== null )
         {
-            //add them all back
-            $user_group_to_user_function = new UserGroupToUserFunction();
-            $user_group_to_user_function->user_group_id = $user_group->id;
-            $user_group_to_user_function->user_function_id = $user_function_id;
-            $user_group_to_user_function->save();
+            foreach( request()->json('user_function_id') as $user_function_id )
+            {
+                //add them all back
+                $user_group_to_user_function = new UserGroupToUserFunction();
+                $user_group_to_user_function->user_group_id = $user_group->id;
+                $user_group_to_user_function->user_function_id = $user_function_id;
+                $user_group_to_user_function->save();
+            }
         }
 
         return $user_group->id;
@@ -115,8 +122,6 @@ class UserGroupController extends Controller
     public function putDelete($id)
     {
         UserGroup::find($id)->delete();
-
-        return UserGroup::all();
     }
 }
 ?>

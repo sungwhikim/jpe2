@@ -89,7 +89,5 @@ class UserFunctionController extends Controller
     public function putDelete($id)
     {
         UserFunction::find($id)->delete();
-
-        return UserFunction::all();
     }
 }

@@ -13,6 +13,9 @@
         padding-top: 10px;
         padding-bottom: 10px;
     }
+    .form-divider {
+        top: 0px;
+    }
 }
 
 @media (max-width: 992px) {

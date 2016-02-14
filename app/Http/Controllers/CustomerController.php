@@ -102,7 +102,5 @@ class CustomerController extends Controller
     public function putDelete($id)
     {
         Customer::find($id)->delete();
-
-        return Customer::all();
     }
 }

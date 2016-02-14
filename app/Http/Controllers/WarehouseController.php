@@ -98,8 +98,6 @@ class WarehouseController extends Controller
     public function putDelete($id)
     {
         Warehouse::find($id)->delete();
-
-        return Warehouse::all();
     }
 }
 ?>

@@ -16,9 +16,52 @@ class UserController extends Controller
 
     public function getDashboard()
     {
-        debugbar()->info(request()->route()->uri());
+        //this validates that the user has access to this user function
+        //User::validateRoute();
 
-        return view('pages.dashboard', ['user_functions' => auth()->user()->userFunctions()->toArray()]);
+        return view('pages.dashboard');
+    }
+
+    /**
+     * Validates the route to make sure the user has access
+     *
+     * @return redirects to login page if user does not have access
+     */
+    public function checkRoute()
+    {
+        //set a string to be identical to the url/route that is set in the database
+        $route = '/' . request()->route()->uri();
+
+
+        $route = '/users';
+
+        debugbar()->info($route);
+        //get the list of user functions
+        $user_functions = auth()->user()->userFunctions();
+
+        //see if it is in the list
+        $found = false;
+        foreach( $user_functions->get('url') as $url )
+        {
+            $test[] = $url . '|' . $route;
+            if( $url == $route )
+            {
+                $found = true;
+            }
+        }
+
+        //redirect to login page with error if route is not found
+        if( $found = true )
+        {
+            //set flash message
+            session()->flash('alert-type', 'danger');
+            session()->flash('alert-message', 'You do not have access to the requested function.');
+
+            //send back to home page
+            return redirect('/logout');
+        }
+
+        return true;
     }
 
     public function getListView()
@@ -104,8 +147,6 @@ class UserController extends Controller
     public function putDelete($id)
     {
         User::find($id)->delete();
-
-        return User::all();
     }
 
     protected function validatePassword()

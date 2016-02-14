@@ -72,7 +72,5 @@ class UserFunctionCategoryController extends Controller
     public function putDelete($id)
     {
         UserFunctionCategory::find($id)->delete();
-
-        return UserFunctionCategory::all();
     }
 }

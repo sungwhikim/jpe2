@@ -37,6 +37,7 @@
                                 <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.add(formNew)" novalidate>
                                     <fieldset>
                                         @include('forms.new-name', ['size' => 30])
+                                        @include('forms.new-user-function-list')
                                         @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
@@ -81,6 +82,7 @@
          var myName  = '{{ $my_name }}';
          var appUrl  = '{{ $url }}';
          var appData = {!! $main_data !!};
+         var checkboxData = {!! $user_function_ids !!};
      </script>
 @stop
 

@@ -60,6 +60,14 @@ Route::get('/warehouses', 'WarehouseController@getListView');
 Route::controller('/country', 'CountryController');
 Route::get('/countries', 'CountryController@getListView');
 
+/* COMPANY */
+Route::controller('/company', 'CompanyController');
+Route::get('/companies', 'CompanyController@getListView');
+
 /* PROVINCE/STATE */
 Route::controller('/province', 'ProvinceController');
 Route::get('/provinces', 'ProvinceController@getListView');
+
+/* CLIENT */
+Route::controller('/client', 'ClientController');
+Route::get('/clients', 'ClientController@getListView');
