@@ -6,6 +6,7 @@ use App\Models\Country;
 use App\Models\Province;
 use App\Models\Warehouse;
 use App\Models\Company;
+use DB;
 
 class ClientController extends Controller
 {
@@ -22,7 +23,8 @@ class ClientController extends Controller
         $data = Client::select('client.*',
                                'province.name as province_name',
                                'warehouse.name as warehouse_name',
-                               'company.name as company_name')
+                               'company.name as company_name',
+                                DB::raw('taxable::varchar(5)'))
                       ->join('province', 'client.province_id', '=', 'province.id')
                       ->join('warehouse', 'client.warehouse_id', '=', 'warehouse.id')
                       ->join('company', 'client.company_id', '=', 'company.id')
@@ -112,6 +114,7 @@ class ClientController extends Controller
         $client->terms           = request()->json('terms');
         $client->company_id      = request()->json('company_id');
         $client->warehouse_id    = request()->json('warehouse_id');
+        $client->billing_country_id = request()->json('billing_country_id');
         $client->taxable         = ( request()->json('taxable') == 'true' ) ? true : false;
         $client->active          = ( !empty(request()->json('active')) ) ? true : false;
         $client->invoice_attachment_type = request()->json('invoice_attachment_type');

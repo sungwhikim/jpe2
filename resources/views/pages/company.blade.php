@@ -73,7 +73,7 @@
                         <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
                     </tr>
                     <tr>
-                        <td colspan="5" class="td-form">
+                        <td colspan="6" class="td-form">
                             <div class="collapse col-lg-12" id="item-@{{ item.id }}">
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <input class="item-id" type="hidden" ng-model="item.id" name="id">

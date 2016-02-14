@@ -10,7 +10,7 @@
     <div class="container main-content" ng-controller="ListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
             <div class="col-lg-7 col-md-6 col-sm-5">
-                <h1>Customers</h1>
+                <h1>Clients</h1>
             </div>
             @include('layouts.search-bar', ['criterias' => ['short_name' => 'Short Name',
                                                             'name' => 'Name',
