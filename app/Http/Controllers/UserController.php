@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Models\UserGroup;
+use App\Models\Warehouse;
+use App\Models\Client;
+use App\Models\UserWarehouse;
+use App\Models\UserClient;
 
 class UserController extends Controller
 {
@@ -69,8 +73,24 @@ class UserController extends Controller
         //get the list data with the default sort set the same as in the angular table
         $data = User::orderBy('name')->get();
 
+        //add warehouses to each client
+        foreach( $data as $item )
+        {
+            $item->warehouses = UserWarehouse::where('user_id', '=', $item->id)
+                                               ->lists('warehouse_id')->toArray();
+
+            $item->clients = UserClient::where('user_id', '=', $item->id)
+                                         ->lists('client_id')->toArray();
+        }
+
         //we need to send the url to do Ajax queries back here
         $url = url('/user');
+
+        //get the data lists
+        $warehouses = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
+        $warehouse_data = Warehouse::orderBy('name')->lists('id');
+        $clients = Client::select('id', 'name', 'active')->orderBy('name')->get();
+        $client_data = Client::orderBy('name')->lists('id');
 
         //get user groups
         $user_groups = UserGroup::where('active', '=', true)->orderBy('name')->get();
@@ -78,7 +98,11 @@ class UserController extends Controller
         return view('pages.user', ['main_data' => $data,
                                    'url' => $url,
                                    'my_name' => $this->my_name,
-                                   'user_group_data' => $user_groups]);
+                                   'user_group_data' => $user_groups,
+                                   'warehouses' => $warehouses,
+                                   'warehouse_data' => $warehouse_data,
+                                   'clients' => $clients,
+                                   'client_data' => $client_data]);
     }
 
     public function getById($id)

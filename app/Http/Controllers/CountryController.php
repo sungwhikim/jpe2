@@ -16,7 +16,7 @@ class CountryController extends Controller
     public function getListView()
     {
         //get the list data with the default sort set the same as in the angular table
-        $data = Country::select('id', 'code', 'name')->orderBy('code')->get();
+        $data = Country::select('id', 'code', 'name', 'currency_name', 'currency_prefix')->orderBy('code')->get();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/country');

@@ -187,6 +187,16 @@ body {
 .td-form .checkbox-list-left .panel-checkbox .checkbox-list-body {
     height: 200px;
 }
+.td-form .checkbox-list-right {
+    width: inherit;
+}
+.td-form .checkbox-list-right .panel-checkbox {
+    width: 410px;
+    margin: 0 0 30px 30px;
+}
+.td-form .checkbox-list-right .panel-checkbox .checkbox-list-body {
+    height: 200px;
+}
 .td-form .divider-checkbox {
     height: 1px;
     position: relative;

@@ -45,6 +45,18 @@
                                         @include('forms.new-name', ['size' => 50])
                                         @include('forms.new-email', ['required' => 'required'])
                                         @include('forms.new-password')
+
+                                        @include('forms.divider')
+                                        @include('forms.new-checkbox-list', ['title' => 'Warehouses',
+                                                                             'name' => 'warehouses',
+                                                                             'container_class' => 'checkbox-list-left',
+                                                                             'list_data' => $warehouses,
+                                                                             'master_list' => 'mainList.warehouseData'])
+                                        @include('forms.new-checkbox-list', ['title' => 'Clients',
+                                                                             'name' => 'clients',
+                                                                             'container_class' => 'checkbox-list-right',
+                                                                             'list_data' => $clients,
+                                                                             'master_list' => 'mainList.clientData'])
                                         @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
@@ -75,6 +87,18 @@
                                         @include('forms.name', ['size' => 50])
                                         @include('forms.email', ['required' => 'required'])
                                         @include('forms.password')
+
+                                        @include('forms.divider')
+                                        @include('forms.checkbox-list', ['title' => 'Warehouses',
+                                                                         'name' => 'warehouses',
+                                                                         'container_class' => 'checkbox-list-left',
+                                                                         'list_data' => $warehouses,
+                                                                         'master_list' => 'mainList.warehouseData'])
+                                        @include('forms.checkbox-list', ['title' => 'Clients',
+                                                                         'name' => 'clients',
+                                                                         'container_class' => 'checkbox-list-right',
+                                                                         'list_data' => $clients,
+                                                                         'master_list' => 'mainList.clientData'])
                                         @include('forms.edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
@@ -98,6 +122,8 @@
          var appUrl  = '{{ $url }}';
          var appData = {!! $main_data !!};
          var userGroupData = {!! $user_group_data !!};
+         var warehouseData = {!! $warehouse_data !!};
+         var clientData = {!! $client_data !!};
      </script>
 @stop
 
