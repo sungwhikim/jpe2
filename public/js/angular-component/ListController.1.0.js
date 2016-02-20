@@ -25,16 +25,16 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
     ListController.newItem = {};
     ListController.alerts = ListService.alerts;
 
-    /* ---- SET ADDITIONAL DATA LISTS ---- */
+    /* ---- SET DATA TO BE USED FOR LISTS---- */
     if( typeof countryData != "undefined" ) { ListController.countries = countryData; }
     if( typeof categoryData != "undefined" ) { ListController.categories = categoryData; }
     if( typeof userGroupData != "undefined" ) { ListController.user_groups = userGroupData; }
-    if( typeof warehouseData != "undefined" ) { ListController.warehouses = warehouseData; }
     if( typeof companyData != "undefined" ) { ListController.companies = companyData; }
-    if( typeof checkboxData != "undefined" ) {
-        ListController.checkboxItems = checkboxData;
-        checkBoxService.items = checkboxData;
-    }
+
+    /* ----- SET DATA FOR CHECKBOX SERVICE. THE MASTER LIST OF ITEMS FOR CHECK ALL FUNCTION ---- */
+    /* This needs to be set to allow Angular to have access to it in the checkbox service */
+    if( typeof userFunctionList != "undefined" ) { ListController.userFunctionList = userFunctionList; }
+    if( typeof warehouseData != "undefined" ) { ListController.warehouseData = warehouseData; }
 
     /* CREATE OVER-LOADED FUNCTION TO RESET THE DATA */
     /* -- This is mostly to initialize the new item model members -- */
@@ -43,6 +43,7 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
         mainController.newItem.user_function_id = [];
         mainController.newItem.invoice_attachment_type = 'excel';
         mainController.newItem.taxable = 'true';
+        mainController.newItem.warehouses = [];
     };
 
     /* INIT DATA */

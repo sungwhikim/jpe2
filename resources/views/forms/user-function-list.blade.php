@@ -1,14 +1,14 @@
 <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <label style="margin-left: 15px;">User Functions</label>
+        <label style="margin: 0 10px 10px 15px;">User Functions</label>
+        <button class="btn btn-xs btn-default" ng-click="mainList.allCheckBoxes(item.user_function_id, mainList.userFunctionList)" type="button">All</button>
+        <button class="btn btn-xs btn-default" ng-click="mainList.noneCheckBoxes(item.user_function_id)" type="button">None</button>
     </div>
     @foreach( $user_functions as $user_function )
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                {{ $user_function['category_name'] }}&nbsp;&nbsp;
-                {{--<button class="btn btn-xs btn-default" onclick="allCheckBoxes(this)" type="button">All</button>--}}
-                {{--<button class="btn btn-xs btn-default" onclick="noneCheckBoxes(this)" type="button">None</button>--}}
+                {{ $user_function['category_name'] }}
             </div>
             <div class="panel-body checkbox-list-body">
                 <ul class="nav nav-pills nav-stacked">

@@ -36,6 +36,8 @@ ALTER TABLE ONLY public.province DROP CONSTRAINT province_pkey;
 ALTER TABLE ONLY public.customer DROP CONSTRAINT customer_pkey;
 ALTER TABLE ONLY public.customer_migrate DROP CONSTRAINT customer_migrate_pkey;
 ALTER TABLE ONLY public.country DROP CONSTRAINT country_pkey;
+ALTER TABLE ONLY public.company DROP CONSTRAINT company_pkey;
+ALTER TABLE ONLY public.client_warehouse DROP CONSTRAINT client_warehouse_pkey;
 ALTER TABLE public.user_group_to_user_function ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.user_group ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.user_function_category ALTER COLUMN id DROP DEFAULT;
@@ -44,6 +46,9 @@ ALTER TABLE public."user" ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.province ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.customer ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE public.country ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE public.company ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE public.client_warehouse ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE public.client_migrate ALTER COLUMN id DROP DEFAULT;
 DROP TABLE public.warehouse_migrate;
 DROP TABLE public.warehouse;
 DROP SEQUENCE public.warehouse_id_seq;
@@ -61,10 +66,18 @@ DROP SEQUENCE public.province_id_seq;
 DROP TABLE public.province;
 DROP TABLE public.password_reset;
 DROP TABLE public.customer_migrate;
-DROP SEQUENCE public.customer_id_seq;
-DROP TABLE public.customer;
 DROP SEQUENCE public.country_id_seq;
 DROP TABLE public.country;
+DROP SEQUENCE public.company_id_seq;
+DROP TABLE public.company;
+DROP TABLE public.client_warehouse_migrate;
+DROP SEQUENCE public.client_warehouse_id_seq;
+DROP TABLE public.client_warehouse;
+DROP SEQUENCE public.client_migrate_id_seq;
+DROP TABLE public.client_migrate;
+DROP TABLE public.client;
+DROP SEQUENCE public.customer_id_seq;
+DROP TABLE public.customer;
 DROP EXTENSION plpgsql;
 DROP SCHEMA public;
 --
@@ -102,42 +115,6 @@ SET search_path = public, pg_catalog;
 SET default_tablespace = '';
 
 SET default_with_oids = false;
-
---
--- Name: country; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
---
-
-CREATE TABLE country (
-    id integer NOT NULL,
-    code character(2) NOT NULL,
-    name character varying(100) NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
-ALTER TABLE country OWNER TO sungwhikim;
-
---
--- Name: country_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
---
-
-CREATE SEQUENCE country_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE country_id_seq OWNER TO sungwhikim;
-
---
--- Name: country_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
---
-
-ALTER SEQUENCE country_id_seq OWNED BY country.id;
-
 
 --
 -- Name: customer; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
@@ -183,6 +160,224 @@ ALTER TABLE customer_id_seq OWNER TO sungwhikim;
 --
 
 ALTER SEQUENCE customer_id_seq OWNED BY customer.id;
+
+
+--
+-- Name: client; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE client (
+    id integer DEFAULT nextval('customer_id_seq'::regclass) NOT NULL,
+    contact character varying(100),
+    short_name character varying(30) NOT NULL,
+    name character varying(100) NOT NULL,
+    email character varying(100),
+    address1 character varying(100) NOT NULL,
+    address2 character varying(100),
+    city character varying(50) NOT NULL,
+    province_id integer,
+    country_id integer,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone,
+    phone character varying(30),
+    fax character varying(30),
+    postal_code character varying(2044) NOT NULL,
+    active boolean NOT NULL,
+    website character varying(100),
+    billing_contact character varying(100),
+    billing_email character varying(1000),
+    taxable boolean DEFAULT true NOT NULL,
+    company_id integer NOT NULL,
+    terms character varying(100),
+    invoice_attachment_type character varying(10) NOT NULL,
+    billing_country_id integer NOT NULL,
+    warehouse_id integer
+);
+
+
+ALTER TABLE client OWNER TO sungwhikim;
+
+--
+-- Name: client_migrate; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE client_migrate (
+    id integer NOT NULL,
+    short_name character varying(30) NOT NULL,
+    name character varying(100) NOT NULL,
+    website character varying(100),
+    address1 character varying(100) NOT NULL,
+    address2 character varying(100),
+    city character varying(50) NOT NULL,
+    province character varying(100),
+    country character varying(100),
+    postal_code character varying(2044) NOT NULL,
+    contact character varying(100),
+    phone character varying(30),
+    fax character varying(30),
+    email character varying(100),
+    active boolean NOT NULL,
+    billing_contact character varying(100),
+    billing_phone character varying(100),
+    billing_email character varying(1000),
+    billing_currency character varying(100),
+    taxable boolean DEFAULT true NOT NULL,
+    company_id integer NOT NULL,
+    terms character varying(100),
+    invoice_attachment_type character varying(10) NOT NULL
+);
+
+
+ALTER TABLE client_migrate OWNER TO sungwhikim;
+
+--
+-- Name: client_migrate_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE client_migrate_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE client_migrate_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: client_migrate_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE client_migrate_id_seq OWNED BY client_migrate.id;
+
+
+--
+-- Name: client_warehouse; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE client_warehouse (
+    client_id integer NOT NULL,
+    warehouse_id integer NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE client_warehouse OWNER TO sungwhikim;
+
+--
+-- Name: client_warehouse_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE client_warehouse_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE client_warehouse_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: client_warehouse_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE client_warehouse_id_seq OWNED BY client_warehouse.id;
+
+
+--
+-- Name: client_warehouse_migrate; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE client_warehouse_migrate (
+    client_id integer,
+    warehouse_id integer
+);
+
+
+ALTER TABLE client_warehouse_migrate OWNER TO sungwhikim;
+
+--
+-- Name: company; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE company (
+    id integer NOT NULL,
+    short_name character varying(30),
+    name character varying(100) NOT NULL,
+    address1 character varying(100) NOT NULL,
+    address2 character varying(100),
+    city character varying(50) NOT NULL,
+    province_id integer NOT NULL,
+    country_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone,
+    postal_code character varying(2044) NOT NULL,
+    active boolean NOT NULL
+);
+
+
+ALTER TABLE company OWNER TO sungwhikim;
+
+--
+-- Name: company_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE company_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE company_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: company_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE company_id_seq OWNED BY company.id;
+
+
+--
+-- Name: country; Type: TABLE; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+CREATE TABLE country (
+    id integer NOT NULL,
+    code character(2) NOT NULL,
+    name character varying(100) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    currency_name character varying(30),
+    currency_prefix character varying(10)
+);
+
+
+ALTER TABLE country OWNER TO sungwhikim;
+
+--
+-- Name: country_id_seq; Type: SEQUENCE; Schema: public; Owner: sungwhikim
+--
+
+CREATE SEQUENCE country_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE country_id_seq OWNER TO sungwhikim;
+
+--
+-- Name: country_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sungwhikim
+--
+
+ALTER SEQUENCE country_id_seq OWNED BY country.id;
 
 
 --
@@ -520,6 +715,27 @@ ALTER TABLE warehouse_migrate OWNER TO postgres;
 -- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
 --
 
+ALTER TABLE ONLY client_migrate ALTER COLUMN id SET DEFAULT nextval('client_migrate_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY client_warehouse ALTER COLUMN id SET DEFAULT nextval('client_warehouse_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
+--
+
+ALTER TABLE ONLY company ALTER COLUMN id SET DEFAULT nextval('company_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sungwhikim
+--
+
 ALTER TABLE ONLY country ALTER COLUMN id SET DEFAULT nextval('country_id_seq'::regclass);
 
 
@@ -573,12 +789,1004 @@ ALTER TABLE ONLY user_group_to_user_function ALTER COLUMN id SET DEFAULT nextval
 
 
 --
+-- Data for Name: client; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY client (id, contact, short_name, name, email, address1, address2, city, province_id, country_id, created_at, updated_at, phone, fax, postal_code, active, website, billing_contact, billing_email, taxable, company_id, terms, invoice_attachment_type, billing_country_id, warehouse_id) FROM stdin;
+369	BRUCE HUANG	All Ab	ABSORLUTION LLC		3123 S. UNIVERSITY DR.	# 13	FORT WORTH	57	2	2016-02-16 11:45:35	2016-02-16 11:49:19	817-793-8141		76109	t			rmathis@jpent.com; bruce.huang@all-absorb.com	f	2		excel	2	53
+135		CLIMAX	Climax's Manufacturing Company					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+140	Shiraz Chatur	JAN MAR	Jan Mar Sales	jan-mar@sympatico.ca				\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+142		LW	Learning Wood					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+308		Accutime	ACCUTIME WATCH CORP.		1001 Avenue of the Americas	6th Floor	New York	46	2	2016-02-16 11:45:35	2016-02-20 17:04:31			10018	t			rmathis@jpent.com; lyonathan@accutimewatch.com; asindawati@accutimewatch.com	t	2		excel	2	\N
+9	Sung-Whi Kim	testing1	test1	sungwhikim@gmail.com	123 Any Street	\N	Portland	21	2	2016-02-20 17:10:35	2016-02-20 17:10:35	559-741-9220	4444	97210	t	\N	Sung-Whi Kim	sungwhikim@gmail.com	f	1	net 10	pdf	2	\N
+366		Virtu	Virtu					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	2	\N
+367		Bedford	BEDFORD FOOTWEAR GROUP					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	2		excel	1	\N
+371		Biion	Biion Footwear					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+373		Cub	Cubbies					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+377	ROBERT SCHUITEMA	PWS	PHOSLOCK PTY. LTD.		P.O. BOX 249		NORTHBRIDGE	\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35	+61 2 8014 7611	+61 8014 7625	1560	t			rmathis@jpent.com; enquiries@phoslock.com.au; ntraill@phoslock.com.au	t	2		excel	1	\N
+381		Xstrata	Xstrata					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+419	NATALIE SKILLEN	Sago	SAGO SAGO TOYS INC.	nskillen@sagosago.com	487 ADELAIDE ST. WEST	SUITE 301	TORONTO	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	4167036459		M5V1T4	t			rmathis@jpent.com; nskillen@sagosago.com; nscherbina@sagosago.com	t	2		excel	2	\N
+424	EUAN MCCGRATH/DAN DEXEL	TechN	TECHNICHE CANADA		200 NORTH SERVICE ROAD WEST	UNIT # 1, SUITE # 426	OAKVILLE	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	289-288-5022	905-689-2759	L6M 2Y1	t			rmathis@jpent.com; euan@techniche-canada.com; dan@techniche-canada.com	t	1		excel	1	\N
+425	NATALIE SKILLEN	Sago-DAL	SAGO SAGO TOYS INC.	nskillen@sagosago.com	487 ADELAIDE ST. WEST	SUITE 301	TORONTO	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-703-6459		M5V1T4	t			rmathis@jpent.com; nskillen@sagosago.com; nscherbina@sagosago.com	f	2		excel	2	\N
+431		IPS-Sea	Smart Rink					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+178		MPS	MPS - MULTI PRODUCT SOLUTIONS		1290 Blundell Road #5		Mississauga	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-949-4015		L4Y1M5	t			rmathis@jpent.com	t	1		excel	1	\N
+244	Imran Khan	SL	Supply Line		193 Maxome Ave		Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-838-8440		M2M 3L1	t			rmathis@jpent.com; supplyline@acanac.net	t	1		excel	1	\N
+249	Sal Costilla	A&R	A & R GLOBAL LOGISTICS		920 Davis Road	Suite 110	Elgin	27	2	2016-02-16 11:45:35	2016-02-16 11:52:39	209-667-4407		60123	t				f	2		excel	2	53
+243		DC	Dave Company	dculbert@jpent.com	38 Minnewawa Rd			\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t			sungwhikim@gmail.com; jim@larkinweb.com	t	1		pdf	1	\N
+134	John Eliashevsky	CEREAL	CEREAL PRODUCTS TRADE LTD.	mungdahl@sympatico.ca	2 Crowley Court		Dundas	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	647-288-7087	905-628-5268	L9H 6C6	t			rmathis@jpent.com; mungdahl@magma.ca	t	1		pdf	1	\N
+411	BRAD SIGOUIN	Cupro	CUPRO SOLUTIONS INC.	brad@cupro.ca	P.O. BOX 3397		LANGLEY	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	8006037127	6042885333	V3A4R7	t			rmathis@jpent.com; brad@cupro.ca	t	2		pdf	1	\N
+414	MAQSUD ALIGHAZI	Dimes	DIMES CANADA INC.	dimescanada@yahoo.ca	MAQSUD ALIGHAZI	4 KENVIEW BLVD.	BRAMPTON	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	(905)-812-0016/(647)-390-9383	(905)-812-0576	L6T 5E4	t			rmathis@jpent.com; dimescanada@yahoo.ca; MA@dimesproducts.ca	t	1		pdf	1	\N
+415	ADAM MELTZ	Cantrio	CANTRIO KONCEPTS	adam@cantrio.ca	20 DENSLEY AVENUE		TORONTO	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			M6M 2R1	t			rmathis@jpent.com; adam@cantrio.ca	t	1		pdf	1	\N
+416	HELEN WILLIAMS	Cosmic	COSMIC BOXX AND PACKAGING	cosmicbox@rogers.com	201 KINGSVIEW DRIVE		CALEDON	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	9058562225	9058568785	L7E3W8	t			rmathis@jpent.com; cosmicbox@rogers.com	t	1		pdf	1	\N
+418	Sandra Mirkovic	Bravo	BRAVO EDUCATION	sandra@bravoeducation.com	313 KILLIAN ROAD		MAPLE	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-220-2217		L6A1A6	t			rmathis@jpent.com; sandra@bravoeducation.com	t	1		pdf	1	\N
+304	Robert J. Kerr	Enviro	Enviro-Gel		104 Bond Street		Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			M5B 1X9	t			rmathis@jpent.com; rob@enviro-gel.com	t	2		excel	1	\N
+167	Julia Flynn	CHLOE	Chloe Boutique		3333 Bristol St. Suite # 2225	South Coast Plaza Mall	Costa Mesa	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35			92626	f				f	1		excel	1	\N
+172	Michael Pittser 	TRI	TR Theatre Research		6122 Katella Avenue		Cypress	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35	714-894-5888		90630	t			rmathis@jpent.com	f	3		excel	2	\N
+422	MARVA DUNCAN	Kinks	KINKSOLOGY INC.		7 QUEEN STREET SOUTH		MISSISSAUGA	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			L5M1K2	t			rmathis@jpent.com; kinkshairstudioandspa@gmail.com	t	1		pdf	1	\N
+432	ERICK ALINAS/PATTI SIKORSKI	Saks	SAKS FIFTH AVENUE CANADA	patti.sikorski@hbc.com	401 BAY STREET	9TH FLOOR, SUITE 900	TORONTO	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	(416) 861-4238	(416) 861-6619	M5H 2Y4	t			rmathis@jpent.com; patti.sikorski@hbc.com; erick.alinas@hbc.com	t	1		pdf	1	\N
+412	JOHANNE GREINER	JAB	JAB RECREATIONAL PRODUCTS INC.	johanne@jabcanada.com	21 PRINCIPALE		BATISCAN	\N	1	2016-02-16 11:45:35	2016-02-16 11:45:35	4183620035	4183620036	G0X 1A0	t			rmathis@jpent.com; johanne@jabcanada.com	t	2		pdf	1	\N
+300	CHELSEA GREGORY	LT	LORD & TAYLOR		424 5TH AVENUE		NEW YORK	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	212 382 6346		10018	t			rmathis@jpent.com; ltpurchasinginvoices@lordandtaylor.com	f	1		pdf	2	\N
+409	SHARON EVANS	MG	MG DEVELOPMENT AMERICA, INC	sharonevans@verizon.net	1409 TOWNE SQUARE DRIVE		ALLISON PARK	52	2	2016-02-16 11:45:35	2016-02-16 11:45:35	4123036302		15101	t			rmathis@jpent.com; sharonevans@verizon.net	t	2		pdf	2	\N
+417	JENNIFER PHILLIPS	EPT	ENVIRONMENTAL PACKAGING TECHNOLOGIES, INC.		130 CENTRAL AVE	SUITE 110	HOLLAND	36	2	2016-02-16 11:45:35	2016-02-16 11:45:35	713-961-2795		49424	t		Ryan Dixon	rmathis@jpent.com; rdixon@eptpac.com	t	1		pdf	2	\N
+393	CHELSEA GREGORY	L&T BW	LORD & TAYLOR		424 5TH AVE.		NEW YORK	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	212 382 6346		10018	t			rmathis@jpent.com; ltpurchasinginvoices@lordandtaylor.com	f	1		pdf	2	\N
+146		SOFTPLAY	Soft Play Inc.					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+149	Yakub Dawood	YARN	Yarn - Dawood	yakubdawood@hotmail.com				\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35	416 720 8654			f				f	1		excel	1	\N
+153	DAN	DDS	DDS Overflow				MISSISSAUGA	\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f			rmathis@jpent.com	t	1		excel	1	\N
+157		EXTREME	Extreme Retail Inc.					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+158		NOKA	Noka Chocolate					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+159		WORLD WIDE	World Wide Stone					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+160		GH	Great Harvest MPS 					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+161		GNF	Great Northern Foods Inc.					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+162		BERWICK	Berwick 					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+163	Nima Ghazi	GL	Giant Leap International					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+164		Giant	Jason Robinson 					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+166	JOSEPH YU	HBC BAGS	HBC RE-USEABLE BAGS					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+168	Susan Kirsch	KIRSCH	Kirsch	makeupartistsusan@rogers.com				\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+174		DUR	Duro Designer					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+176		HBC	HBC Forms					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t			rmathis@jpent.com	f	1		excel	1	\N
+177		JP	JP STOCK					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+179		MRK	Marking Products					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+180		MSC	Miscellaneous Products					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+182		SIZ	Sizing Products					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+210		TESTCLIENT	TESTCLIENT					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+233		JPMFG	JPMFG					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+247		Sierra	Sierra Home Products					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f			rmathis@jpent.com	t	1		excel	1	\N
+141	Chris Kaiser	KAISER	Kaiser Group Inc.		5021 Vernon Ave. S #243		Edina	37	2	2016-02-16 11:45:35	2016-02-16 11:45:35	952 920 0299		55436	f				f	1		excel	1	\N
+143	Luis Losada	PAK	PAK 2000		189 Governor Wentworth Hwy.		Mirror Lake	43	2	2016-02-16 11:45:35	2016-02-16 11:45:35	603 569 3700	603 569 5478	03853	t	www.pak2000.com		rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	f	2		excel	2	\N
+181	Brad Rongey	PJ	Zale Canada		901 West Walnut Hill Lane		Irving 	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	972-580-4650	972-580-4772	75038	t			rmathis@jpent.com	t	1		excel	2	\N
+248		STFO	STFO Trading LLC		8512 Queens Blvd		New York	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35			11373	f			rmathis@jpent.com; stfotrading@gmail.com	f	2		excel	2	\N
+169		GLOPACK	Glopack		48 N15 STREET		BROOKLYN	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35			11222	f			rmathis@jpent.com;	f	2		excel	2	\N
+150	Max Hackett - Adam Nguyen	YOUNGSTOWN	Youngstown Equipment Co.		766 Lakefield Rd. # F		Westlake Village	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35	805 557 4588	805 5570 4587	91361	f				f	1		excel	1	\N
+132	Amyn Bhulji	BCI	BRITISH CANADIAN IMPORTERS		7588 Winston Street		Burnaby	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	604-681-3554	604-681-0567	V5A 4X5	f			rmathis@jpent.com	t	1		excel	1	\N
+136	CHARLES KUMI	EXPRESS	Express Retail Packaging		60 NORTHFACE CRESCENT		BRAMPTON	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			L6R 2X8	f			rmathis@jpent.com; sales@expressgreenpak.com	t	1		excel	1	\N
+145		SM	SM Trading House		P.O. Box 14526	4646 Heritage Hills Blvd.	Mississauga	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-890-7002		L5R 1Y4	t			rmathis@jpent.com; pajnigara@hotmail.com	t	1		excel	1	\N
+147	Dave Culbert	TEST	Test Customer	dculbert@jpent.com	1368 Blundell Road		Mississauga	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-949-0046	905-949-0047	L4Y 1M5	f	www.jpent.com			f	1		excel	1	\N
+156		CW	Canada Wire & Metal Inc.		1688 W 75 Ave		Vancouver	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	1 604 264 0034	1 604 264 0047	V6P 6G2	f				f	1		excel	1	\N
+242	Jim Larkin	JIM	Jim's Mfg	jim@larkinweb.com	48 Mt Pleasant Dr.		Brampton 	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-595-0397	905-595-1278	L6Z 1K3	t	www.larkinweb.com		jim@larkinweb.com	f	1		excel	1	\N
+245	Linda Stephenson	MER	Mereadesso		120 Eglinton Avenue East	Suite 602	Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-824-6853		M4P 1E2	t			rmathis@jpent.com; linda@mereadesso.com; lori@mereadesso.com; jean@mereadesso.com	t	1		excel	1	\N
+260		Glopack CD	Glopack Cross Dock					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+261		Glo CD	Glopack Cross Dock					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+262		GloCD	Glopack Cross Dock					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+270		GE	GENERAL ELECTRIC					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+287		Zale	Zale Misc		Dallas			\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+293		CG	COCONUT GROVE INTIMATES					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f			rmathis@jpent.com	f	2		excel	2	\N
+294		TAC	Tactical Inc.					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+296		Zale 2	Zale Reg Stock					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+297	Guillaume Chalifoux		Yellow Korner	guillaume.chalifoux@gmail.com	8 rue des Francs Bourgeois		Paris	\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35	+33 (0)1 49 96 50 20		75003	t	www.yellowkorner.com			f	1		excel	1	\N
+298	Guillaume Chalifoux	YK	Yellow Korner	guillaume.chalifoux@gmail.com	8 rue des Francs Bourgeois		Paris	\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35	+33 (0)1 49 96 50 20		75003	f				f	1		excel	1	\N
+306		Axiom	Axiombrands					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+307		Cavanna	Cavanna Olii		Via Circonvallazione	No. 5	Casella	\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35			16015	f				f	1		excel	1	\N
+259	Moustafa Elqabbany	Shukr	Shukr Clothing	martha@shukrclothing.com	8345 NW 66th St.	#6483	Miami	\N	2	2016-02-16 11:45:35	2016-02-16 11:45:35			33166	f	www.shukrclothing.com		rmathis@jpent.com; heba@shukrclothing.com; ghassan@shukrclothing.com	t	2		excel	1	\N
+263	nathalie desrochers	Transco MF	Transco MaidenForm	ndesrochers@Transco.net	8096 Montview		Montreal	12	1	2016-02-16 11:45:35	2016-02-16 11:45:35	514-733-9951		H4P 2L7	f		Elizabeth de Vries	rmathis@jpent.com; ndesrochers@Transco.net	f	3		excel	2	\N
+277		Westco	Westco Supplies		1688 West 75th Ave.		Vancouver	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35			V6P 6G2	t				f	1		excel	1	\N
+264		WATKINS	Watkins, David		P.O. BOX 271017		Dallas	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	713-521-2101		77277	t			rmathis@jpent.com; david@dwatkinsco.com	f	3		excel	2	\N
+269		BerickW	Berwick Wallmart					\N	2	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+272	Cody Young	CV	CARMEN'S DISTRIBUTION SYSTEMS		4585 Poth Road		Columbus	49	2	2016-02-16 11:45:35	2016-02-16 11:45:35	800-886-8227		43213	t			rmathis@jpent.com; Cody@carmensvacuum.com; glenn@carmensvacuum.com.	t	1		excel	2	\N
+275	Shawn Dierson	INX	INX International Ink Co.		150 N Martingale Rd.	Suite 700	Schaumburg	27	2	2016-02-16 11:45:35	2016-02-16 11:45:35			60173	t				f	1		excel	1	\N
+281	Awais Izhar	Ava	Stylus Marketing		303-345 Lakeshore Road East		Oakville	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-331-1245		L6J 1J5	f			rmathis@jpent.com; info@stylusmarketing.ca; awais@stylusmarketing.ca	t	2		excel	1	\N
+284	Lee	Cubbies	BabyCubbies		177 Redpath Ave		Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			M4P 2W3	f				f	1		excel	1	\N
+285		WR	WR Display and Packaging		30 Plymouth Street		Winnipeg	4	1	2016-02-16 11:45:35	2016-02-16 11:45:35	1-800-665-8447		R2X 2V7	f			rmathis@jpent.com	t	1		excel	1	\N
+286	James Colburn	PB	Pacific Bottleworks		SUITE 202 - 9188 GLOVER ROAD	P.O. BOX 490	FORT LANGLEY	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	604-371-1011	604-371-1012	V1M2R8	t			rmathis@jpent.com; james@pbwc.ca; lauren@pbwc.ca	t	2		excel	1	\N
+288	Ryan Grossman	Maracaibo	Maracaibo Distribution Inc.		1944 Yonge Street	Suite 301	Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-970-4777		M4S 3E5	f			rmathis@jpent.com	t	2		excel	1	\N
+290	Philip Almeida	McD	McDermid Paper		B 2951 Bristol Circle		Oakville	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-819-8900		L6H 6P9	f				f	1		excel	1	\N
+292		DR	DeepRoot		201-2425 Quebec St		Vancouver	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35			V5T 4L6	f				f	1		excel	1	\N
+299	Sabir Chippa	Ideal	Ideal Impex		708-43 Thorncliffe Park Drive		Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-890-5389		M4H 1J4	t			rmathis@jpent.com; info@idealimpex.ca	t	1		excel	1	\N
+271	Rod Paterson	AS Pat	A.S. PATERSON COMPANY LTD.		1110 Sheppard Avenue East	Suite 404	Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-222-3333		M2K 2W2	t			rmathis@jpent.com; ablake@aspaterson.com	t	2		excel	1	\N
+280	David Stegeman	HT	HT Griffin	davids@htgriffin.com	HT Griffin Food Ingredients	7491 Pacific Circle	Mississauga	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-564-1710 ext 224	905-564-2494	L5T 2A4	t			rmathis@jpent.com; ap@HTGriffin.com; juliar@HTGriffin.com	t	2		excel	1	\N
+317		ADI	ADI CARPET					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f			rmathis@jpent.com	f	1		excel	1	\N
+319		JA	Jewel America					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f			rmathis@jpent.com	t	1		excel	1	\N
+323		Iconna	Iconna		c/o 111 Sik Kong Wai Road	Block 13 1 Floor	Yuen Long	7	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f			rmathis@jpent.com; iconna@netvigator.com	f	2		excel	2	\N
+331		KC	KenCraft					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t			rmathis@jpent.com	t	1		excel	1	\N
+344		FE	Fleet Engineers					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+312	Ezra Dweck	Dweck	Dweck Associates		230 5th Avenue	Suite 1512	New York	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35			10001	t			rmathis@jpent.com; ezra@daicompany.com	f	2		excel	2	\N
+318	Inggrid Limoseputro	WESSCO	Wessco Companies		6940 NW 12 Street		Miami	23	2	2016-02-16 11:45:35	2016-02-16 11:45:35	310-477-4272		33126	t			rmathis@jpent.com; cece@wessco.net; isis@wessco.net	f	3		excel	2	\N
+334	Sung Whi Kim	ZTest	Test Client		123 Any Street		Portland	51	2	2016-02-16 11:45:35	2016-02-16 11:45:35			97202	t	www.foo.com	Sung Whi Kim	sungwhikim@Gmail.com	t	3		excel	2	\N
+313	Bill Ingram	Amjay	AMJAY ROPES & TWINE LTD.		1145 NICHOLSON ROAD	UNIT 1	Newmarket	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			L3Y 9C3	t			rmathis@jpent.com; bingram@amjayropesandtwines.com; mhallman@amjayropesandtwines.com	t	2		excel	1	\N
+314	Robert Jenetti	GT	Gourmet Trading Co.		3750A Laird Rd	Unit #1	Mississauga	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			L5L 0A6	t			rmathis@jpent.com	t	2		excel	1	\N
+315	Roz Staple	IPS	SMART RINK	roz@smartrink.com	255 WINDMILL ROAD		DARTMOUTH	8	1	2016-02-16 11:45:35	2016-02-16 11:45:35			B3A 1G	t			rmathis@jpent.com; roz@smartrink.com	t	2		excel	1	\N
+321	Adam	GS	Giant Air Supplies		260 Adelaide Street East		Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	647-998-7467		M5A 1N1	t			rmathis@jpent.com; adam@giantairsupplies.com	t	1		excel	1	\N
+325	Gary Stratakos	Neo	Neo Image		1331 Blundell Road		Mississauga	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	(905)273-3020 x61	(905) 273-6905	L4Y 1M5	t			rmathis@jpent.com; gary@neo-image.com; eleni@neo-image.com	t	2		excel	1	\N
+329	Linda Stephenson	MER DAL	Mereadesso Dallas		120 Eglinton Avenue East	Suite 602	Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-824-6853		M4P 1E2	t			rmathis@jpent.com; linda@mereadesso.com; lori@mereadesso.com; jean@mereadesso.com	f	1		excel	1	\N
+330	RINO SPADAFINA	Ecom	Ecom Design and Development		143 LORMEL GATE		WOODBRIDGE	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			L4H0C5	t			rmathis@jpent.com; spadafina@rogers.com	t	2		excel	1	\N
+340	Kristina Boudaeva	KG	WAFF WORLD GIFTS		5139 Decarie	Suite 205	Montreal	\N	1	2016-02-16 11:45:35	2016-02-16 11:45:35	514-906-0045	1-888-216-8691	H3W 3C2	t			rmathis@jpent.com; info@ilovewaff.com; accounting@ilovewaff.com	t	2	30 days	excel	1	\N
+342	Jeremy Bowman	Trollbeads	Trollbeads Canada Ltd.	jeremy@trollbeadscanada.com	320 - 1770 Burrard Street		Vancouver	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	604-683-5700 ext 301	604 648 8253	V6J 3G7	t	www.trollbeadscanada.com		rmathis@jpent.com; jeremy@trollbeadscanada.com	t	2		excel	1	\N
+345	Adam Dunn	MF TOR	MONSTER FACTORY CORPORATION		471 RICHMOND STREET WEST	SUITE 102	TORONTO	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			M5V 1X9	t			rmathis@jpent.com; adam@monsterfactory.net; rachellem@9story.com	t	2		excel	1	\N
+346	Adam Dunn	MF NJ	MONSTER FACTORY CORPORATION		471 RICHMOND STREET WEST	SUITE 102	TORONTO	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			M5V 1X9	t			rmathis@jpent.com; adam@monsterfactory.net; rachellem@9story.com	f	2		excel	2	\N
+337	Nathalie Desrochers	TRANS TOR	Transco Plastics	ndesrochers@Transco.net	8096 Montview		Montreal	\N	1	2016-02-16 11:45:35	2016-02-16 11:45:35	514-733-9951		H4P 2L7	t		Debbie Kamien	rmathis@jpent.com; ndesrochers@Transco.net	t	1		excel	1	\N
+343	Kristina Boudaeva	KG NJ	WAFF WORLD GIFTS		5139 Decarie	Suite 205	Montreal	\N	1	2016-02-16 11:45:35	2016-02-16 11:45:35	514-906-0045	1-888-216-8691	H3W 3C2	t			rmathis@jpent.com; info@ilovewaff.com; accounting@ilovewaff.com	f	2	30 days	excel	2	\N
+320	Lee-Ann Vann	SF	Superior Finishes		80 Paramount Road		Winnipeg	4	1	2016-02-16 11:45:35	2016-02-16 11:45:35	204-985-9820 X 829		R2X 2W3	t			rmathis@jpent.com; order@superiorfinishesinc.com	t	2		excel	1	\N
+384	David Pellegrin	MODANI-DAL	Modani Furniture Dallas	dparker@jpent.com				\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35	214-432-4814			t			davidpellegrin@modani.com;	f	1		excel	2	\N
+387		Cub-Chi	Cubbies					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+357	Julie Verral	AST-3PL	AST Corrugated	jverral@3pllinks.com	3PL Links Inc.	100 Marycroft Avenue	Woodbridge	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-850-9002 x 207	905-850-9023	L4L 5Y4	t			rmathis@jpent.com; jverral@3pllinks.com; ap@3pllinks.com	t	2		excel	1	\N
+359	JULIE VERRAL	Con-3PL	East Conduit	jverral@3pllinks.com	3PL LINKS INC.	100 MARYCROFT AVENUE	WOODBRIDGE	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-850-9002 X207	905-850-9023	L4L5Y4	t			rmathis@jpent.com; jverral@3pllinks.com; ap@3pllinks.com	t	2		excel	1	\N
+351	Estela Barroso	IBB	Inernational Bullion & Metal Brokers (USA) Inc	ibbap@ibbusa.com	14051 NW 14th Street		Sunrise	23	2	2016-02-16 11:45:35	2016-02-16 11:45:35	954-660-6900	954-660-6925	33323	t			rmathis@jpent.com; ibbap@ibbusa.com	t	2		excel	1	\N
+353	CHARLIE WILLIAMS	WRG	WORKPLACE RESOURCE GROUP	CWILLIAMS@WRGTEXAS.COM	2941 TRADE CENTER DRIVE	SUITE 120	CARROLLTON	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	972-389-8885	972-446-1209	75007	t	WWW.WRGTEXAS.COM	CHARLIE WILLIAMS	rmathis@jpent.com; CWILLIAMS@WRGTEXAS.COM	f	3		excel	2	\N
+354	BILL VAN JAHNKE	GOLIATH	GOLIATH GAMES LLC	BILL@GOLIATHGAMES.COM	5068 W. PLANO PARKWAY	SUITE 175	PLANO	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	214-295-2953		75093	t		BILL VAN JAHNKE	rmathis@jpent.com; BILL@GOLIATHGAMES.COM	f	3		excel	2	\N
+361	Tanna Steritt	WRD	WR Display and Packaging		500 Higgins Ave		Winnipeg	4	1	2016-02-16 11:45:35	2016-02-16 11:45:35	1-800-665-8447		R3A 0B1	t		Tanna Steritt	rmathis@jpent.com; TannaSteritt@wrdisplay.ca	t	2		excel	1	\N
+368	DAVID SOMERVILLE	StMed	STIRLING MEDICAL SOLUTIONS LTD.		2100 BLOOR STREET WEST	SUITE 6237	TORONTO	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-803-9030	416-538-5932	M6S 5A5	t		DAVID SOMERVILLE	rmathis@jpent.com; dsomerville@stirlingmed.ca	t	2		excel	1	\N
+378	GORD FAWCETT	EZ	EZ LOG STRUCTURES		170 WALLACE STREET		NANAIMO	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	800-652-1065		V9R5B1	t			rmathis@jpent.com; ezlogstructures@yahoo.com; elemh@yahoo.com	t	2		excel	1	\N
+383	RONALD CHEUNG	HC	HOME & CASTLE FURNITURE		7004 5TH STREET S.E.	UNIT # C	CALGARY	2	1	2016-02-16 11:45:35	2016-02-16 11:45:35			T2H2G3	f			rmathis@jpent.com; RC@HomeCastleFurniture.com	t	2		excel	1	\N
+355	FRANK RUSS	MINUSNINE	MINUSNINE TECHNOLOGIES		200H NORTH FURNACE STREET		BIRDSBORO	52	2	2016-02-16 11:45:35	2016-02-16 11:45:35	484-645-7965	484-631-1337	19508	f		JON GOODSPEED	JGOODSPEED@MINUS9.COM	f	3		excel	2	\N
+385	Marcy Slykhuis	Biion-DAL	Biion Footwear	marcy@biionfootwear.com	31 Atlantic Avenue		Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-334-0033		M6K 3E7	f				f	1		excel	2	\N
+388	DON FLEMMING	DIS-3PL	DISTRIBUMARK		C/O 3PL LINKS	100 MARYCROFT AVE.	WOODBRIDGE	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			L4L5Y4	f			rmathis@jpent.com;dfleming@3pllinks.com; ap@3pllinks.com; jverral@3pllinks.com	t	2		excel	1	\N
+380		BSA	LES INGREDIENTS ALIMENTAIRES BSA, S.E.C/L.P		6005 COUTURE BLVD.		ST-LEONARD	\N	1	2016-02-16 11:45:35	2016-02-16 11:45:35	5148522719	5148526132	H1P 3E1	t			rmathis@jpent.com; ap@bsa.ca; gtardif@bsa.ca	t	2		excel	1	\N
+386	Nathalie Desrochers	TRANS CAL	Transco Plastics	ndesrochers@Transco.net	8096 MONTVIEW		MONTREAL	\N	1	2016-02-16 11:45:35	2016-02-16 11:45:35	514-733-9951		H4P2L7	t			rmathis@jpent.com; ndesrochers@Transco.net	t	2		excel	1	\N
+395		SC	Sapling Child					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	2		excel	1	\N
+397	ROBERT SCHUITEMA	PWS-AB	PHOSLOCK PTY. LTD.		P.O. BOX 249		NORTHBRIDGE	\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35	+61 2 8014 7611	+61 8014 7625	1560	t			rmathis@jpent.com; enquiries@phoslock.com.au; ntraill@phoslock.com.au	t	2		excel	1	\N
+398	SAM & LAURA RUTTER	MR-NJ	MINT RHAPSODY		23 MARGARET STREET		RIPPLESIDE	\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35	0411853029		3215	f			rmathis@jpent.com; samrutter@mintrhapsody.com	f	2		excel	2	\N
+400		MR-BEL	Mint Rhapsody					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+406		GT-UGM	Union Gospel Mission					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+410		CC	Cogistri Construction					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	1		excel	1	\N
+423		VIKING	Viking Appliances					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	3		excel	2	\N
+426		Sago-DAL	Sago Sago Toys Dallas					\N	\N	2016-02-16 11:45:35	2016-02-16 11:45:35				f				f	1		excel	1	\N
+396	LUIS LOSADA	REEBOK	REEBOK c/o PAK 2000		189 GOVERNOR WENTWORTH HWY		MIRROR LAKE	43	2	2016-02-16 11:45:35	2016-02-16 11:45:35	603 569 3700	603 569 5478	03853	t			rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	f	2		excel	2	\N
+399	Mubbashir Shaikh	Magnus	Magnus Trading Inc	magnus.inco@gmail.com		PO Box 832354	Richardson	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	615-719-6044	815-425-3855	75083	t		Mubbashir Shaikh	magnus.inco@gmail.com	f	1		excel	2	\N
+390	NANCY MAY	ADV	ADVANTAGE PACKAGING LIMITED	nancy.may@advpackaging.com	3-76 BIGGAR AVENUE		HAMILTON	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	9055480999		L8L3Z4	t			rmathis@jpent.com; nancy.may@advpackaging.com	t	2		excel	1	\N
+391	Martin Twellmeyer	SWE	Space Ways Storage Services Canada Inc.		1700-1075 West Georgia Street		Vancouver	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	4165334791		V6E3C9	f			rmathis@jpent.com; invoices@spaceways.ca; ansel.liu@spaceways.com; sebastian.sondheimer@spaceways.com	t	2		excel	1	\N
+392	Martin Twellmeyer	SWF	Space Ways Storage Services Canada Inc.		1700-1075 West Georgia Street		Vancouver	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	4165334791		V6E 3C9	f			rmathis@jpent.com; invoices@spaceways.ca; ansel.liu@spaceways.com; sebastian.sondheimer@spaceways.com	t	2		excel	1	\N
+246	Rob Guimond	JAS	JAS SUPPLY		9-2079 Meadowbrook Road		Burlington	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	905-330-2598		L7P2A5	t			rmathis@jpent.com; rguimond1@cogeco.ca; jassupply@cogeco.ca	t	2		excel	1	\N
+289	Pamela Yung	Pepsico	Pepsico Foods		5550 Explorer Drive	8th Floor	Mississauga	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	289-374-5000		L4W 0C3	t				t	1		excel	1	\N
+295		TG	Thompson Group		55 Cityview		Etobicoke	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-240-4464		M9W 5A5	t			rmathis@jpent.com; LBayard@thomsongroup.com	t	2		excel	1	\N
+279		Seton	Seton Canada		P.O. Box 249		Milwaukee	63	2	2016-02-16 11:45:35	2016-02-16 11:45:35			53201-0249	f			rmathis@jpent.com	t	1		excel	1	\N
+302	Nate Meyer	Scoular	The Scoular Company		250 Marquette Ave S	Suite 1050	Minneapolis	37	2	2016-02-16 11:45:35	2016-02-16 11:45:35			55401	t			rmathis@jpent.com; food@scoular.com; NMeyer@scoular.com	t	2		excel	2	\N
+303	Nate Meyer	QC Scoular	Scoular QC Hold		250 Marquette Ave S	Suite 1050	Minneapolis	37	2	2016-02-16 11:45:35	2016-02-16 11:45:35			55401	t			rmathis@jpent.com; food@scoular.com; NMeyer@scoular.com	t	2		excel	2	\N
+276	Denise Buie	Int Hair	International Hair & Beauty		9225 Ulmerton Rd.	Suite F	Largo	23	2	2016-02-16 11:45:35	2016-02-16 11:45:35	888-213-4744		33771	t		Denise Buie	rmathis@jpent.com; denise@organiccolorsystems.com	t	2		excel	2	\N
+139	Gary Baker	GEB	GE&B Marketing	baker@golden.net	135 Shuh Ave.		Kitchener	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	519 896 1168	519 896 7350	N2A 1H4	t			rmathis@jpent.com; elizabeth@geandb.com	t	1		excel	1	\N
+154	Mary Lee	BAGEM	BAGEM PACKAGING	bagempackaging@hotmail.com	4001 Dufferin St.		Toronto	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35	416-638-6788	416-638-6166	M3H 5R4	f			rmathis@jpent.com	t	1		excel	1	\N
+170	Stephanie	RECO	Recochem Inc.		131 East Drive		Brampton	10	1	2016-02-16 11:45:35	2016-02-16 11:45:35			L6T 1B5	f	www.recochem.com			f	1		excel	1	\N
+165	Ted Hubert	SUPER	SuperSeal Construction		P.O. BOX 61646	Brookwood R.P.O.	Langley	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	800-571-1877	604-576-2458	V3A8C8	f	www.superseal.ca		rmathis@jpent.com; super@superseal.ca	t	2		excel	1	\N
+173	Benjamin Miller	SUTUS	Sutus Inc.		301-3999 Henning Dr.		Burnaby	3	1	2016-02-16 11:45:35	2016-02-16 11:45:35	866-987-8866 x2106		V5C 6P9	f				f	1		excel	1	\N
+148	nathalie desrochers	TRANSCO DAL	Transco Plastic Industries SRL	ndesrochers@Transco.net	8096 Montview		Montreal	\N	1	2016-02-16 11:45:35	2016-02-16 11:45:35	514-733-9951		H4P 2L7	t			rmathis@jpent.com; ndesrochers@Transco.net	f	3		excel	2	\N
+273	Pauline Lim	DS Foods	DongSheng Foods USA		355 W Olive Ave	Suite 206	Sunnyvale	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35	408-738-5724		94086	t			rmathis@jpent.com; pyuping@dongshengfoodsusa.com; natalielau@dongshengfoodsusa.com	t	2		excel	2	\N
+291	Louise or Claude Florent	RG	Rainguard		3334 E. Coast Hwy .	Box 143	Corona Del Mar	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35			92625	t		Rosa Hernandez	rmathis@jpent.com; info@rainguard.com; rosa@rainguard.com	t	1		excel	1	\N
+310	Crystal Qin	SH	Season Harvest		556 E Weddell Drive	Ste 1	Sunnyvale	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35			94089	t			rmathis@jpent.com	t	2		excel	1	\N
+309		Inclusion	Inclusion Solutions Inc.		2000 Greenleaf	Suite 3	Evanston	27	2	2016-02-16 11:45:35	2016-02-16 11:45:35	847-869-2500		60202	t			rmathis@jpent.com; mbaskin@inclusionsolutions.com	t	2		excel	1	\N
+274	Michelle Bishop	WN	William Noble Rare Jewels		100 Highland Park Village	Suite 370	Dallas	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	214-526-3890		75205	f				f	1		excel	1	\N
+421		PA	Perfect Aire		5151 Belt Line Rd, #878		Dallas	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35			75254	t			rmathis@jpent.com; carlos.adorno@bigwall.us; Jaime@bigwall.us	f	3		excel	2	\N
+428		Bigwall	Bigwall		5151 Belt Line Rd. #878		Dallas	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35			75254	t			rmathis@jpent.com; carlos.adorno@bigwall.us; Jaime@bigwall.us	f	3		excel	2	\N
+324	Jaime Alexander Anast	CFK	Color Flame Kings		622 Central Avenue		Sarasota	23	2	2016-02-16 11:45:35	2016-02-16 11:45:35	(312) 550-7703		34236	t			rmathis@jpent.com; jaime@colorflamekings.com	f	3		excel	2	\N
+327	Luis Losada	PAK CHI	PAK 2000		189 Governor Wentworth Hwy.		Mirror Lake	43	2	2016-02-16 11:45:35	2016-02-16 11:45:35	603 569 3700	603 569 5478	03853	t			rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	f	2		excel	2	\N
+328	Luis Losada	PAK LA	PAK 2000		189 Governor Wentworth Hwy.		Mirror Lake	43	2	2016-02-16 11:45:35	2016-02-16 11:45:35	603 569 3700	603 569 5478		t		Luis Losada	rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	f	2		excel	2	\N
+335	Marvin Jamel	UG	The Underground Group		1 West 34th Street	Suite 602	New York	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35			10001	t			rmathis@jpent.com	f	2		excel	2	\N
+336	MICHELE ZARET	IR	Industrial Rivet		200 PARIS AVE.		NORTHVALE	44	2	2016-02-16 11:45:35	2016-02-16 11:45:35	2017501040 x154	2017501050	07647	t	www.rivet.com	MICHELE ZARET	rmathis@jpent.com; MicheleZ@rivet.com	t	1		excel	2	\N
+402	Nathalie Desrochers	TRANSCO-BOS	TRANSCO PLASTIC INDUSTRIES SRL	ndesrochers@Transco.net	8096 MONTVIEW		MONTREAL	\N	1	2016-02-16 11:45:35	2016-02-16 11:45:35	514-733-9951		H4P2L7	t			rmathis@jpent.com; ndesrochers@Transco.net	f	2		excel	2	\N
+338	DEAN BENNETT	TCI	TCI POWDER COATING, INC	DBENNETT@TCIPOWDER.COM	734 DIXON DRIVE		ELLAVILLE	24	2	2016-02-16 11:45:35	2016-02-16 11:45:35	229-937-1249		31806	t			rmathis@jpent.com; DBENNETT@TCIPOWDER.COM	f	3		excel	2	\N
+203	Linda Hynes	CMC	CLIMAX MANUFACTURING COMPANY		7840 State Route 26		New York	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	315-376-8000		13367129	t			rmathis@jpent.com	t	2		excel	2	\N
+339	Carolyn Baum	Hailiang Dallas	Hailiang Dallas	carolynb@hailiangusa.com	1001 James Drive #B38		Leesport	52	2	2016-02-16 11:45:35	2016-02-16 11:45:35	877-515-4522 x710		19533	t		Ranee Cheng	rmathis@jpent.com, andy.wang@hailiang.com,  byan@hailiang.com, finance2@hailiang.com; carolynb@hailiangusa.com; RaneeC@hailiangusa.com	f	3		excel	2	\N
+341	Mark Anderson	CHEMSOL	ChemSol LLC	kbarbour@jpent.com	601 Carlson Parkway	Suite 400	Minnetonka	37	2	2016-02-16 11:45:35	2016-02-16 11:45:35	952-484-2545		55305	t		Mark Anderson		t	3		excel	2	\N
+348	Chris Hall	PERFECT LT	The Perfect Light	chris@theperfectlightdfw.com	200 E Belt Line Road	Suite 303	Coppell	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	972-304-3330	972-304-3301	75019	f		Chris Hall	chris@theperfectlightdfw.com	f	3		excel	2	\N
+349	David Trigiani	Detailed	Detailed Products	david@detailedproducts.com	6950 Stefani Dr.		Dallas	\N	2	2016-02-16 11:45:35	2016-02-16 11:45:35	214-750-7535		75225	f		David Trigiani	rmathis@jpent.com; david@detailedproducts.com	f	3		excel	2	\N
+350	DAVID TRIGIANI	DETAIL PRO	DETAILED PRODUCTS	DAVID@DETAILEDPRODUCTS.COM	6950 STEFANI DR		DALLAS	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	214-750-7535		75225	t	WWW.DETAILEDPRODUCTS.COM	DAVID TRIGIANI	rmathis@jpent.com; DAVID@DETAILEDPRODUCTS.COM	f	3		excel	2	\N
+326		Glopack Ch	Glopack Chicago		48 N15 STREET		BROOKLYN	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35			11222	t			rmathis@jpent.com; rlam@glopackinc.com	f	2		excel	2	\N
+347	PIEDAD MORALES / JOSEPH KATRI	OSU	One Step Up		1412 BROADWAY	3RD FLOOR	NEW YORK	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	2126961992	2127307950	10018	t		PIEDAD MORALES / JOSEPH KATRI	rmathis@jpent.com; pmorales@onestepup.com; jkatri@onestepup.com	t	2		excel	2	\N
+322	Denver Tatoy	BIO	BIONIME USA CORPORATION		1450 E. SPRUCE STREET	BLDG. # B	ONTARIO	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35	858-481-8485		91761	f		Denver Tatoy / Eileen  Sullivan	rmathis@jpent.com; Denver.Tatoy@bionime.com; Eileen.Sullivan@bionime.com	t	2		excel	2	\N
+401	Gerald Lopez	Modani-Hou	Modani Houston		3898 Distribution Blvd		Houston	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35				t				f	2		excel	1	\N
+250	Rob Le Guillou	AR	Sensient Dehydrated Flavors, LLC		151 S. Walnut		Turlock	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35	209-656-5261		95380	t			rmathis@jpent.com; Ryan.Goularte@sensient.com; Elizabeth.Moyle@sensient.com; Alec.Christianson@sensient.com	t	2	NET 30 DAYS	excel	2	\N
+283	Sandra Davis	SunRay	Sun Ray Group		1260 Lake Blvd.	Suite 210	Davis	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35			95616	t			rmathis@jpent.com	t	2		excel	2	\N
+356	LEEANN STANLEY	DFM - PF	DFM - PRECISION FORMULATIONS	LEEANN@DFMPRINTPAK.COM	2075 GREENBRIAR DRIVE		SOUTHLAKE	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	8173850600	8178651026	76092	t		LEEANN STANLEY	rmathis@jpent.com; LEEANN@DFMPRINTPAK.COM	f	3		excel	2	\N
+364	Chris Hudson	SNAP AV	LEGACY SNAP AV	SNAPAVTXDC@LEGACYSCS.COM	2001 WESTGATE DR	SUITE 100	CARROLLTON	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	704-783-5273		75006	t				f	3		excel	2	\N
+365	John McGinnis	Morbern	Morbern USA Inc		401 Fraley Road		High Point	47	2	2016-02-16 11:45:35	2016-02-16 11:45:35	336-883-4332	336-883-1860	27263	t		John McGinnis	rmathis@jpent.com; jmcginnis@morbern.com	f	3		excel	2	\N
+370	JULIA WANG/JASON YANG	Sak	SAKOURA DESIGN, LTD. DBA J&J GOLD CREATIONS		47-42 37TH STREET		LONG ISLAND CITY	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	718-392-2828	718-729-1644	11101	f			rmathis@jpent.com; juliawang@sakoura.net; jasonyang@sakoura.net	t	2		excel	2	\N
+372		Perfect Aire	Perfect Aire		5151 Belt Line Rd, #878		Dallas	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35			75254	t			rmathis@jpent.com; carlos.adorno@bigwall.us; Jaime@bigwall.us	f	3		excel	2	\N
+374	NING WU	Tyche	TYCHE INTERNATIONAL GROUP INC.		5 WOODLINE WAY		PITTSTOWN	44	2	2016-02-16 11:45:35	2016-02-16 11:45:35			08867	t			rmathis@jpent.com; ning.wu@tycheinternationalgroup.com	t	2		excel	2	\N
+375		PAK-Mem	PAK 2000		189 GOVERNOR WENTWORTH HWY.		MIRROR LAKE	43	2	2016-02-16 11:45:35	2016-02-16 11:45:35				t			rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	f	2		excel	2	\N
+379	ZULEIKA ALVARADO	C-LIFE	C-LIFE GROUP LTD.		1400 BROADWAY	SUITE 700	NEW YORK	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	212-629-6996	212-563-5229	10018	t			rmathis@jpent.com; zuleika.alvarado@c-lifegroup.com	t	2		excel	2	\N
+382	JEROME COSTA	Modani	MODANI FURNITURE TORONTO, INC.		2800 BISCAYNE BLVD.	PH FLOOR	MIAMI	23	2	2016-02-16 11:45:35	2016-02-16 11:45:35	1-786-362-5516	1-768-364-1586	33137	t			rmathis@jpent.com; controlling@modani.com	t	2		excel	1	\N
+358	MARIE TEWELEIT	CON-GT	Connelly		GLOBAL TRANZ ENTERPRISES INC.	5415 E HIGH STREET, SUITE 460	PHOENIX	17	2	2016-02-16 11:45:35	2016-02-16 11:45:35	480-339-5737	877-417-3579	85054	t			rmathis@jpent.com; scm@globaltranz.com	t	2		excel	2	\N
+360	MARIE TEWELEIT	Kush-GT	Kushlan Products		GLOBAL TRANZ ENTERPRISES INC	5415 E HIGH STREET, SUITE 460	PHOENIX	17	2	2016-02-16 11:45:35	2016-02-16 11:45:35	480-339-5737	877-417-3579	85054	f			rmathis@jpent.com; scm@globaltranz.com	f	2		excel	2	\N
+362	MARIE TEWELEIT	OL-LA-GT	Ocean Lineage		GLOBAL TRANZ ENTERPRISES INC.	5415 E HIGH STREET SUITE 460	PHOENIX	17	2	2016-02-16 11:45:35	2016-02-16 11:45:35	480-339-5737	877-417-3579	85054	t			rmathis@jpent.com; scm@globaltranz.com	f	2		excel	2	\N
+403	Mike Rios	ZALES KW	Zales Kingswood Jewelry Cleaner	mrios@zalecorp.com	901 W. Walnut Hill Lane		Irving	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	972-580-5310		75038	t		Patty Helms	rmathis@jpent.com; phelms@zalecorp; mrios@zalecorp.com 	f	3	30	excel	2	\N
+404	Tray Harrison	Southwest Marketing	Southwest Marketing Group	trayharr@aol.com	2807 Allen Street #657		Dallas	\N	2	2016-02-16 11:45:35	2016-02-16 11:45:35	214-912-6700		75204	t		Tray Harrison	rmathis@jpent.com; trayharr@aol.com	f	3	30 days	excel	2	\N
+405	Fred Nestel	Boy Scouts	Boy Scouts of America	fred.nestel@scouting.org	1325 W Walnut Hill Lane		Irving	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	972-580-2469		75015	t		Fred Nestel	rmathis@jpent.com; fred.nestel@scouting.org	f	3	30 days	excel	2	\N
+407	PATTY HELMS	ZALES	ZALES	phelms@zalecorp.com	901 W. WALNUT HILL LANE		IRVING	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	972-580-5943		75038	t		BRAD RONGEY	brongey@zalecorp.com	f	3	30	excel	2	\N
+408	Ron Johnson/Angela Startz	Prestonwood	Prestonwood Christian Academy		6801 West Park Blvd.		Plano	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35	972-930-4004		75093	t			rmathis@jpent.com; rjohnson@prestonwoodchristian.org; astarts@prestonwoodchristian.org	f	3		excel	2	\N
+413	Mark Clemente	Jacmel	Jacmel Jewelry	mclemente@jacmel.com	1385 Broadway, 8th Floor		NY	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	718-349-4393		10018	t		Mark Clemente	mclemente@jacmel.com	f	3	30 days	excel	2	\N
+420		BIGWALL	Bigwall		5151 Belt Line Rd, #878		Dallas	57	2	2016-02-16 11:45:35	2016-02-16 11:45:35			75254	t			rmathis@jpent.com; carlos.adorno@bigwall.us; Jaime@bigwall.us	f	3		excel	2	\N
+427	Mathew Hodjera	Hodjera	Hodjera Architecural Products	matthewhodjera@gmail.com	325 Hish School Rd NE	Suite Ds #345	Bainbrdge Island	61	2	2016-02-16 11:45:35	2016-02-16 11:45:35			98110	t		Matthew Hodjera	rmathis@jpent.com; matthewhodjera@gmail.com	f	3	Net 10	excel	2	\N
+394	PETER MCGIFFIN	ULT SOL	ULTIMATE SOLUTIONS	PETER@SANDIAPLASTICS.COM	15571 CONTAINER LANE		HUNTINGTON BEACH	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35	800-983-5834	714-901-8404	92649	t	WWW.SANDIAPLASTICS.COM		rmathis@jpent.com; rebecca1@us-group.com	f	3		excel	2	\N
+430	Carolyn Baum	Hailiang Houston	Hailiang Houston	carolynb@hailiangusa.com	10001 James Drive #838		Leesport	52	2	2016-02-16 11:45:35	2016-02-16 11:45:35	877-515-4522 x710		19533	t		Ranee Cheng	rmathis@jpent.com, andy.wang@hailiang.com,  byan@hailiang.com, finance2@hailiang.com; carolynb@hailiangusa.com; RaneeC@hailiangusa.com	f	1		excel	2	\N
+137	Kathy	FC	Flower City Tissue Mills		700 Driving Park Avenue		Rochester	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35			14613049	t	http://www.flowercitytissue.com/		rmathis@jpent.com; Luke@flowercitytissue.com	t	2		excel	2	\N
+282	Christopher Crews	Eventive	Eventive Marketing		488 Madison Avenue	4Th Floor	New York	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	917-606-8142		10022-5702	f				f	1		excel	1	\N
+301	Mark Clemente	JAC	Jacmel Jewellery Inc.		30-30  47th Avenue		Long Island City	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35			11101	t			rmathis@jpent.com; ysmith@jacmel.com	t	2		excel	2	\N
+311	Peter Gaskin	Life-Tor	LIFE WORKS TECHNOLOGY GROUP		1412 Broadway	7th Floor	New York	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	212-398-1110		10018	t		Peter Gaskin	rmathis@jpent.com; pgaskin@life-works.com; seema@golifeworks.com; lperrone@golifeworks.com; Richard@golifeworks.com	t	2		excel	2	\N
+316		Deck	Decksen International Co. Ltd.		228 Park Avenue S.	Ste. 85556	New York	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35				f			rmathis@jpent.com	f	2		excel	2	\N
+352	MELLISSA IMPERATO	DMD	DMD GROUP		2128 BERGEN AVENUE		BROOKLYN	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	347-623-0366	866-790-3524	11234	t			rmathis@jpent.com; Mellissa.imperato@yahoo.com	f	2		excel	2	\N
+376	Peter Gaskin	Life-BC	LIFE WORKS TECHNOLOGY GROUP		1412 BROADWAY	7TH FLOOR	NEW YORK	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	212-398-1110		10018	t			rmathis@jpent.com; pgaskin@life-works.com; seema@golifeworks.com; lperrone@golifeworks.com; Richard@golifeworks.com	t	2		excel	2	\N
+389	EVON KOH	CPG	CREATIVE PET GROUP LLC	evon.cpg@gmail.com	1407 BROADWAY	SUITE 1411	NEW YORK	46	2	2016-02-16 11:45:35	2016-02-16 11:45:35	646-863-8027		10018	t			rmathis@jpent.com; evon.cpg@gmail.com	f	2		excel	2	\N
+429	DAN MABEE	BC	BC FOODS, INC.	dan.mabee@bcfoods.com	1330 N. DUTTON AVE.	SUITE 100	SANTA ROSA	19	2	2016-02-16 11:45:35	2016-02-16 11:45:35	707-545-5270	707-545-5270	95401	t			rmathis@jpent.com; dan.mabee@bcfoods.com	t	2		excel	2	\N
+363	MARIE TEWELEIT	OL-SEA-GT	Ocean Lineage		GLOBAL TRANZ ENTERPRISES	5415 E HIGH STREET SUITE 460	PHOENIX	17	2	2016-02-16 11:45:35	2016-02-16 11:45:35	480-339-5737	877-417-3579	85054	t			rmathis@jpent.com; scm@globaltranz.com	f	2		excel	2	\N
+\.
+
+
+--
+-- Data for Name: client_migrate; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY client_migrate (id, short_name, name, website, address1, address2, city, province, country, postal_code, contact, phone, fax, email, active, billing_contact, billing_phone, billing_email, billing_currency, taxable, company_id, terms, invoice_attachment_type) FROM stdin;
+135	CLIMAX	Climax's Manufacturing Company												f					f	1		Excel
+243	DC	Dave Company		38 Minnewawa Rd									dculbert@jpent.com	t			sungwhikim@gmail.com; jim@larkinweb.com	CAD	t	1		pdf
+134	CEREAL	CEREAL PRODUCTS TRADE LTD.		2 Crowley Court		Dundas	ON	CA	L9H 6C6	John Eliashevsky	647-288-7087	905-628-5268	mungdahl@sympatico.ca	t			rmathis@jpent.com; mungdahl@magma.ca	CAD	t	1		pdf
+140	JAN MAR	Jan Mar Sales								Shiraz Chatur			jan-mar@sympatico.ca	f					f	1		Excel
+142	LW	Learning Wood												f					f	1		Excel
+146	SOFTPLAY	Soft Play Inc.												f					f	1		Excel
+149	YARN	Yarn - Dawood								Yakub Dawood	416 720 8654		yakubdawood@hotmail.com	f					f	1		Excel
+153	DDS	DDS Overflow				MISSISSAUGA				DAN				f			rmathis@jpent.com	CAD	t	1		Excel
+157	EXTREME	Extreme Retail Inc.												t					f	1		Excel
+158	NOKA	Noka Chocolate												f					f	1		Excel
+159	WORLD WIDE	World Wide Stone												f					f	1		Excel
+160	GH	Great Harvest MPS 												f					f	1		Excel
+161	GNF	Great Northern Foods Inc.												f					f	1		Excel
+162	BERWICK	Berwick 												f					f	1		Excel
+163	GL	Giant Leap International								Nima Ghazi				f					f	1		Excel
+164	Giant	Jason Robinson 												f					f	1		Excel
+166	HBC BAGS	HBC RE-USEABLE BAGS								JOSEPH YU				f					f	1		Excel
+168	KIRSCH	Kirsch								Susan Kirsch			makeupartistsusan@rogers.com	f					f	1		Excel
+174	DUR	Duro Designer												f					f	1		Excel
+176	HBC	HBC Forms												t			rmathis@jpent.com	CAD	f	1		Excel
+177	JP	JP STOCK												t					f	1		Excel
+179	MRK	Marking Products												t					f	1		Excel
+180	MSC	Miscellaneous Products												t					f	1		Excel
+182	SIZ	Sizing Products												f					f	1		Excel
+210	TESTCLIENT	TESTCLIENT												f					f	1		Excel
+233	JPMFG	JPMFG												f					f	1		Excel
+247	Sierra	Sierra Home Products												f			rmathis@jpent.com	CAD	t	1		Excel
+141	KAISER	Kaiser Group Inc.		5021 Vernon Ave. S #243		Edina	MN	US	55436	Chris Kaiser	952 920 0299			f					f	1		Excel
+143	PAK	PAK 2000	www.pak2000.com	189 Governor Wentworth Hwy.		Mirror Lake	NH	US	03853	Luis Losada	603 569 3700	603 569 5478		t			rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	USD	f	2		Excel
+181	PJ	Zale Canada		901 West Walnut Hill Lane		Irving 	TX	US	75038	Brad Rongey	972-580-4650	972-580-4772		t			rmathis@jpent.com	USD	t	1		Excel
+248	STFO	STFO Trading LLC		8512 Queens Blvd		New York	NY	US	11373					f			rmathis@jpent.com; stfotrading@gmail.com	USD	f	2		Excel
+169	GLOPACK	Glopack		48 N15 STREET		BROOKLYN	NY	US	11222					f			rmathis@jpent.com;	USD	f	2		Excel
+150	YOUNGSTOWN	Youngstown Equipment Co.		766 Lakefield Rd. # F		Westlake Village	CA	US	91361	Max Hackett - Adam Nguyen	805 557 4588	805 5570 4587		f					f	1		Excel
+132	BCI	BRITISH CANADIAN IMPORTERS		7588 Winston Street		Burnaby	BC	CA	V5A 4X5	Amyn Bhulji	604-681-3554	604-681-0567		f			rmathis@jpent.com	CAD	t	1		Excel
+136	EXPRESS	Express Retail Packaging		60 NORTHFACE CRESCENT		BRAMPTON	ON	CA	L6R 2X8	CHARLES KUMI				f			rmathis@jpent.com; sales@expressgreenpak.com	CAD	t	1		Excel
+145	SM	SM Trading House		P.O. Box 14526	4646 Heritage Hills Blvd.	Mississauga	ON	CA	L5R 1Y4		905-890-7002			t			rmathis@jpent.com; pajnigara@hotmail.com	CAD	t	1		Excel
+147	TEST	Test Customer	www.jpent.com	1368 Blundell Road		Mississauga	ON	CA	L4Y 1M5	Dave Culbert	905-949-0046	905-949-0047	dculbert@jpent.com	f					f	1		Excel
+156	CW	Canada Wire & Metal Inc.		1688 W 75 Ave		Vancouver	BC	CA	V6P 6G2		1 604 264 0034	1 604 264 0047		f					f	1		Excel
+242	JIM	Jim's Mfg	www.larkinweb.com	48 Mt Pleasant Dr.		Brampton 	ON	CA	L6Z 1K3	Jim Larkin	905-595-0397	905-595-1278	jim@larkinweb.com	t			jim@larkinweb.com	CAD	f	1		Excel
+245	MER	Mereadesso		120 Eglinton Avenue East	Suite 602	Toronto	ON	CA	M4P 1E2	Linda Stephenson	416-824-6853			t			rmathis@jpent.com; linda@mereadesso.com; lori@mereadesso.com; jean@mereadesso.com	CAD	t	1		Excel
+260	Glopack CD	Glopack Cross Dock												f					f	1		Excel
+261	Glo CD	Glopack Cross Dock												f					f	1		Excel
+262	GloCD	Glopack Cross Dock												f					f	1		Excel
+270	GE	GENERAL ELECTRIC												t					f	1		Excel
+287	Zale	Zale Misc		Dallas										t					f	1		Excel
+293	CG	COCONUT GROVE INTIMATES												f			rmathis@jpent.com	USD	f	2		Excel
+294	TAC	Tactical Inc.												f					f	1		Excel
+296	Zale 2	Zale Reg Stock												t					f	1		Excel
+297		Yellow Korner	www.yellowkorner.com	8 rue des Francs Bourgeois		Paris		France	75003	Guillaume Chalifoux	+33 (0)1 49 96 50 20		guillaume.chalifoux@gmail.com	t				CAD	f	1		Excel
+298	YK	Yellow Korner		8 rue des Francs Bourgeois		Paris		France	75003	Guillaume Chalifoux	+33 (0)1 49 96 50 20		guillaume.chalifoux@gmail.com	f					f	1		Excel
+306	Axiom	Axiombrands												f					f	1		Excel
+307	Cavanna	Cavanna Olii		Via Circonvallazione	No. 5	Casella	GE	Italy	16015					f				CAD	f	1		Excel
+259	Shukr	Shukr Clothing	www.shukrclothing.com	8345 NW 66th St.	#6483	Miami	Fl	US	33166	Moustafa Elqabbany			martha@shukrclothing.com	f			rmathis@jpent.com; heba@shukrclothing.com; ghassan@shukrclothing.com	CAD	t	2		Excel
+263	Transco MF	Transco MaidenForm		8096 Montview		Montreal	QC	CA	H4P 2L7	nathalie desrochers	514-733-9951		ndesrochers@Transco.net	f	Elizabeth de Vries		rmathis@jpent.com; ndesrochers@Transco.net	USD	f	3		Excel
+277	Westco	Westco Supplies		1688 West 75th Ave.		Vancouver	BC	CA	V6P 6G2					t					f	1		Excel
+264	WATKINS	Watkins, David		P.O. BOX 271017		Dallas	TX	US	77277		713-521-2101			t			rmathis@jpent.com; david@dwatkinsco.com	USD	f	3		Excel
+269	BerickW	Berwick Wallmart						US						f					f	1		Excel
+272	CV	CARMEN'S DISTRIBUTION SYSTEMS		4585 Poth Road		Columbus	OH	US	43213	Cody Young	800-886-8227			t			rmathis@jpent.com; Cody@carmensvacuum.com; glenn@carmensvacuum.com.	USD	t	1		Excel
+275	INX	INX International Ink Co.		150 N Martingale Rd.	Suite 700	Schaumburg	IL	US	60173	Shawn Dierson				t				CAD	f	1		Excel
+281	Ava	Stylus Marketing		303-345 Lakeshore Road East		Oakville	ON	CA	L6J 1J5	Awais Izhar	905-331-1245			f			rmathis@jpent.com; info@stylusmarketing.ca; awais@stylusmarketing.ca	CAD	t	2		Excel
+284	Cubbies	BabyCubbies		177 Redpath Ave		Toronto	ON	CA	M4P 2W3	Lee				f					f	1		Excel
+285	WR	WR Display and Packaging		30 Plymouth Street		Winnipeg	MB	CA	R2X 2V7		1-800-665-8447			f			rmathis@jpent.com	CAD	t	1		Excel
+286	PB	Pacific Bottleworks		SUITE 202 - 9188 GLOVER ROAD	P.O. BOX 490	FORT LANGLEY	BC	CA	V1M2R8	James Colburn	604-371-1011	604-371-1012		t			rmathis@jpent.com; james@pbwc.ca; lauren@pbwc.ca	CAD	t	2		Excel
+288	Maracaibo	Maracaibo Distribution Inc.		1944 Yonge Street	Suite 301	Toronto	ON	CA	M4S 3E5	Ryan Grossman	416-970-4777			f			rmathis@jpent.com	CAD	t	2		Excel
+290	McD	McDermid Paper		B 2951 Bristol Circle		Oakville	ON	CA	L6H 6P9	Philip Almeida	905-819-8900			f					f	1		Excel
+292	DR	DeepRoot		201-2425 Quebec St		Vancouver	BC	CA	V5T 4L6					f					f	1		Excel
+299	Ideal	Ideal Impex		708-43 Thorncliffe Park Drive		Toronto	ON	CA	M4H 1J4	Sabir Chippa	416-890-5389			t			rmathis@jpent.com; info@idealimpex.ca	CAD	t	1		Excel
+271	AS Pat	A.S. PATERSON COMPANY LTD.		1110 Sheppard Avenue East	Suite 404	Toronto	ON	CA	M2K 2W2	Rod Paterson	416-222-3333			t			rmathis@jpent.com; ablake@aspaterson.com	CAD	t	2		Excel
+280	HT	HT Griffin		HT Griffin Food Ingredients	7491 Pacific Circle	Mississauga	ON	CA	L5T 2A4	David Stegeman	905-564-1710 ext 224	905-564-2494	davids@htgriffin.com	t			rmathis@jpent.com; ap@HTGriffin.com; juliar@HTGriffin.com	CAD	t	2		Excel
+317	ADI	ADI CARPET												f			rmathis@jpent.com	CAD	f	1		Excel
+319	JA	Jewel America												f			rmathis@jpent.com	CAD	t	1		Excel
+323	Iconna	Iconna		c/o 111 Sik Kong Wai Road	Block 13 1 Floor	Yuen Long	NT	Hong Kong						f			rmathis@jpent.com; iconna@netvigator.com	USD	f	2		Excel
+331	KC	KenCraft												t			rmathis@jpent.com	CAD	t	1		Excel
+344	FE	Fleet Engineers												f					f	1		Excel
+312	Dweck	Dweck Associates		230 5th Avenue	Suite 1512	New York	NY	US	10001	Ezra Dweck				t			rmathis@jpent.com; ezra@daicompany.com	USD	f	2		Excel
+318	WESSCO	Wessco Companies		6940 NW 12 Street		Miami	FL	US	33126	Inggrid Limoseputro	310-477-4272			t			rmathis@jpent.com; cece@wessco.net; isis@wessco.net	USD	f	3		Excel
+334	ZTest	Test Client	www.foo.com	123 Any Street		Portland	OR	US	97202	Sung Whi Kim				t	Sung Whi Kim		sungwhikim@Gmail.com	USD	t	3		Excel
+313	Amjay	AMJAY ROPES & TWINE LTD.		1145 NICHOLSON ROAD	UNIT 1	Newmarket	ON	CA	L3Y 9C3	Bill Ingram				t			rmathis@jpent.com; bingram@amjayropesandtwines.com; mhallman@amjayropesandtwines.com	CAD	t	2		Excel
+314	GT	Gourmet Trading Co.		3750A Laird Rd	Unit #1	Mississauga	ON	CA	L5L 0A6	Robert Jenetti				t			rmathis@jpent.com	CAD	t	2		Excel
+315	IPS	SMART RINK		255 WINDMILL ROAD		DARTMOUTH	NS	CA	B3A 1G	Roz Staple			roz@smartrink.com	t			rmathis@jpent.com; roz@smartrink.com	CAD	t	2		Excel
+321	GS	Giant Air Supplies		260 Adelaide Street East		Toronto	ON	CA	M5A 1N1	Adam	647-998-7467			t			rmathis@jpent.com; adam@giantairsupplies.com	CAD	t	1		Excel
+325	Neo	Neo Image		1331 Blundell Road		Mississauga	ON	CA	L4Y 1M5	Gary Stratakos	(905)273-3020 x61	(905) 273-6905		t			rmathis@jpent.com; gary@neo-image.com; eleni@neo-image.com	CAD	t	2		Excel
+329	MER DAL	Mereadesso Dallas		120 Eglinton Avenue East	Suite 602	Toronto	ON	CA	M4P 1E2	Linda Stephenson	416-824-6853			t			rmathis@jpent.com; linda@mereadesso.com; lori@mereadesso.com; jean@mereadesso.com	CAD	f	1		Excel
+330	Ecom	Ecom Design and Development		143 LORMEL GATE		WOODBRIDGE	ON	CA	L4H0C5	RINO SPADAFINA				t			rmathis@jpent.com; spadafina@rogers.com	CAD	t	2		Excel
+340	KG	WAFF WORLD GIFTS		5139 Decarie	Suite 205	Montreal	PQ	CA	H3W 3C2	Kristina Boudaeva	514-906-0045	1-888-216-8691		t			rmathis@jpent.com; info@ilovewaff.com; accounting@ilovewaff.com	CAD	t	2	30 days	Excel
+342	Trollbeads	Trollbeads Canada Ltd.	www.trollbeadscanada.com	320 - 1770 Burrard Street		Vancouver	BC	CA	V6J 3G7	Jeremy Bowman	604-683-5700 ext 301	604 648 8253	jeremy@trollbeadscanada.com	t			rmathis@jpent.com; jeremy@trollbeadscanada.com	CAD	t	2		Excel
+345	MF TOR	MONSTER FACTORY CORPORATION		471 RICHMOND STREET WEST	SUITE 102	TORONTO	ON	CA	M5V 1X9	Adam Dunn				t			rmathis@jpent.com; adam@monsterfactory.net; rachellem@9story.com	CAD	t	2		Excel
+346	MF NJ	MONSTER FACTORY CORPORATION		471 RICHMOND STREET WEST	SUITE 102	TORONTO	ON	CA	M5V 1X9	Adam Dunn				t			rmathis@jpent.com; adam@monsterfactory.net; rachellem@9story.com	USD	f	2		Excel
+337	TRANS TOR	Transco Plastics		8096 Montview		Montreal	QB	CA	H4P 2L7	Nathalie Desrochers	514-733-9951		ndesrochers@Transco.net	t	Debbie Kamien		rmathis@jpent.com; ndesrochers@Transco.net	CAD	t	1		Excel
+343	KG NJ	WAFF WORLD GIFTS		5139 Decarie	Suite 205	Montreal	QB	CA	H3W 3C2	Kristina Boudaeva	514-906-0045	1-888-216-8691		t			rmathis@jpent.com; info@ilovewaff.com; accounting@ilovewaff.com	USD	f	2	30 days	Excel
+320	SF	Superior Finishes		80 Paramount Road		Winnipeg	MB	CA	R2X 2W3	Lee-Ann Vann	204-985-9820 X 829			t			rmathis@jpent.com; order@superiorfinishesinc.com	CAD	t	2		Excel
+366	Virtu	Virtu												t				USD	f	1		Excel
+367	Bedford	BEDFORD FOOTWEAR GROUP												t					f	2		Excel
+371	Biion	Biion Footwear												t				CAD	f	1		Excel
+373	Cub	Cubbies												t				CAD	f	1		Excel
+377	PWS	PHOSLOCK PTY. LTD.		P.O. BOX 249		NORTHBRIDGE	NSW	AUSTRALIA	1560	ROBERT SCHUITEMA	+61 2 8014 7611	+61 8014 7625		t			rmathis@jpent.com; enquiries@phoslock.com.au; ntraill@phoslock.com.au	CAD	t	2		Excel
+381	Xstrata	Xstrata												t					f	1		Excel
+384	MODANI-DAL	Modani Furniture Dallas								David Pellegrin	214-432-4814		dparker@jpent.com	t			davidpellegrin@modani.com;	USD	f	1		Excel
+387	Cub-Chi	Cubbies												t					f	1		Excel
+357	AST-3PL	AST Corrugated		3PL Links Inc.	100 Marycroft Avenue	Woodbridge	ON	CA	L4L 5Y4	Julie Verral	905-850-9002 x 207	905-850-9023	jverral@3pllinks.com	t			rmathis@jpent.com; jverral@3pllinks.com; ap@3pllinks.com	CAD	t	2		Excel
+359	Con-3PL	East Conduit		3PL LINKS INC.	100 MARYCROFT AVENUE	WOODBRIDGE	ON	CA	L4L5Y4	JULIE VERRAL	905-850-9002 X207	905-850-9023	jverral@3pllinks.com	t			rmathis@jpent.com; jverral@3pllinks.com; ap@3pllinks.com	CAD	t	2		Excel
+351	IBB	Inernational Bullion & Metal Brokers (USA) Inc		14051 NW 14th Street		Sunrise	FL	US	33323	Estela Barroso	954-660-6900	954-660-6925	ibbap@ibbusa.com	t			rmathis@jpent.com; ibbap@ibbusa.com	CAD	t	2		Excel
+353	WRG	WORKPLACE RESOURCE GROUP	WWW.WRGTEXAS.COM	2941 TRADE CENTER DRIVE	SUITE 120	CARROLLTON	TX	US	75007	CHARLIE WILLIAMS	972-389-8885	972-446-1209	CWILLIAMS@WRGTEXAS.COM	t	CHARLIE WILLIAMS		rmathis@jpent.com; CWILLIAMS@WRGTEXAS.COM	USD	f	3		Excel
+354	GOLIATH	GOLIATH GAMES LLC		5068 W. PLANO PARKWAY	SUITE 175	PLANO	TX	US	75093	BILL VAN JAHNKE	214-295-2953		BILL@GOLIATHGAMES.COM	t	BILL VAN JAHNKE		rmathis@jpent.com; BILL@GOLIATHGAMES.COM	USD	f	3		Excel
+361	WRD	WR Display and Packaging		500 Higgins Ave		Winnipeg	MB	CA	R3A 0B1	Tanna Steritt	1-800-665-8447			t	Tanna Steritt		rmathis@jpent.com; TannaSteritt@wrdisplay.ca	CAD	t	2		Excel
+368	StMed	STIRLING MEDICAL SOLUTIONS LTD.		2100 BLOOR STREET WEST	SUITE 6237	TORONTO	ON	CA	M6S 5A5	DAVID SOMERVILLE	416-803-9030	416-538-5932		t	DAVID SOMERVILLE		rmathis@jpent.com; dsomerville@stirlingmed.ca	CAD	t	2		Excel
+378	EZ	EZ LOG STRUCTURES		170 WALLACE STREET		NANAIMO	BC	CA	V9R5B1	GORD FAWCETT	800-652-1065			t			rmathis@jpent.com; ezlogstructures@yahoo.com; elemh@yahoo.com	CAD	t	2		Excel
+383	HC	HOME & CASTLE FURNITURE		7004 5TH STREET S.E.	UNIT # C	CALGARY	AB	CA	T2H2G3	RONALD CHEUNG				f			rmathis@jpent.com; RC@HomeCastleFurniture.com	CAD	t	2		Excel
+355	MINUSNINE	MINUSNINE TECHNOLOGIES		200H NORTH FURNACE STREET		BIRDSBORO	PA	US	19508	FRANK RUSS	484-645-7965	484-631-1337		f	JON GOODSPEED		JGOODSPEED@MINUS9.COM	USD	f	3		Excel
+385	Biion-DAL	Biion Footwear		31 Atlantic Avenue		Toronto	ON	CA	M6K 3E7	Marcy Slykhuis	905-334-0033		marcy@biionfootwear.com	f				USD	f	1		Excel
+388	DIS-3PL	DISTRIBUMARK		C/O 3PL LINKS	100 MARYCROFT AVE.	WOODBRIDGE	ON	CA	L4L5Y4	DON FLEMMING				f			rmathis@jpent.com;dfleming@3pllinks.com; ap@3pllinks.com; jverral@3pllinks.com	CAD	t	2		Excel
+380	BSA	LES INGREDIENTS ALIMENTAIRES BSA, S.E.C/L.P		6005 COUTURE BLVD.		ST-LEONARD	QB	CA	H1P 3E1		5148522719	5148526132		t			rmathis@jpent.com; ap@bsa.ca; gtardif@bsa.ca	CAD	t	2		Excel
+386	TRANS CAL	Transco Plastics		8096 MONTVIEW		MONTREAL	QB	CA	H4P2L7	Nathalie Desrochers	514-733-9951		ndesrochers@Transco.net	t			rmathis@jpent.com; ndesrochers@Transco.net	CAD	t	2		Excel
+411	Cupro	CUPRO SOLUTIONS INC.		P.O. BOX 3397		LANGLEY	BC	CA	V3A4R7	BRAD SIGOUIN	8006037127	6042885333	brad@cupro.ca	t			rmathis@jpent.com; brad@cupro.ca	CAD	t	2		pdf
+414	Dimes	DIMES CANADA INC.		MAQSUD ALIGHAZI	4 KENVIEW BLVD.	BRAMPTON	ON	CA	L6T 5E4	MAQSUD ALIGHAZI	(905)-812-0016/(647)-390-9383	(905)-812-0576	dimescanada@yahoo.ca	t			rmathis@jpent.com; dimescanada@yahoo.ca; MA@dimesproducts.ca	CAD	t	1		pdf
+395	SC	Sapling Child												t					f	2		Excel
+397	PWS-AB	PHOSLOCK PTY. LTD.		P.O. BOX 249		NORTHBRIDGE	NSW	AUSTRALIA	1560	ROBERT SCHUITEMA	+61 2 8014 7611	+61 8014 7625		t			rmathis@jpent.com; enquiries@phoslock.com.au; ntraill@phoslock.com.au	CAD	t	2		Excel
+398	MR-NJ	MINT RHAPSODY		23 MARGARET STREET		RIPPLESIDE	VIC	AUSTRALIA	3215	SAM & LAURA RUTTER	0411853029			f			rmathis@jpent.com; samrutter@mintrhapsody.com	USD	f	2		Excel
+400	MR-BEL	Mint Rhapsody												f					f	1		Excel
+415	Cantrio	CANTRIO KONCEPTS		20 DENSLEY AVENUE		TORONTO	ON	CA	M6M 2R1	ADAM MELTZ			adam@cantrio.ca	t			rmathis@jpent.com; adam@cantrio.ca	CAD	t	1		pdf
+416	Cosmic	COSMIC BOXX AND PACKAGING		201 KINGSVIEW DRIVE		CALEDON	ON	CA	L7E3W8	HELEN WILLIAMS	9058562225	9058568785	cosmicbox@rogers.com	t			rmathis@jpent.com; cosmicbox@rogers.com	CAD	t	1		pdf
+418	Bravo	BRAVO EDUCATION		313 KILLIAN ROAD		MAPLE	ON	CA	L6A1A6	Sandra Mirkovic	416-220-2217		sandra@bravoeducation.com	t			rmathis@jpent.com; sandra@bravoeducation.com	CAD	t	1		pdf
+422	Kinks	KINKSOLOGY INC.		7 QUEEN STREET SOUTH		MISSISSAUGA	ON	CA	L5M1K2	MARVA DUNCAN				t			rmathis@jpent.com; kinkshairstudioandspa@gmail.com	CAD	t	1		pdf
+406	GT-UGM	Union Gospel Mission												t					f	1		Excel
+410	CC	Cogistri Construction												t					f	1		Excel
+423	VIKING	Viking Appliances												t				USD	f	3		Excel
+426	Sago-DAL	Sago Sago Toys Dallas												f					f	1		Excel
+396	REEBOK	REEBOK c/o PAK 2000		189 GOVERNOR WENTWORTH HWY		MIRROR LAKE	NH	US	03853	LUIS LOSADA	603 569 3700	603 569 5478		t			rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	USD	f	2		Excel
+399	Magnus	Magnus Trading Inc			PO Box 832354	Richardson	TX	US	75083	Mubbashir Shaikh	615-719-6044	815-425-3855	magnus.inco@gmail.com	t	Mubbashir Shaikh		magnus.inco@gmail.com	USD	f	1		Excel
+390	ADV	ADVANTAGE PACKAGING LIMITED		3-76 BIGGAR AVENUE		HAMILTON	ON	CA	L8L3Z4	NANCY MAY	9055480999		nancy.may@advpackaging.com	t			rmathis@jpent.com; nancy.may@advpackaging.com	CAD	t	2		Excel
+391	SWE	Space Ways Storage Services Canada Inc.		1700-1075 West Georgia Street		Vancouver	BC	CA	V6E3C9	Martin Twellmeyer	4165334791			f			rmathis@jpent.com; invoices@spaceways.ca; ansel.liu@spaceways.com; sebastian.sondheimer@spaceways.com	CAD	t	2		Excel
+392	SWF	Space Ways Storage Services Canada Inc.		1700-1075 West Georgia Street		Vancouver	BC	CA	V6E 3C9	Martin Twellmeyer	4165334791			f			rmathis@jpent.com; invoices@spaceways.ca; ansel.liu@spaceways.com; sebastian.sondheimer@spaceways.com	CAD	t	2		Excel
+419	Sago	SAGO SAGO TOYS INC.		487 ADELAIDE ST. WEST	SUITE 301	TORONTO	ON	CA	M5V1T4	NATALIE SKILLEN	4167036459		nskillen@sagosago.com	t			rmathis@jpent.com; nskillen@sagosago.com; nscherbina@sagosago.com	USD	t	2		Excel
+424	TechN	TECHNICHE CANADA		200 NORTH SERVICE ROAD WEST	UNIT # 1, SUITE # 426	OAKVILLE	ON	CA	L6M 2Y1	EUAN MCCGRATH/DAN DEXEL	289-288-5022	905-689-2759		t			rmathis@jpent.com; euan@techniche-canada.com; dan@techniche-canada.com	CAD	t	1		Excel
+425	Sago-DAL	SAGO SAGO TOYS INC.		487 ADELAIDE ST. WEST	SUITE 301	TORONTO	ON	CA	M5V1T4	NATALIE SKILLEN	416-703-6459		nskillen@sagosago.com	t			rmathis@jpent.com; nskillen@sagosago.com; nscherbina@sagosago.com	USD	f	2		Excel
+432	Saks	SAKS FIFTH AVENUE CANADA		401 BAY STREET	9TH FLOOR, SUITE 900	TORONTO	ON	CA	M5H 2Y4	ERICK ALINAS/PATTI SIKORSKI	(416) 861-4238	(416) 861-6619	patti.sikorski@hbc.com	t			rmathis@jpent.com; patti.sikorski@hbc.com; erick.alinas@hbc.com	CAD	t	1		pdf
+412	JAB	JAB RECREATIONAL PRODUCTS INC.		21 PRINCIPALE		BATISCAN	QB	CA	G0X 1A0	JOHANNE GREINER	4183620035	4183620036	johanne@jabcanada.com	t			rmathis@jpent.com; johanne@jabcanada.com	CAD	t	2		pdf
+300	LT	LORD & TAYLOR		424 5TH AVENUE		NEW YORK	NY	US	10018	CHELSEA GREGORY	212 382 6346			t			rmathis@jpent.com; ltpurchasinginvoices@lordandtaylor.com	USD	f	1		pdf
+431	IPS-Sea	Smart Rink												t					f	1		Excel
+178	MPS	MPS - MULTI PRODUCT SOLUTIONS		1290 Blundell Road #5		Mississauga	ON	CA	L4Y1M5		905-949-4015			t			rmathis@jpent.com	CAD	t	1		Excel
+244	SL	Supply Line		193 Maxome Ave		Toronto	ON	CA	M2M 3L1	Imran Khan	416-838-8440			t			rmathis@jpent.com; supplyline@acanac.net	CAD	t	1		Excel
+246	JAS	JAS SUPPLY		9-2079 Meadowbrook Road		Burlington	ON	CA	L7P2A5	Rob Guimond	905-330-2598			t			rmathis@jpent.com; rguimond1@cogeco.ca; jassupply@cogeco.ca	CAD	t	2		Excel
+289	Pepsico	Pepsico Foods		5550 Explorer Drive	8th Floor	Mississauga	ON	CA	L4W 0C3	Pamela Yung	289-374-5000			t				CAD	t	1		Excel
+295	TG	Thompson Group		55 Cityview		Etobicoke	ON	CA	M9W 5A5		416-240-4464			t			rmathis@jpent.com; LBayard@thomsongroup.com	CAD	t	2		Excel
+304	Enviro	Enviro-Gel		104 Bond Street		Toronto	ON	CA	M5B 1X9	Robert J. Kerr				t			rmathis@jpent.com; rob@enviro-gel.com	CAD	t	2		Excel
+167	CHLOE	Chloe Boutique		3333 Bristol St. Suite # 2225	South Coast Plaza Mall	Costa Mesa	CA	US	92626	Julia Flynn				f				CAD	f	1		Excel
+172	TRI	TR Theatre Research		6122 Katella Avenue		Cypress	CA	US	90630	Michael Pittser 	714-894-5888			t			rmathis@jpent.com	USD	f	3		Excel
+249	A&R	A & R GLOBAL LOGISTICS		920 Davis Road	Suite 110	Elgin	IL	US	60123	Sal Costilla	209-667-4407			f				USD	f	2		Excel
+279	Seton	Seton Canada		P.O. Box 249		Milwaukee	WI	US	53201-0249					f			rmathis@jpent.com	CAD	t	1		Excel
+302	Scoular	The Scoular Company		250 Marquette Ave S	Suite 1050	Minneapolis	MN	US	55401	Nate Meyer				t			rmathis@jpent.com; food@scoular.com; NMeyer@scoular.com	USD	t	2		Excel
+303	QC Scoular	Scoular QC Hold		250 Marquette Ave S	Suite 1050	Minneapolis	MN	US	55401	Nate Meyer				t			rmathis@jpent.com; food@scoular.com; NMeyer@scoular.com	USD	t	2		Excel
+276	Int Hair	International Hair & Beauty		9225 Ulmerton Rd.	Suite F	Largo	FL	US	33771	Denise Buie	888-213-4744			t	Denise Buie		rmathis@jpent.com; denise@organiccolorsystems.com	USD	t	2		Excel
+139	GEB	GE&B Marketing		135 Shuh Ave.		Kitchener	ON	CA	N2A 1H4	Gary Baker	519 896 1168	519 896 7350	baker@golden.net	t			rmathis@jpent.com; elizabeth@geandb.com	CAD	t	1		Excel
+154	BAGEM	BAGEM PACKAGING		4001 Dufferin St.		Toronto	ON	CA	M3H 5R4	Mary Lee	416-638-6788	416-638-6166	bagempackaging@hotmail.com	f			rmathis@jpent.com	CAD	t	1		Excel
+170	RECO	Recochem Inc.	www.recochem.com	131 East Drive		Brampton	ON	CA	L6T 1B5	Stephanie				f				CAD	f	1		Excel
+165	SUPER	SuperSeal Construction	www.superseal.ca	P.O. BOX 61646	Brookwood R.P.O.	Langley	BC	CA	V3A8C8	Ted Hubert	800-571-1877	604-576-2458		f			rmathis@jpent.com; super@superseal.ca	CAD	t	2		Excel
+173	SUTUS	Sutus Inc.		301-3999 Henning Dr.		Burnaby	BC	CA	V5C 6P9	Benjamin Miller	866-987-8866 x2106			f				CAD	f	1		Excel
+148	TRANSCO DAL	Transco Plastic Industries SRL		8096 Montview		Montreal	QB	CA	H4P 2L7	nathalie desrochers	514-733-9951		ndesrochers@Transco.net	t			rmathis@jpent.com; ndesrochers@Transco.net	USD	f	3		Excel
+273	DS Foods	DongSheng Foods USA		355 W Olive Ave	Suite 206	Sunnyvale	CA	US	94086	Pauline Lim	408-738-5724			t			rmathis@jpent.com; pyuping@dongshengfoodsusa.com; natalielau@dongshengfoodsusa.com	USD	t	2		Excel
+291	RG	Rainguard		3334 E. Coast Hwy .	Box 143	Corona Del Mar	CA	US	92625	Louise or Claude Florent				t	Rosa Hernandez		rmathis@jpent.com; info@rainguard.com; rosa@rainguard.com	CAD	t	1		Excel
+310	SH	Season Harvest		556 E Weddell Drive	Ste 1	Sunnyvale	CA	US	94089	Crystal Qin				t			rmathis@jpent.com	CAD	t	2		Excel
+309	Inclusion	Inclusion Solutions Inc.		2000 Greenleaf	Suite 3	Evanston	IL	US	60202		847-869-2500			t			rmathis@jpent.com; mbaskin@inclusionsolutions.com	CAD	t	2		Excel
+274	WN	William Noble Rare Jewels		100 Highland Park Village	Suite 370	Dallas	TX	US	75205	Michelle Bishop	214-526-3890			f				CAD	f	1		Excel
+421	PA	Perfect Aire		5151 Belt Line Rd, #878		Dallas	TX	US	75254					t			rmathis@jpent.com; carlos.adorno@bigwall.us; Jaime@bigwall.us	USD	f	3		Excel
+428	Bigwall	Bigwall		5151 Belt Line Rd. #878		Dallas	TX	US	75254					t			rmathis@jpent.com; carlos.adorno@bigwall.us; Jaime@bigwall.us	USD	f	3		Excel
+324	CFK	Color Flame Kings		622 Central Avenue		Sarasota	FL	US	34236	Jaime Alexander Anast	(312) 550-7703			t			rmathis@jpent.com; jaime@colorflamekings.com	USD	f	3		Excel
+327	PAK CHI	PAK 2000		189 Governor Wentworth Hwy.		Mirror Lake	NH	US	03853	Luis Losada	603 569 3700	603 569 5478		t			rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	USD	f	2		Excel
+328	PAK LA	PAK 2000		189 Governor Wentworth Hwy.		Mirror Lake	NH	US		Luis Losada	603 569 3700	603 569 5478		t	Luis Losada		rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	USD	f	2		Excel
+335	UG	The Underground Group		1 West 34th Street	Suite 602	New York	NY	US	10001	Marvin Jamel				t			rmathis@jpent.com	USD	f	2		Excel
+336	IR	Industrial Rivet	www.rivet.com	200 PARIS AVE.		NORTHVALE	NJ	US	07647	MICHELE ZARET	2017501040 x154	2017501050		t	MICHELE ZARET		rmathis@jpent.com; MicheleZ@rivet.com	USD	t	1		Excel
+402	TRANSCO-BOS	TRANSCO PLASTIC INDUSTRIES SRL		8096 MONTVIEW		MONTREAL	QB	CA	H4P2L7	Nathalie Desrochers	514-733-9951		ndesrochers@Transco.net	t			rmathis@jpent.com; ndesrochers@Transco.net	USD	f	2		Excel
+338	TCI	TCI POWDER COATING, INC		734 DIXON DRIVE		ELLAVILLE	GA	US	31806	DEAN BENNETT	229-937-1249		DBENNETT@TCIPOWDER.COM	t			rmathis@jpent.com; DBENNETT@TCIPOWDER.COM	USD	f	3		Excel
+203	CMC	CLIMAX MANUFACTURING COMPANY		7840 State Route 26		New York	NY	US	13367129	Linda Hynes	315-376-8000			t			rmathis@jpent.com	USD	t	2		Excel
+339	Hailiang Dallas	Hailiang Dallas		1001 James Drive #B38		Leesport	PA	US	19533	Carolyn Baum	877-515-4522 x710		carolynb@hailiangusa.com	t	Ranee Cheng		rmathis@jpent.com, andy.wang@hailiang.com,  byan@hailiang.com, finance2@hailiang.com; carolynb@hailiangusa.com; RaneeC@hailiangusa.com	USD	f	3		Excel
+341	CHEMSOL	ChemSol LLC		601 Carlson Parkway	Suite 400	Minnetonka	MN	US	55305	Mark Anderson	952-484-2545		kbarbour@jpent.com	t	Mark Anderson			USD	t	3		Excel
+348	PERFECT LT	The Perfect Light		200 E Belt Line Road	Suite 303	Coppell	TX	US	75019	Chris Hall	972-304-3330	972-304-3301	chris@theperfectlightdfw.com	f	Chris Hall		chris@theperfectlightdfw.com	USD	f	3		Excel
+349	Detailed	Detailed Products		6950 Stefani Dr.		Dallas	Tx	US	75225	David Trigiani	214-750-7535		david@detailedproducts.com	f	David Trigiani		rmathis@jpent.com; david@detailedproducts.com	USD	f	3		Excel
+350	DETAIL PRO	DETAILED PRODUCTS	WWW.DETAILEDPRODUCTS.COM	6950 STEFANI DR		DALLAS	TX	US	75225	DAVID TRIGIANI	214-750-7535		DAVID@DETAILEDPRODUCTS.COM	t	DAVID TRIGIANI		rmathis@jpent.com; DAVID@DETAILEDPRODUCTS.COM	USD	f	3		Excel
+326	Glopack Ch	Glopack Chicago		48 N15 STREET		BROOKLYN	NY	US	11222					t			rmathis@jpent.com; rlam@glopackinc.com	USD	f	2		Excel
+347	OSU	One Step Up		1412 BROADWAY	3RD FLOOR	NEW YORK	NY	US	10018	PIEDAD MORALES / JOSEPH KATRI	2126961992	2127307950		t	PIEDAD MORALES / JOSEPH KATRI		rmathis@jpent.com; pmorales@onestepup.com; jkatri@onestepup.com	USD	t	2		Excel
+322	BIO	BIONIME USA CORPORATION		1450 E. SPRUCE STREET	BLDG. # B	ONTARIO	CA	US	91761	Denver Tatoy	858-481-8485			f	Denver Tatoy / Eileen  Sullivan		rmathis@jpent.com; Denver.Tatoy@bionime.com; Eileen.Sullivan@bionime.com	USD	t	2		Excel
+401	Modani-Hou	Modani Houston		3898 Distribution Blvd		Houston	TX	US		Gerald Lopez				t					f	2		Excel
+250	AR	Sensient Dehydrated Flavors, LLC		151 S. Walnut		Turlock	CA	US	95380	Rob Le Guillou	209-656-5261			t			rmathis@jpent.com; Ryan.Goularte@sensient.com; Elizabeth.Moyle@sensient.com; Alec.Christianson@sensient.com	USD	t	2	NET 30 DAYS	Excel
+283	SunRay	Sun Ray Group		1260 Lake Blvd.	Suite 210	Davis	CA	US	95616	Sandra Davis				t			rmathis@jpent.com	USD	t	2		Excel
+356	DFM - PF	DFM - PRECISION FORMULATIONS		2075 GREENBRIAR DRIVE		SOUTHLAKE	TX	US	76092	LEEANN STANLEY	8173850600	8178651026	LEEANN@DFMPRINTPAK.COM	t	LEEANN STANLEY		rmathis@jpent.com; LEEANN@DFMPRINTPAK.COM	USD	f	3		Excel
+364	SNAP AV	LEGACY SNAP AV		2001 WESTGATE DR	SUITE 100	CARROLLTON	TX	US	75006	Chris Hudson	704-783-5273		SNAPAVTXDC@LEGACYSCS.COM	t				USD	f	3		Excel
+365	Morbern	Morbern USA Inc		401 Fraley Road		High Point	NC	US	27263	John McGinnis	336-883-4332	336-883-1860		t	John McGinnis		rmathis@jpent.com; jmcginnis@morbern.com	USD	f	3		Excel
+369	All Ab	ABSORLUTION LLC		3123 S. UNIVERSITY DR.	# 13	FORT WORTH	TX	US	76109	BRUCE HUANG	817-793-8141			t			rmathis@jpent.com; bruce.huang@all-absorb.com	USD	f	2		Excel
+370	Sak	SAKOURA DESIGN, LTD. DBA J&J GOLD CREATIONS		47-42 37TH STREET		LONG ISLAND CITY	NY	US	11101	JULIA WANG/JASON YANG	718-392-2828	718-729-1644		f			rmathis@jpent.com; juliawang@sakoura.net; jasonyang@sakoura.net	USD	t	2		Excel
+372	Perfect Aire	Perfect Aire		5151 Belt Line Rd, #878		Dallas	TX	US	75254					t			rmathis@jpent.com; carlos.adorno@bigwall.us; Jaime@bigwall.us	USD	f	3		Excel
+374	Tyche	TYCHE INTERNATIONAL GROUP INC.		5 WOODLINE WAY		PITTSTOWN	NJ	US	08867	NING WU				t			rmathis@jpent.com; ning.wu@tycheinternationalgroup.com	USD	t	2		Excel
+375	PAK-Mem	PAK 2000		189 GOVERNOR WENTWORTH HWY.		MIRROR LAKE	NH	US						t			rmathis@jpent.com; lmorse@pak2000.com; llosada@pak2000.com; mgillum@pak2000.com	USD	f	2		Excel
+379	C-LIFE	C-LIFE GROUP LTD.		1400 BROADWAY	SUITE 700	NEW YORK	NY	US	10018	ZULEIKA ALVARADO	212-629-6996	212-563-5229		t			rmathis@jpent.com; zuleika.alvarado@c-lifegroup.com	USD	t	2		Excel
+382	Modani	MODANI FURNITURE TORONTO, INC.		2800 BISCAYNE BLVD.	PH FLOOR	MIAMI	FL	US	33137	JEROME COSTA	1-786-362-5516	1-768-364-1586		t			rmathis@jpent.com; controlling@modani.com	CAD	t	2		Excel
+358	CON-GT	Connelly		GLOBAL TRANZ ENTERPRISES INC.	5415 E HIGH STREET, SUITE 460	PHOENIX	AZ	US	85054	MARIE TEWELEIT	480-339-5737	877-417-3579		t			rmathis@jpent.com; scm@globaltranz.com	USD	t	2		Excel
+360	Kush-GT	Kushlan Products		GLOBAL TRANZ ENTERPRISES INC	5415 E HIGH STREET, SUITE 460	PHOENIX	AZ	US	85054	MARIE TEWELEIT	480-339-5737	877-417-3579		f			rmathis@jpent.com; scm@globaltranz.com	USD	f	2		Excel
+362	OL-LA-GT	Ocean Lineage		GLOBAL TRANZ ENTERPRISES INC.	5415 E HIGH STREET SUITE 460	PHOENIX	AZ	US	85054	MARIE TEWELEIT	480-339-5737	877-417-3579		t			rmathis@jpent.com; scm@globaltranz.com	USD	f	2		Excel
+403	ZALES KW	Zales Kingswood Jewelry Cleaner		901 W. Walnut Hill Lane		Irving	TX	US	75038	Mike Rios	972-580-5310		mrios@zalecorp.com	t	Patty Helms		rmathis@jpent.com; phelms@zalecorp; mrios@zalecorp.com 	USD	f	3	30	Excel
+404	Southwest Marketing	Southwest Marketing Group		2807 Allen Street #657		Dallas	tx	US	75204	Tray Harrison	214-912-6700		trayharr@aol.com	t	Tray Harrison		rmathis@jpent.com; trayharr@aol.com	USD	f	3	30 days	Excel
+405	Boy Scouts	Boy Scouts of America		1325 W Walnut Hill Lane		Irving	TX	US	75015	Fred Nestel	972-580-2469		fred.nestel@scouting.org	t	Fred Nestel		rmathis@jpent.com; fred.nestel@scouting.org	USD	f	3	30 days	Excel
+407	ZALES	ZALES		901 W. WALNUT HILL LANE		IRVING	TX	US	75038	PATTY HELMS	972-580-5943		phelms@zalecorp.com	t	BRAD RONGEY		brongey@zalecorp.com	USD	f	3	30	Excel
+408	Prestonwood	Prestonwood Christian Academy		6801 West Park Blvd.		Plano	TX	US	75093	Ron Johnson/Angela Startz	972-930-4004			t			rmathis@jpent.com; rjohnson@prestonwoodchristian.org; astarts@prestonwoodchristian.org	USD	f	3		Excel
+413	Jacmel	Jacmel Jewelry		1385 Broadway, 8th Floor		NY	NY	US	10018	Mark Clemente	718-349-4393		mclemente@jacmel.com	t	Mark Clemente		mclemente@jacmel.com	USD	f	3	30 days	Excel
+420	BIGWALL	Bigwall		5151 Belt Line Rd, #878		Dallas	TX	US	75254					t			rmathis@jpent.com; carlos.adorno@bigwall.us; Jaime@bigwall.us	USD	f	3		Excel
+427	Hodjera	Hodjera Architecural Products		325 Hish School Rd NE	Suite Ds #345	Bainbrdge Island	WA	US	98110	Mathew Hodjera			matthewhodjera@gmail.com	t	Matthew Hodjera		rmathis@jpent.com; matthewhodjera@gmail.com	USD	f	3	Net 10	Excel
+394	ULT SOL	ULTIMATE SOLUTIONS	WWW.SANDIAPLASTICS.COM	15571 CONTAINER LANE		HUNTINGTON BEACH	CA	US	92649	PETER MCGIFFIN	800-983-5834	714-901-8404	PETER@SANDIAPLASTICS.COM	t			rmathis@jpent.com; rebecca1@us-group.com	USD	f	3		Excel
+430	Hailiang Houston	Hailiang Houston		10001 James Drive #838		Leesport	PA	US	19533	Carolyn Baum	877-515-4522 x710		carolynb@hailiangusa.com	t	Ranee Cheng		rmathis@jpent.com, andy.wang@hailiang.com,  byan@hailiang.com, finance2@hailiang.com; carolynb@hailiangusa.com; RaneeC@hailiangusa.com	USD	f	1		Excel
+137	FC	Flower City Tissue Mills	http://www.flowercitytissue.com/	700 Driving Park Avenue		Rochester	NY	US	14613049	Kathy				t			rmathis@jpent.com; Luke@flowercitytissue.com	USD	t	2		Excel
+282	Eventive	Eventive Marketing		488 Madison Avenue	4Th Floor	New York	NY	US	10022-5702	Christopher Crews	917-606-8142			f				CAD	f	1		Excel
+301	JAC	Jacmel Jewellery Inc.		30-30  47th Avenue		Long Island City	NY	US	11101	Mark Clemente				t			rmathis@jpent.com; ysmith@jacmel.com	USD	t	2		Excel
+308	Accutime	ACCUTIME WATCH CORP.		1001 Avenue of the Americas	6th Floor	New York	NY	US	10018					t			rmathis@jpent.com; lyonathan@accutimewatch.com; asindawati@accutimewatch.com	USD	t	2		Excel
+311	Life-Tor	LIFE WORKS TECHNOLOGY GROUP		1412 Broadway	7th Floor	New York	NY	US	10018	Peter Gaskin	212-398-1110			t	Peter Gaskin		rmathis@jpent.com; pgaskin@life-works.com; seema@golifeworks.com; lperrone@golifeworks.com; Richard@golifeworks.com	USD	t	2		Excel
+316	Deck	Decksen International Co. Ltd.		228 Park Avenue S.	Ste. 85556	New York	NY	US						f			rmathis@jpent.com	USD	f	2		Excel
+352	DMD	DMD GROUP		2128 BERGEN AVENUE		BROOKLYN	NY	US	11234	MELLISSA IMPERATO	347-623-0366	866-790-3524		t			rmathis@jpent.com; Mellissa.imperato@yahoo.com	USD	f	2		Excel
+376	Life-BC	LIFE WORKS TECHNOLOGY GROUP		1412 BROADWAY	7TH FLOOR	NEW YORK	NY	US	10018	Peter Gaskin	212-398-1110			t			rmathis@jpent.com; pgaskin@life-works.com; seema@golifeworks.com; lperrone@golifeworks.com; Richard@golifeworks.com	USD	t	2		Excel
+389	CPG	CREATIVE PET GROUP LLC		1407 BROADWAY	SUITE 1411	NEW YORK	NY	US	10018	EVON KOH	646-863-8027		evon.cpg@gmail.com	t			rmathis@jpent.com; evon.cpg@gmail.com	USD	f	2		Excel
+429	BC	BC FOODS, INC.		1330 N. DUTTON AVE.	SUITE 100	SANTA ROSA	CA	US	95401	DAN MABEE	707-545-5270	707-545-5270	dan.mabee@bcfoods.com	t			rmathis@jpent.com; dan.mabee@bcfoods.com	USD	t	2		Excel
+363	OL-SEA-GT	Ocean Lineage		GLOBAL TRANZ ENTERPRISES	5415 E HIGH STREET SUITE 460	PHOENIX	AZ	US	85054	MARIE TEWELEIT	480-339-5737	877-417-3579		t			rmathis@jpent.com; scm@globaltranz.com	USD	f	2		Excel
+409	MG	MG DEVELOPMENT AMERICA, INC		1409 TOWNE SQUARE DRIVE		ALLISON PARK	PA	US	15101	SHARON EVANS	4123036302		sharonevans@verizon.net	t			rmathis@jpent.com; sharonevans@verizon.net	USD	t	2		pdf
+417	EPT	ENVIRONMENTAL PACKAGING TECHNOLOGIES, INC.		130 CENTRAL AVE	SUITE 110	HOLLAND	MI	US	49424	JENNIFER PHILLIPS	713-961-2795			t	Ryan Dixon		rmathis@jpent.com; rdixon@eptpac.com	USD	t	1		pdf
+393	L&T BW	LORD & TAYLOR		424 5TH AVE.		NEW YORK	NY	US	10018	CHELSEA GREGORY	212 382 6346			t			rmathis@jpent.com; ltpurchasinginvoices@lordandtaylor.com	USD	f	1		pdf
+\.
+
+
+--
+-- Name: client_migrate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('client_migrate_id_seq', 1, false);
+
+
+--
+-- Data for Name: client_warehouse; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY client_warehouse (client_id, warehouse_id, created_at, updated_at, id) FROM stdin;
+156	46	2016-02-20 17:59:26	2016-02-20 17:59:26	275
+159	46	2016-02-20 17:59:26	2016-02-20 17:59:26	276
+161	46	2016-02-20 17:59:26	2016-02-20 17:59:26	277
+280	46	2016-02-20 17:59:26	2016-02-20 17:59:26	278
+283	46	2016-02-20 17:59:26	2016-02-20 17:59:26	279
+381	84	2016-02-20 17:59:26	2016-02-20 17:59:26	280
+302	46	2016-02-20 17:59:26	2016-02-20 17:59:26	281
+303	46	2016-02-20 17:59:26	2016-02-20 17:59:26	282
+304	46	2016-02-20 17:59:26	2016-02-20 17:59:26	283
+306	46	2016-02-20 17:59:26	2016-02-20 17:59:26	284
+307	46	2016-02-20 17:59:26	2016-02-20 17:59:26	285
+408	78	2016-02-20 17:59:26	2016-02-20 17:59:26	286
+310	46	2016-02-20 17:59:26	2016-02-20 17:59:26	287
+314	46	2016-02-20 17:59:26	2016-02-20 17:59:26	288
+145	52	2016-02-20 17:59:26	2016-02-20 17:59:26	289
+342	80	2016-02-20 17:59:26	2016-02-20 17:59:26	290
+242	46	2016-02-20 17:59:26	2016-02-20 17:59:26	291
+242	48	2016-02-20 17:59:26	2016-02-20 17:59:26	292
+242	52	2016-02-20 17:59:26	2016-02-20 17:59:26	293
+140	52	2016-02-20 17:59:26	2016-02-20 17:59:26	294
+140	46	2016-02-20 17:59:26	2016-02-20 17:59:26	295
+277	46	2016-02-20 17:59:26	2016-02-20 17:59:26	296
+277	52	2016-02-20 17:59:26	2016-02-20 17:59:26	297
+382	52	2016-02-20 17:59:26	2016-02-20 17:59:26	298
+132	52	2016-02-20 17:59:26	2016-02-20 17:59:26	299
+361	52	2016-02-20 17:59:26	2016-02-20 17:59:26	300
+301	52	2016-02-20 17:59:26	2016-02-20 17:59:26	301
+301	49	2016-02-20 17:59:26	2016-02-20 17:59:26	302
+338	78	2016-02-20 17:59:26	2016-02-20 17:59:26	303
+327	48	2016-02-20 17:59:26	2016-02-20 17:59:26	304
+178	52	2016-02-20 17:59:26	2016-02-20 17:59:26	305
+136	52	2016-02-20 17:59:26	2016-02-20 17:59:26	306
+248	49	2016-02-20 17:59:26	2016-02-20 17:59:26	307
+158	49	2016-02-20 17:59:26	2016-02-20 17:59:26	308
+160	49	2016-02-20 17:59:26	2016-02-20 17:59:26	309
+301	63	2016-02-20 17:59:26	2016-02-20 17:59:26	310
+172	49	2016-02-20 17:59:26	2016-02-20 17:59:26	311
+391	52	2016-02-20 17:59:26	2016-02-20 17:59:26	312
+260	49	2016-02-20 17:59:26	2016-02-20 17:59:26	313
+261	49	2016-02-20 17:59:26	2016-02-20 17:59:26	314
+262	49	2016-02-20 17:59:26	2016-02-20 17:59:26	315
+354	78	2016-02-20 17:59:26	2016-02-20 17:59:26	316
+264	78	2016-02-20 17:59:26	2016-02-20 17:59:26	317
+274	49	2016-02-20 17:59:26	2016-02-20 17:59:26	318
+287	49	2016-02-20 17:59:26	2016-02-20 17:59:26	319
+296	49	2016-02-20 17:59:26	2016-02-20 17:59:26	320
+317	49	2016-02-20 17:59:26	2016-02-20 17:59:26	321
+345	52	2016-02-20 17:59:26	2016-02-20 17:59:26	322
+324	49	2016-02-20 17:59:26	2016-02-20 17:59:26	323
+406	78	2016-02-20 17:59:26	2016-02-20 17:59:26	324
+173	68	2016-02-20 17:59:26	2016-02-20 17:59:26	325
+319	52	2016-02-20 17:59:26	2016-02-20 17:59:26	326
+143	63	2016-02-20 17:59:26	2016-02-20 17:59:26	327
+289	52	2016-02-20 17:59:26	2016-02-20 17:59:26	328
+167	50	2016-02-20 17:59:26	2016-02-20 17:59:26	329
+377	52	2016-02-20 17:59:26	2016-02-20 17:59:26	330
+325	68	2016-02-20 17:59:26	2016-02-20 17:59:26	331
+353	78	2016-02-20 17:59:26	2016-02-20 17:59:26	332
+162	50	2016-02-20 17:59:26	2016-02-20 17:59:26	333
+162	52	2016-02-20 17:59:26	2016-02-20 17:59:26	334
+139	52	2016-02-20 17:59:26	2016-02-20 17:59:26	335
+139	63	2016-02-20 17:59:26	2016-02-20 17:59:26	336
+173	64	2016-02-20 17:59:26	2016-02-20 17:59:26	337
+247	52	2016-02-20 17:59:26	2016-02-20 17:59:26	338
+364	78	2016-02-20 17:59:26	2016-02-20 17:59:26	339
+276	52	2016-02-20 17:59:26	2016-02-20 17:59:26	340
+173	50	2016-02-20 17:59:26	2016-02-20 17:59:26	341
+294	50	2016-02-20 17:59:26	2016-02-20 17:59:26	342
+294	70	2016-02-20 17:59:26	2016-02-20 17:59:26	343
+366	63	2016-02-20 17:59:26	2016-02-20 17:59:26	344
+367	65	2016-02-20 17:59:26	2016-02-20 17:59:26	345
+414	46	2016-02-20 17:59:26	2016-02-20 17:59:26	346
+272	52	2016-02-20 17:59:26	2016-02-20 17:59:26	347
+135	52	2016-02-20 17:59:26	2016-02-20 17:59:26	348
+335	61	2016-02-20 17:59:26	2016-02-20 17:59:26	349
+134	52	2016-02-20 17:59:26	2016-02-20 17:59:26	350
+141	52	2016-02-20 17:59:26	2016-02-20 17:59:26	351
+142	52	2016-02-20 17:59:26	2016-02-20 17:59:26	352
+334	52	2016-02-20 17:59:26	2016-02-20 17:59:26	353
+146	52	2016-02-20 17:59:26	2016-02-20 17:59:26	354
+149	52	2016-02-20 17:59:26	2016-02-20 17:59:26	355
+150	52	2016-02-20 17:59:26	2016-02-20 17:59:26	356
+368	52	2016-02-20 17:59:26	2016-02-20 17:59:26	357
+157	52	2016-02-20 17:59:26	2016-02-20 17:59:26	358
+164	52	2016-02-20 17:59:26	2016-02-20 17:59:26	359
+166	52	2016-02-20 17:59:26	2016-02-20 17:59:26	360
+182	52	2016-02-20 17:59:26	2016-02-20 17:59:26	361
+168	52	2016-02-20 17:59:26	2016-02-20 17:59:26	362
+174	52	2016-02-20 17:59:26	2016-02-20 17:59:26	363
+176	52	2016-02-20 17:59:26	2016-02-20 17:59:26	364
+177	52	2016-02-20 17:59:26	2016-02-20 17:59:26	365
+346	63	2016-02-20 17:59:26	2016-02-20 17:59:26	366
+179	52	2016-02-20 17:59:26	2016-02-20 17:59:26	367
+180	52	2016-02-20 17:59:26	2016-02-20 17:59:26	368
+181	52	2016-02-20 17:59:26	2016-02-20 17:59:26	369
+392	52	2016-02-20 17:59:26	2016-02-20 17:59:26	370
+416	52	2016-02-20 17:59:26	2016-02-20 17:59:26	371
+233	52	2016-02-20 17:59:26	2016-02-20 17:59:26	372
+271	52	2016-02-20 17:59:26	2016-02-20 17:59:26	373
+244	52	2016-02-20 17:59:26	2016-02-20 17:59:26	374
+329	78	2016-02-20 17:59:26	2016-02-20 17:59:26	375
+246	52	2016-02-20 17:59:26	2016-02-20 17:59:26	376
+339	78	2016-02-20 17:59:26	2016-02-20 17:59:26	377
+259	52	2016-02-20 17:59:26	2016-02-20 17:59:26	378
+270	52	2016-02-20 17:59:26	2016-02-20 17:59:26	379
+153	46	2016-02-20 17:59:26	2016-02-20 17:59:26	380
+412	73	2016-02-20 17:59:26	2016-02-20 17:59:26	381
+374	68	2016-02-20 17:59:26	2016-02-20 17:59:26	382
+279	52	2016-02-20 17:59:26	2016-02-20 17:59:26	383
+281	52	2016-02-20 17:59:26	2016-02-20 17:59:26	384
+284	52	2016-02-20 17:59:26	2016-02-20 17:59:26	385
+285	52	2016-02-20 17:59:26	2016-02-20 17:59:26	386
+321	52	2016-02-20 17:59:26	2016-02-20 17:59:26	387
+288	52	2016-02-20 17:59:26	2016-02-20 17:59:26	388
+299	52	2016-02-20 17:59:26	2016-02-20 17:59:26	389
+290	52	2016-02-20 17:59:26	2016-02-20 17:59:26	390
+292	52	2016-02-20 17:59:26	2016-02-20 17:59:26	391
+396	63	2016-02-20 17:59:26	2016-02-20 17:59:26	392
+405	78	2016-02-20 17:59:26	2016-02-20 17:59:26	393
+315	52	2016-02-20 17:59:26	2016-02-20 17:59:26	394
+331	52	2016-02-20 17:59:26	2016-02-20 17:59:26	395
+315	65	2016-02-20 17:59:26	2016-02-20 17:59:26	396
+315	63	2016-02-20 17:59:26	2016-02-20 17:59:26	397
+320	46	2016-02-20 17:59:26	2016-02-20 17:59:26	398
+330	46	2016-02-20 17:59:26	2016-02-20 17:59:26	399
+282	69	2016-02-20 17:59:26	2016-02-20 17:59:26	400
+336	52	2016-02-20 17:59:26	2016-02-20 17:59:26	401
+147	53	2016-02-20 17:59:26	2016-02-20 17:59:26	402
+163	53	2016-02-20 17:59:26	2016-02-20 17:59:26	403
+380	46	2016-02-20 17:59:26	2016-02-20 17:59:26	405
+360	65	2016-02-20 17:59:26	2016-02-20 17:59:26	406
+347	52	2016-02-20 17:59:26	2016-02-20 17:59:26	407
+297	61	2016-02-20 17:59:26	2016-02-20 17:59:26	408
+316	63	2016-02-20 17:59:26	2016-02-20 17:59:26	409
+298	63	2016-02-20 17:59:26	2016-02-20 17:59:26	410
+358	52	2016-02-20 17:59:26	2016-02-20 17:59:26	411
+269	65	2016-02-20 17:59:26	2016-02-20 17:59:26	412
+275	67	2016-02-20 17:59:26	2016-02-20 17:59:26	413
+409	52	2016-02-20 17:59:26	2016-02-20 17:59:26	414
+169	49	2016-02-20 17:59:26	2016-02-20 17:59:26	415
+411	52	2016-02-20 17:59:26	2016-02-20 17:59:26	416
+350	78	2016-02-20 17:59:26	2016-02-20 17:59:26	418
+169	78	2016-02-20 17:59:26	2016-02-20 17:59:26	419
+397	87	2016-02-20 17:59:26	2016-02-20 17:59:26	420
+348	78	2016-02-20 17:59:26	2016-02-20 17:59:26	422
+384	88	2016-02-20 17:59:26	2016-02-20 17:59:26	423
+356	78	2016-02-20 17:59:26	2016-02-20 17:59:26	424
+352	63	2016-02-20 17:59:26	2016-02-20 17:59:26	425
+384	78	2016-02-20 17:59:26	2016-02-20 17:59:26	426
+399	78	2016-02-20 17:59:26	2016-02-20 17:59:26	427
+359	46	2016-02-20 17:59:26	2016-02-20 17:59:26	428
+355	78	2016-02-20 17:59:26	2016-02-20 17:59:26	429
+379	68	2016-02-20 17:59:26	2016-02-20 17:59:26	430
+371	52	2016-02-20 17:59:26	2016-02-20 17:59:26	431
+375	83	2016-02-20 17:59:26	2016-02-20 17:59:26	432
+413	78	2016-02-20 17:59:26	2016-02-20 17:59:26	433
+373	52	2016-02-20 17:59:26	2016-02-20 17:59:26	434
+328	65	2016-02-20 17:59:26	2016-02-20 17:59:26	435
+419	52	2016-02-20 17:59:26	2016-02-20 17:59:26	436
+419	46	2016-02-20 17:59:26	2016-02-20 17:59:26	437
+291	52	2016-02-20 17:59:26	2016-02-20 17:59:26	438
+203	52	2016-02-20 17:59:26	2016-02-20 17:59:26	439
+387	85	2016-02-20 17:59:26	2016-02-20 17:59:26	440
+420	78	2016-02-20 17:59:26	2016-02-20 17:59:26	441
+421	78	2016-02-20 17:59:26	2016-02-20 17:59:26	442
+388	52	2016-02-20 17:59:26	2016-02-20 17:59:26	443
+351	52	2016-02-20 17:59:26	2016-02-20 17:59:26	444
+370	52	2016-02-20 17:59:26	2016-02-20 17:59:26	445
+378	46	2016-02-20 17:59:26	2016-02-20 17:59:26	446
+422	52	2016-02-20 17:59:26	2016-02-20 17:59:26	447
+424	52	2016-02-20 17:59:26	2016-02-20 17:59:26	448
+372	78	2016-02-20 17:59:26	2016-02-20 17:59:26	449
+428	78	2016-02-20 17:59:26	2016-02-20 17:59:26	450
+427	78	2016-02-20 17:59:26	2016-02-20 17:59:26	451
+429	46	2016-02-20 17:59:26	2016-02-20 17:59:26	452
+170	61	2016-02-20 17:59:26	2016-02-20 17:59:26	453
+389	63	2016-02-20 17:59:26	2016-02-20 17:59:26	454
+243	52	2016-02-20 17:59:26	2016-02-20 17:59:26	455
+410	52	2016-02-20 17:59:26	2016-02-20 17:59:26	456
+403	78	2016-02-20 17:59:26	2016-02-20 17:59:26	457
+340	52	2016-02-20 17:59:26	2016-02-20 17:59:26	458
+295	46	2016-02-20 17:59:26	2016-02-20 17:59:26	459
+363	82	2016-02-20 17:59:26	2016-02-20 17:59:26	460
+362	81	2016-02-20 17:59:26	2016-02-20 17:59:26	461
+137	52	2016-02-20 17:59:26	2016-02-20 17:59:26	462
+386	73	2016-02-20 17:59:26	2016-02-20 17:59:26	463
+393	86	2016-02-20 17:59:26	2016-02-20 17:59:26	464
+383	73	2016-02-20 17:59:26	2016-02-20 17:59:26	465
+245	52	2016-02-20 17:59:26	2016-02-20 17:59:26	466
+210	52	2016-02-20 17:59:26	2016-02-20 17:59:26	467
+417	52	2016-02-20 17:59:26	2016-02-20 17:59:26	468
+263	49	2016-02-20 17:59:26	2016-02-20 17:59:26	469
+263	78	2016-02-20 17:59:26	2016-02-20 17:59:26	470
+309	46	2016-02-20 17:59:26	2016-02-20 17:59:26	471
+344	52	2016-02-20 17:59:26	2016-02-20 17:59:26	472
+404	78	2016-02-20 17:59:26	2016-02-20 17:59:26	473
+326	48	2016-02-20 17:59:26	2016-02-20 17:59:26	474
+312	65	2016-02-20 17:59:26	2016-02-20 17:59:26	475
+312	78	2016-02-20 17:59:26	2016-02-20 17:59:26	476
+337	52	2016-02-20 17:59:26	2016-02-20 17:59:26	477
+349	78	2016-02-20 17:59:26	2016-02-20 17:59:26	478
+323	52	2016-02-20 17:59:26	2016-02-20 17:59:26	479
+323	46	2016-02-20 17:59:26	2016-02-20 17:59:26	480
+323	78	2016-02-20 17:59:26	2016-02-20 17:59:26	481
+357	46	2016-02-20 17:59:26	2016-02-20 17:59:26	482
+402	69	2016-02-20 17:59:26	2016-02-20 17:59:26	483
+165	52	2016-02-20 17:59:26	2016-02-20 17:59:26	484
+390	84	2016-02-20 17:59:26	2016-02-20 17:59:26	485
+343	63	2016-02-20 17:59:26	2016-02-20 17:59:26	486
+154	52	2016-02-20 17:59:26	2016-02-20 17:59:26	489
+322	72	2016-02-20 17:59:26	2016-02-20 17:59:26	490
+293	50	2016-02-20 17:59:26	2016-02-20 17:59:26	491
+273	55	2016-02-20 17:59:26	2016-02-20 17:59:26	492
+401	88	2016-02-20 17:59:26	2016-02-20 17:59:26	493
+376	68	2016-02-20 17:59:26	2016-02-20 17:59:26	494
+311	52	2016-02-20 17:59:26	2016-02-20 17:59:26	495
+390	73	2016-02-20 17:59:26	2016-02-20 17:59:26	496
+148	65	2016-02-20 17:59:26	2016-02-20 17:59:26	497
+148	78	2016-02-20 17:59:26	2016-02-20 17:59:26	498
+425	78	2016-02-20 17:59:26	2016-02-20 17:59:26	499
+426	78	2016-02-20 17:59:26	2016-02-20 17:59:26	500
+313	68	2016-02-20 17:59:26	2016-02-20 17:59:26	501
+395	78	2016-02-20 17:59:26	2016-02-20 17:59:26	502
+401	78	2016-02-20 17:59:26	2016-02-20 17:59:26	503
+300	63	2016-02-20 17:59:26	2016-02-20 17:59:26	504
+250	53	2016-02-20 17:59:26	2016-02-20 17:59:26	505
+385	78	2016-02-20 17:59:26	2016-02-20 17:59:26	506
+415	52	2016-02-20 17:59:26	2016-02-20 17:59:26	507
+407	78	2016-02-20 17:59:26	2016-02-20 17:59:26	508
+286	52	2016-02-20 17:59:26	2016-02-20 17:59:26	509
+394	78	2016-02-20 17:59:26	2016-02-20 17:59:26	510
+365	78	2016-02-20 17:59:26	2016-02-20 17:59:26	511
+418	52	2016-02-20 17:59:26	2016-02-20 17:59:26	512
+398	63	2016-02-20 17:59:26	2016-02-20 17:59:26	513
+318	78	2016-02-20 17:59:26	2016-02-20 17:59:26	514
+341	78	2016-02-20 17:59:26	2016-02-20 17:59:26	515
+308	52	2016-02-20 17:04:31	2016-02-20 17:04:31	529
+308	63	2016-02-20 17:04:31	2016-02-20 17:04:31	530
+249	53	2016-02-20 17:09:22	2016-02-20 17:09:22	531
+9	46	2016-02-20 17:10:35	2016-02-20 17:10:35	532
+9	52	2016-02-20 17:10:35	2016-02-20 17:10:35	533
+9	53	2016-02-20 17:10:35	2016-02-20 17:10:35	534
+369	65	2016-02-20 17:14:21	2016-02-20 17:14:21	535
+369	63	2016-02-20 17:14:21	2016-02-20 17:14:21	536
+\.
+
+
+--
+-- Name: client_warehouse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('client_warehouse_id_seq', 536, true);
+
+
+--
+-- Data for Name: client_warehouse_migrate; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY client_warehouse_migrate (client_id, warehouse_id) FROM stdin;
+156	46
+159	46
+161	46
+280	46
+283	46
+381	84
+302	46
+303	46
+304	46
+306	46
+307	46
+408	78
+310	46
+314	46
+145	52
+342	80
+242	46
+242	48
+242	52
+140	52
+140	46
+277	46
+277	52
+382	52
+132	52
+361	52
+301	52
+301	49
+338	78
+327	48
+178	52
+136	52
+248	49
+158	49
+160	49
+301	63
+172	49
+391	52
+260	49
+261	49
+262	49
+354	78
+264	78
+274	49
+287	49
+296	49
+317	49
+345	52
+324	49
+406	78
+173	68
+319	52
+143	63
+289	52
+167	50
+377	52
+325	68
+353	78
+162	50
+162	52
+139	52
+139	63
+173	64
+247	52
+364	78
+276	52
+173	50
+294	50
+294	70
+366	63
+367	65
+414	46
+272	52
+135	52
+335	61
+134	52
+141	52
+142	52
+334	52
+146	52
+149	52
+150	52
+368	52
+157	52
+164	52
+166	52
+182	52
+168	52
+174	52
+176	52
+177	52
+346	63
+179	52
+180	52
+181	52
+392	52
+416	52
+233	52
+271	52
+244	52
+329	78
+246	52
+339	78
+259	52
+270	52
+153	46
+412	73
+374	68
+279	52
+281	52
+284	52
+285	52
+321	52
+288	52
+299	52
+290	52
+292	52
+396	63
+405	78
+315	52
+331	52
+315	65
+315	63
+320	46
+330	46
+282	69
+336	52
+147	53
+163	53
+249	53
+380	46
+360	65
+347	52
+297	61
+316	63
+298	63
+358	52
+269	65
+275	67
+409	52
+169	49
+411	52
+308	52
+350	78
+169	78
+397	87
+308	63
+348	78
+384	88
+356	78
+352	63
+384	78
+399	78
+359	46
+355	78
+379	68
+371	52
+375	83
+413	78
+373	52
+328	65
+419	52
+419	46
+291	52
+203	52
+387	85
+420	78
+421	78
+388	52
+351	52
+370	52
+378	46
+422	52
+424	52
+372	78
+428	78
+427	78
+429	46
+170	61
+389	63
+243	52
+410	52
+403	78
+340	52
+295	46
+363	82
+362	81
+137	52
+386	73
+393	86
+383	73
+245	52
+210	52
+417	52
+263	49
+263	78
+309	46
+344	52
+404	78
+326	48
+312	65
+312	78
+337	52
+349	78
+323	52
+323	46
+323	78
+357	46
+402	69
+165	52
+390	84
+343	63
+369	65
+369	63
+154	52
+322	72
+293	50
+273	55
+401	88
+376	68
+311	52
+390	73
+148	65
+148	78
+425	78
+426	78
+313	68
+395	78
+401	78
+300	63
+250	53
+385	78
+415	52
+407	78
+286	52
+394	78
+365	78
+418	52
+398	63
+318	78
+341	78
+\.
+
+
+--
+-- Data for Name: company; Type: TABLE DATA; Schema: public; Owner: sungwhikim
+--
+
+COPY company (id, short_name, name, address1, address2, city, province_id, country_id, created_at, updated_at, postal_code, active) FROM stdin;
+1	JPE Enterprises	J.P. Enterprises a Div. of 1303192 Ont.	1290 Blundell Road	\N	Mississauga	10	1	2016-02-11 14:18:06	2016-02-11 14:18:06	L4Y 1M5	t
+2	JPE Logistics	J.P. Enterprises - Logistics	1290 Blundell Road	\N	Mississauga	10	1	2016-02-11 14:18:51	2016-02-11 14:18:51	L4Y 1M5	t
+3	JPE Dallas	JP Enterprises Dallas	2828 Trade Center DR Suite 100	\N	Carrollton	57	2	2016-02-11 14:19:49	2016-02-11 14:19:49	75007	t
+\.
+
+
+--
+-- Name: company_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
+--
+
+SELECT pg_catalog.setval('company_id_seq', 3, true);
+
+
+--
 -- Data for Name: country; Type: TABLE DATA; Schema: public; Owner: sungwhikim
 --
 
-COPY country (id, code, name, created_at, updated_at) FROM stdin;
-1	CA	Canada	2016-01-11 20:09:42	2016-02-04 16:21:44
-2	US	United States	2016-01-11 20:16:45	2016-01-11 20:45:32
+COPY country (id, code, name, created_at, updated_at, currency_name, currency_prefix) FROM stdin;
+1	CA	Canada	2016-01-11 20:09:42	2016-02-11 15:03:42	CAD	$
+2	US	United States	2016-01-11 20:16:45	2016-02-11 15:03:49	USD	$
 \.
 
 
@@ -11250,7 +12458,7 @@ COPY customer (id, contact, name, email, address1, address2, city, province_id, 
 -- Name: customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('customer_id_seq', 2, true);
+SELECT pg_catalog.setval('customer_id_seq', 9, true);
 
 
 --
@@ -23330,9 +24538,9 @@ COPY "user" (id, username, name, email, remember_token, created_at, updated_at, 
 11	dculbert	Dave Culbert	dculbert@jpent.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
 7	Bay	Master Client	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
 243	SUNGWHIKIM1	sung whi client	sungwhikim@gmail.com	WEEMnMrBVgsMXnblhCkso5WS4HEoPH0TEbx5Sjo9cEgrvIzZLFIkyXaph7Ms	2016-02-01 17:59:53	2016-02-09 16:04:24	t	$2y$10$b83Bmu0etcFC5AA7bfIGY.VDzEIbq1CaC6btlb0QU5LxYLGvvuEii	4
+1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	6rQ04FjEzLjkuKs95KP3JC18RrHGmk7tlamZY484KtGN1P8Eb2rbgE4CDyJj	2016-02-01 17:59:53	2016-02-10 14:42:00	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC	1
 3	larkin	Jim Larkin	jim@larkinweb.com	exlVejXIdk40lLRIcIhuKefd14QaWOx6lLUjrJ4Dx35ooxDKSZpIFrxpNwCp	2016-02-01 17:59:53	2016-02-09 15:58:20	t	$2y$10$Y2CjjBSoM9u0akjt.Kc76eSyTj1hZL2qF1LmXLHZeQp2gUqwjPt4a	1
 88	larkin123	Jim Larkin	jim@larkinweb.com	\N	2016-02-01 17:59:53	2016-02-09 15:58:28	t	placeholder	1
-1	sungwhikim	Sung-Whi Kim	sungwhikim@gmail.com	WuLeo3g5iUaUcMBc4FLRUIuTcDl8ASvcFvq5o0SzXKf3Hf6nJOLgfbqCoP5v	2016-02-01 17:59:53	2016-02-09 16:03:49	t	$2y$10$f5dLVj9W0JHnTiEGFCPOe.qasBOZwu8DPPC6gjHPaTCPBPfMoxUjC	1
 29	kchu	Kam Joi Chu	kamjoi.chu@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
 31	cyan	Claire Yan	claire.yan@hbc.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
 32	lmorse	Laura Morse	lmorse@pak2000.com	\N	2016-02-01 17:59:53	2016-02-01 17:59:53	t	placeholder	\N
@@ -23636,7 +24844,7 @@ COPY user_function (id, name, url, sort_order, created_at, updated_at, active, u
 5	Shipping	/ship	40	2016-02-07 11:32:08	2016-02-07 11:32:08	t	1	Transactions
 4	Receiving	/receive	30	2016-02-07 11:31:44	2016-02-07 11:31:44	t	1	Transactions
 2	Transaction Finder	/transaction/find	10	2016-02-07 11:30:27	2016-02-07 11:30:27	t	1	Transactions
-45	ASN - Receiving	/transaction/asn/receive	45	2016-02-08 16:47:58	2016-02-09 15:05:16	t	1	Transactions
+45	ASN - Receiving	/transaction/asn/receive	45	2016-02-08 16:47:58	2016-02-10 15:21:59	t	1	Transactions
 \.
 
 
@@ -23663,7 +24871,7 @@ SELECT pg_catalog.setval('user_function_category_id_seq', 5, true);
 -- Name: user_function_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('user_function_id_seq', 46, true);
+SELECT pg_catalog.setval('user_function_id_seq', 47, true);
 
 
 --
@@ -23681,7 +24889,7 @@ COPY user_group (id, name, created_at, updated_at, active) FROM stdin;
 -- Name: user_group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('user_group_id_seq', 4, true);
+SELECT pg_catalog.setval('user_group_id_seq', 15, true);
 
 
 --
@@ -23691,52 +24899,52 @@ SELECT pg_catalog.setval('user_group_id_seq', 4, true);
 COPY user_group_to_user_function (user_group_id, user_function_id, id, created_at, updated_at) FROM stdin;
 3	20	103	2016-02-08 16:46:15	2016-02-08 16:46:15
 3	21	104	2016-02-08 16:46:15	2016-02-08 16:46:15
+1	34	300	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	33	301	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	32	302	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	31	303	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	30	304	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	29	305	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	28	306	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	27	307	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	25	308	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	26	309	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	24	310	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	23	311	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	35	312	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	22	313	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	21	314	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	20	315	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	19	316	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	18	317	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	17	318	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	16	319	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	15	320	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	14	321	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	13	322	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	12	323	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	11	324	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	10	325	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	44	326	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	43	327	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	42	328	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	36	329	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	41	330	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	40	331	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	39	332	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	38	333	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	37	334	2016-02-16 15:20:52	2016-02-16 15:20:52
 4	45	141	2016-02-08 16:48:41	2016-02-08 16:48:41
 4	6	142	2016-02-08 16:48:41	2016-02-08 16:48:41
 4	14	143	2016-02-08 16:48:41	2016-02-08 16:48:41
-1	5	144	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	2	145	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	14	146	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	24	147	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	10	148	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	11	149	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	12	150	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	4	151	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	6	152	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	9	153	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	15	154	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	16	155	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	17	156	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	18	157	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	20	158	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	21	159	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	35	160	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	37	161	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	38	162	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	39	163	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	40	164	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	36	165	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	42	166	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	43	167	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	44	168	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	23	169	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	25	170	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	26	171	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	27	172	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	29	173	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	30	174	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	31	175	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	32	176	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	33	177	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	34	178	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	45	179	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	28	180	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	8	181	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	3	182	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	13	183	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	41	184	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	19	185	2016-02-09 15:56:53	2016-02-09 15:56:53
-1	22	186	2016-02-09 15:56:53	2016-02-09 15:56:53
+1	8	335	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	3	336	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	9	337	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	6	338	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	5	339	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	4	340	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	2	341	2016-02-16 15:20:52	2016-02-16 15:20:52
+1	45	342	2016-02-16 15:20:52	2016-02-16 15:20:52
 \.
 
 
@@ -23744,7 +24952,7 @@ COPY user_group_to_user_function (user_group_id, user_function_id, id, created_a
 -- Name: user_group_to_user_function_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sungwhikim
 --
 
-SELECT pg_catalog.setval('user_group_to_user_function_id_seq', 186, true);
+SELECT pg_catalog.setval('user_group_to_user_function_id_seq', 342, true);
 
 
 --
@@ -23789,7 +24997,7 @@ COPY warehouse (id, name, address1, address2, city, province_id, country_id, cre
 86	DDS PA	Chambersburg, PA		Chambersburg	52	2	2016-02-02 16:04:49	2016-02-02 16:04:49		t	
 87	Edm Portside				2	1	2016-02-02 16:04:49	2016-02-02 16:04:49		t	
 88	Houston Whse	3898 Distribution Blvd		Houston	57	2	2016-02-02 16:04:49	2016-02-02 16:04:49		t	Distibution By Air
-52	1290	1290 Blundell Rd.		Mississauga	10	1	2016-02-02 16:04:49	2016-02-02 15:09:27	L4Y 1M5	t	
+52	1290	1290 Blundell Rd.		Mississauga	10	1	2016-02-02 16:04:49	2016-02-17 14:54:36	L4Y 1M5	f	
 \.
 
 
@@ -23837,6 +25045,22 @@ COPY warehouse_migrate (id, name, address1, address2, city, province, country_id
 87	Edm Portside				AB	1	2016-02-02 16:00:36	2016-02-02 16:00:36		t	
 88	Houston Whse	3898 Distribution Blvd		Houston	TX	2	2016-02-02 16:00:36	2016-02-02 16:00:36		t	Distibution By Air
 \.
+
+
+--
+-- Name: client_warehouse_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY client_warehouse
+    ADD CONSTRAINT client_warehouse_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: company_pkey; Type: CONSTRAINT; Schema: public; Owner: sungwhikim; Tablespace: 
+--
+
+ALTER TABLE ONLY company
+    ADD CONSTRAINT company_pkey PRIMARY KEY (id);
 
 
 --

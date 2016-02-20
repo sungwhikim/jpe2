@@ -4,8 +4,7 @@ angular.module('checkBoxService', [])
                 toggleCheckBox: toggleCheckBox,
                 allCheckBoxes: allCheckBoxes,
                 noneCheckBoxes: noneCheckBoxes
-            },
-            items = [];
+            };
         return service;
 
         function toggleCheckBox(selectedList, id) {
@@ -22,12 +21,11 @@ angular.module('checkBoxService', [])
             }
         }
 
-        function allCheckBoxes(selectedList) {
-            //this is because direct assignments of array by reference does not work in js.
-            for( i = 0; i < service.items.length; i++ ) {
-                if( selectedList.indexOf(service.items[i]) == -1 ) {
-                    selectedList.push(service.items[i]);
-                }
+        function allCheckBoxes(selectedList, masterList) {
+            //this is because re-assignment of the array elements breaks the variable reference to its parent/child
+            selectedList.length = 0;
+            for( i = 0; i < masterList.length; i++ ) {
+                selectedList.push(masterList[i]);
             }
         }
 

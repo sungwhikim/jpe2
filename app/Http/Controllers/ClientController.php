@@ -6,6 +6,7 @@ use App\Models\Country;
 use App\Models\Province;
 use App\Models\Warehouse;
 use App\Models\Company;
+use App\Models\ClientWarehouse;
 use DB;
 
 class ClientController extends Controller
@@ -22,19 +23,25 @@ class ClientController extends Controller
         //get the list data with the default sort set the same as in the angular table
         $data = Client::select('client.*',
                                'province.name as province_name',
-                               'warehouse.name as warehouse_name',
                                'company.name as company_name',
                                 DB::raw('taxable::varchar(5)'))
-                      ->join('province', 'client.province_id', '=', 'province.id')
-                      ->join('warehouse', 'client.warehouse_id', '=', 'warehouse.id')
-                      ->join('company', 'client.company_id', '=', 'company.id')
+                      ->leftJoin('province', 'client.province_id', '=', 'province.id')
+                      ->leftJoin('company', 'client.company_id', '=', 'company.id')
                       ->orderBy('client.name')->get();
+
+        //add warehouses to each client
+        foreach( $data as $item )
+        {
+            $item->warehouses = ClientWarehouse::where('client_id', '=', $item->id)
+                                                 ->lists('warehouse_id')->toArray();
+        }
 
         //we need to send the url to do Ajax queries back here
         $url = url('/client');
 
         //build the list data
-        $warehouse_data = Warehouse::select('id', 'name')->orderBy('name')->get();
+        $warehouses = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
+        $warehouse_data = Warehouse::orderBy('name')->lists('id');
         $company_data = Company::select('id', 'short_name', 'name')->orderBy('name')->get();
 
         return response()->view('pages.client', ['main_data' => $data,
@@ -42,6 +49,7 @@ class ClientController extends Controller
                                                  'my_name' => $this->my_name,
                                                  'country_data' => $this->getCountryList(),
                                                  'company_data' => $company_data,
+                                                 'warehouses' => $warehouses,
                                                  'warehouse_data' => $warehouse_data]);
     }
 
@@ -113,14 +121,28 @@ class ClientController extends Controller
         $client->billing_email   = request()->json('billing_email');
         $client->terms           = request()->json('terms');
         $client->company_id      = request()->json('company_id');
-        $client->warehouse_id    = request()->json('warehouse_id');
         $client->billing_country_id = request()->json('billing_country_id');
         $client->taxable         = ( request()->json('taxable') == 'true' ) ? true : false;
         $client->active          = ( !empty(request()->json('active')) ) ? true : false;
         $client->invoice_attachment_type = request()->json('invoice_attachment_type');
         $client->save();
+        $client_id = $client->id;
 
-        return $client->id;
+        /* Update warehouses */
+        //delete all current data
+        ClientWarehouse::where('client_id', '=', $client_id)->delete();
+
+        //add warehouses
+        $warehouses = request()->json('warehouses', []);
+        foreach( $warehouses as $key => $warehouse_id )
+        {
+            $object = new ClientWarehouse();
+            $object->client_id = $client_id;
+            $object->warehouse_id = $warehouse_id;
+            $object->save();
+        }
+
+        return $client_id;
     }
 
     public function putDelete($id)

@@ -15,7 +15,7 @@
             @include('layouts.search-bar', ['criterias' => ['short_name' => 'Short Name',
                                                             'name' => 'Name',
                                                             'warehouse_name' => 'Warehouse',
-                                                            'company_name' => 'company',
+                                                            'company_name' => 'Company',
                                                             'city' => 'City',
                                                             'province_name' => 'Province/State',
                                                             'active' => 'Active']])
@@ -54,10 +54,14 @@
                                         @include('forms.new-city')
                                         @include('forms.new-postal-code')
                                         @include('forms.new-province-state')
-                                        @include('forms.new-warehouse')
                                         @include('forms.new-company')
 
                                         @include('forms.divider')
+                                        @include('forms.new-checkbox-list', ['title' => 'Warehouses',
+                                                                             'name' => 'warehouses',
+                                                                             'container_class' => 'checkbox-list-left',
+                                                                             'list_data' => $warehouses,
+                                                                             'master_list' => 'mainList.warehouseData'])
                                         @include('forms.new-contact')
                                         @include('forms.new-email')
                                         @include('forms.new-phone')
@@ -65,17 +69,14 @@
 
                                         @include('forms.divider', ['title' => 'Billing'])
                                         @include('forms.new-text', ['title' => 'Contact',
-                                                                'name' => 'billing_contact',
-                                                                'size' => 100,
-                                                                'required' => false])
-                                        @include('forms.new-textarea', ['title' => 'Email',
-                                                                        'name' => 'billing_email',
-                                                                        'size' => 1000,
-                                                                        'required' => false])
+                                                                    'name' => 'billing_contact',
+                                                                    'size' => 100,
+                                                                    'required' => false])
+                                        @include('forms.new-billing-email')
                                         @include('forms.new-text', ['title' => 'Terms',
-                                                                'name' => 'billing_terms',
-                                                                'size' => 100,
-                                                                'required' => false])
+                                                                    'name' => 'terms',
+                                                                    'size' => 100,
+                                                                    'required' => false])
                                         @include('forms.new-currency')
                                         @include('forms.new-taxable')
                                         @include('forms.new-invoice-attachment-type')
@@ -113,24 +114,29 @@
                                         @include('forms.city')
                                         @include('forms.postal-code')
                                         @include('forms.province-country')
-                                        @include('forms.warehouse')
                                         @include('forms.company')
 
                                         @include('forms.divider')
+                                        @include('forms.checkbox-list', ['title' => 'Warehouses',
+                                                                             'name' => 'warehouses',
+                                                                             'container_class' => 'checkbox-list-left',
+                                                                             'list_data' => $warehouses,
+                                                                             'master_list' => 'mainList.warehouseData'])
                                         @include('forms.contact')
                                         @include('forms.email')
                                         @include('forms.phone')
                                         @include('forms.fax')
 
-                                        @include('forms.divider')
+                                        @include('forms.divider', ['title' => 'Billing'])
                                         @include('forms.text', ['title' => 'Contact',
                                                                 'name' => 'billing_contact',
                                                                 'size' => 100,
                                                                 'required' => false])
-                                        @include('forms.text', ['title' => 'Email',
-                                                                    'name' => 'billing_email',
-                                                                    'size' => 100,
-                                                                    'required' => false])
+                                        @include('forms.billing-email')
+                                        @include('forms.text', ['title' => 'Terms',
+                                                                'name' => ' terms',
+                                                                'size' => 100,
+                                                                'required' => false])
                                         @include('forms.currency')
                                         @include('forms.taxable')
                                         @include('forms.invoice-attachment-type')

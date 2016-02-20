@@ -82,7 +82,7 @@
          var myName  = '{{ $my_name }}';
          var appUrl  = '{{ $url }}';
          var appData = {!! $main_data !!};
-         var checkboxData = {!! $user_function_ids !!};
+         var userFunctionList = {!! $user_function_ids !!};
      </script>
 @stop
 
