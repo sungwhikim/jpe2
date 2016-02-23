@@ -7,6 +7,7 @@ use App\Models\Province;
 use App\Models\Warehouse;
 use App\Models\Company;
 use App\Models\ClientWarehouse;
+use App\Models\ProductType;
 use DB;
 
 class ClientController extends Controller
@@ -43,6 +44,8 @@ class ClientController extends Controller
         $warehouses = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
         $warehouse_data = Warehouse::orderBy('name')->lists('id');
         $company_data = Company::select('id', 'short_name', 'name')->orderBy('name')->get();
+        $product_type_data = ProductType::select('id', 'name')->orderBy('name')->get();
+
 
         return response()->view('pages.client', ['main_data' => $data,
                                                  'url' => $url,
@@ -50,7 +53,8 @@ class ClientController extends Controller
                                                  'country_data' => $this->getCountryList(),
                                                  'company_data' => $company_data,
                                                  'warehouses' => $warehouses,
-                                                 'warehouse_data' => $warehouse_data]);
+                                                 'warehouse_data' => $warehouse_data,
+                                                 'product_type_data' => $product_type_data]);
     }
 
     private function getCountryList()

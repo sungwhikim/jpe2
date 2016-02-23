@@ -71,3 +71,11 @@ Route::get('/provinces', 'ProvinceController@getListView');
 /* CLIENT */
 Route::controller('/client', 'ClientController');
 Route::get('/clients', 'ClientController@getListView');
+
+/* PRODUCT */
+Route::controller('/product', 'ProductController');
+Route::get('/products', 'ProductController@getListView');
+
+/* PRODUCT TYPE */
+Route::controller('/product-type', 'ProductTypeController');
+Route::get('/product-types', 'ProductTypeController@getListView');

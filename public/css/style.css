@@ -167,8 +167,12 @@ body {
     padding: 0 0 0 15px;
 }
 .td-form .control-label {
-    white-space: nowrap !important;
+    /*white-space: nowrap !important;*/
     padding-right: 0 !important;
+    display: table-cell;
+}
+.td-form .text-toggle-combo {
+    padding: 0;
 }
 .td-form .panel-checkbox {
     max-width: 410px;
@@ -182,7 +186,7 @@ body {
 }
 .td-form .checkbox-list-left .panel-checkbox {
     width: 410px;
-    margin: 0 45px 30px 55px;
+    margin: 0 45px 30px 40px;
 }
 .td-form .checkbox-list-left .panel-checkbox .checkbox-list-body {
     height: 200px;
@@ -212,6 +216,7 @@ body {
     position: relative;
     top: -15px;
 }
+
 
 /* TABLE SORTING - SMART TABLE COMPONENT */
 .st-sort-ascent {

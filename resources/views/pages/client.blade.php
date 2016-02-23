@@ -55,6 +55,7 @@
                                         @include('forms.new-postal-code')
                                         @include('forms.new-province-state')
                                         @include('forms.new-company')
+                                        @include('forms.new-product-type', ['default' => 'Default'])
 
                                         @include('forms.divider')
                                         @include('forms.new-checkbox-list', ['title' => 'Warehouses',
@@ -115,6 +116,7 @@
                                         @include('forms.postal-code')
                                         @include('forms.province-country')
                                         @include('forms.company')
+                                        @include('forms.product-type', ['default' => 'Default'])
 
                                         @include('forms.divider')
                                         @include('forms.checkbox-list', ['title' => 'Warehouses',
@@ -166,6 +168,7 @@
          var countryData = {!! $country_data !!};
          var companyData = {!! $company_data !!};
          var warehouseData = {!! $warehouse_data !!};
+         var productTypeData = {!! $product_type_data !!};
      </script>
 @stop
 
