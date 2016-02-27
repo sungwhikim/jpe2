@@ -27,7 +27,7 @@ class UserGroupController extends Controller
         }
 
         //create user function list just for the checkbox service
-        $user_function_ids = UserFunction::lists('id');
+        $user_function_ids = UserFunction::select('id')->get();
 
         return response()->view('pages.user-group', ['main_data' => $data,
                                                      'url' => url('/user-group'),

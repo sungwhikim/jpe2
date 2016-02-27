@@ -25,7 +25,7 @@ angular.module('checkBoxService', [])
             //this is because re-assignment of the array elements breaks the variable reference to its parent/child
             selectedList.length = 0;
             for( i = 0; i < masterList.length; i++ ) {
-                selectedList.push(masterList[i]);
+                selectedList.push(masterList[i].id);
             }
         }
 

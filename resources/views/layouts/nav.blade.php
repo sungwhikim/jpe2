@@ -24,10 +24,22 @@
             </li>
             @endforeach
         </ul>
-        <ul class="nav navbar-nav navbar-right hidden-xs">
-            <li><a href="#"><span class="glyphicon glyphicon-wrench"></span> 1290 / DC</a></li>
+        <ul class="nav navbar-nav navbar-right hidden-xs" ng-controller="WarehouseClientSelectController as wcc">
+            <li class="dropdown" ng-cloak>
+                <a ng-click="wcc.selectWC();"><span class="glyphicon glyphicon-wrench"></span>&nbsp;
+                    <span ng-bind="wcc.warehouse_name"></span> /
+                    <span ng-bind="wcc.client_name"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li>@include('layouts.warehouse-client-select')</li>
+                </ul>
+            </li>
             <li><a href="#"><span class="glyphicon glyphicon-cog"></span> {{ !empty(Auth::user()->name) ? Auth::user()->name : '' }}</a></li>
             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> logout</a></li>
         </ul>
     </div>
+    <script>
+        var warehouseClientCurrent = {!! Auth::user()->warehouseClientGet() !!};
+        var warehouseClientData = {!! Auth::user()->warehouseClientList() !!};
+    </script>
 </div>

@@ -84,16 +84,14 @@
                             <div class="collapse col-lg-12" id="item-@{{ item.id }}">
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <input class="item-id" type="hidden" ng-model="item.id" name="id">
-                                    <div class="col-lg-12">
-                                        <div class="alert alert-dismissible alert-info">
-                                            <span class="glyphicon glyphicon-info"></span>&nbsp;
-                                            <span>
-                                                Please be careful before editing any of the values if this product type has been or bring used.
-                                                Any changes here could affect many things such as reporting, billing, and transaction screens.
-                                                If in doubt, create a new product type if you need something different.
-                                                <br><br><strong>Changing a value will affect all products using this type!</strong>
-                                            </span>
-                                        </div>
+                                    <div class="alert alert-info">
+                                        <span class="glyphicon glyphicon-info"></span>&nbsp;
+                                        <span>
+                                            Please be careful before editing any of the values if this product type has been or bring used.
+                                            Any changes here could affect many things such as reporting, billing, and transaction screens.
+                                            If in doubt, create a new product type if you need something different.
+                                            <br><br><strong>Changing a value will affect all products using this type!</strong>
+                                        </span>
                                     </div>
                                     <fieldset>
                                         @include('forms.name', ['size' => 50])

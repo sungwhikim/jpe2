@@ -20,6 +20,7 @@ class UserController extends Controller
 
     public function getDashboard()
     {
+        debugbar()->info(auth()->user()->warehouseClientList());
         //this validates that the user has access to this user function
         //User::validateRoute();
 
@@ -73,12 +74,12 @@ class UserController extends Controller
         //get the list data with the default sort set the same as in the angular table
         $data = User::orderBy('name')->get();
 
-        //add warehouses to each client
+        //add warehouses and clients to each user - this is slow, but users are not used very often and there
+        //are not that many users.
         foreach( $data as $item )
         {
             $item->warehouses = UserWarehouse::where('user_id', '=', $item->id)
                                                ->lists('warehouse_id')->toArray();
-
             $item->clients = UserClient::where('user_id', '=', $item->id)
                                          ->lists('client_id')->toArray();
         }
@@ -87,21 +88,15 @@ class UserController extends Controller
         $url = url('/user');
 
         //get the data lists
-        $warehouses = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
-        $warehouse_data = Warehouse::orderBy('name')->lists('id');
-        $clients = Client::select('id', 'name', 'active')->orderBy('name')->get();
-        $client_data = Client::orderBy('name')->lists('id');
-
-        //get user groups
+        $warehouse_data = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
+        $client_data = Client::select('id', 'short_name', 'name', 'active')->orderBy('name')->get();
         $user_groups = UserGroup::where('active', '=', true)->orderBy('name')->get();
 
         return view('pages.user', ['main_data' => $data,
                                    'url' => $url,
                                    'my_name' => $this->my_name,
                                    'user_group_data' => $user_groups,
-                                   'warehouses' => $warehouses,
                                    'warehouse_data' => $warehouse_data,
-                                   'clients' => $clients,
                                    'client_data' => $client_data]);
     }
 
@@ -144,14 +139,30 @@ class UserController extends Controller
         $this->saveItem();
     }
 
+    public function putUpdateWarehouseClient($user_id, $warehouse_id, $client_id)
+    {
+        $user = User::find($user_id);
+
+        //only update if the user wants the current selection to always update
+        if( $user->remember_current === true )
+        {
+            $user->current_warehouse_id = $warehouse_id;
+            $user->current_client_id = $client_id;
+            $user->save();
+        }
+    }
+
     private function saveItem()
     {
         $user = ( !empty(request()->json('id')) ) ? User::find(request()->json('id')) : new User();
-        $user->username      = request()->json('username');
-        $user->name          = request()->json('name');
-        $user->email         = request()->json('email');
-        $user->user_group_id = request()->json('user_group_id');
-        $user->active        = ( !empty(request()->json('active')) ) ? true : false;
+        $user->username             = request()->json('username');
+        $user->name                 = request()->json('name');
+        $user->email                = request()->json('email');
+        $user->user_group_id        = request()->json('user_group_id');
+        $user->default_warehouse_id = request()->json('default_warehouse_id', null);
+        $user->default_client_id    = request()->json('default_client_id', null);
+        $user->active               = ( !empty(request()->json('active')) ) ? true : false;
+        $user->remember_current_warehouse_client = ( !empty(request()->json('remember_current_warehouse_client')) ) ? true : false;
 
         //Only update/add password if it was set
         if( !empty(request()->json('password')) )
@@ -164,6 +175,34 @@ class UserController extends Controller
         }
 
         $user->save();
+
+        /* Update warehouses */
+        //delete all current data
+        UserWarehouse::where('user_id', '=', $user->id)->delete();
+
+        //add warehouses
+        $warehouses = request()->json('warehouses', []);
+        foreach( $warehouses as $key => $warehouse_id )
+        {
+            $object = new UserWarehouse();
+            $object->user_id = $user->id;
+            $object->warehouse_id = $warehouse_id;
+            $object->save();
+        }
+
+        /* Update clients */
+        //delete all current data
+        UserClient::where('user_id', '=', $user->id)->delete();
+
+        //add clients
+        $clients = request()->json('clients', []);
+        foreach( $clients as $key => $client_id )
+        {
+            $object = new UserClient();
+            $object->user_id = $user->id;
+            $object->client_id = $client_id;
+            $object->save();
+        }
 
         return $user->id;
     }

@@ -61,7 +61,7 @@
                                         @include('forms.new-checkbox-list', ['title' => 'Warehouses',
                                                                              'name' => 'warehouses',
                                                                              'container_class' => 'checkbox-list-left',
-                                                                             'list_data' => $warehouses,
+                                                                             'list_data' => $warehouse_data,
                                                                              'master_list' => 'mainList.warehouseData'])
                                         @include('forms.new-contact')
                                         @include('forms.new-email')
@@ -120,10 +120,10 @@
 
                                         @include('forms.divider')
                                         @include('forms.checkbox-list', ['title' => 'Warehouses',
-                                                                             'name' => 'warehouses',
-                                                                             'container_class' => 'checkbox-list-left',
-                                                                             'list_data' => $warehouses,
-                                                                             'master_list' => 'mainList.warehouseData'])
+                                                                         'name' => 'warehouses',
+                                                                         'container_class' => 'checkbox-list-left',
+                                                                         'list_data' => $warehouse_data,
+                                                                         'master_list' => 'mainList.warehouseData'])
                                         @include('forms.contact')
                                         @include('forms.email')
                                         @include('forms.phone')

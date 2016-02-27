@@ -31,3 +31,9 @@
         </div>
     </div>
 @stop
+
+
+@section('js-footer')
+    @include('layouts.angular-js')
+    @include('layouts.js-lists')
+@stop

@@ -4,7 +4,7 @@
     3.  appUrl  = The path to the server to make the AJAX calls to
  */
 
-var app = angular.module('myApp', ['listService', 'checkBoxService']);
+/* app is instantiated in the myApp.js file */
 
 app.controller('ListController', function(ListService, alertService, checkBoxService) {
     //set object to variable to prevent self reference collisions
@@ -25,13 +25,13 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
     ListController.newItem = {};
     ListController.alerts = ListService.alerts;
 
-    /* ---- SET DATA TO BE USED FOR LISTS---- */
+    /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
+    if( typeof warehouseClientData != "undefined" ) { ListController.warehouse_client = warehouseClientData; }
     if( typeof countryData != "undefined" ) { ListController.countries = countryData; }
     if( typeof categoryData != "undefined" ) { ListController.categories = categoryData; }
     if( typeof userGroupData != "undefined" ) { ListController.user_groups = userGroupData; }
     if( typeof companyData != "undefined" ) { ListController.companies = companyData; }
     if( typeof productTypeData != "undefined" ) { ListController.product_types = productTypeData; }
-    if( typeof clientData != "undefined" ) { ListController.clients = clientData; }
 
     /* ----- SET DATA FOR CHECKBOX SERVICE. THE MASTER LIST OF ITEMS FOR CHECK ALL FUNCTION ---- */
     /* This needs to be set to allow Angular to have access to it in the checkbox service */
@@ -43,6 +43,7 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
     /* -- This is mostly to initialize the new item model members -- */
     ListService.resetModelPublic = function (mainController) {
         //the mainController is a circular reference back to ListController, but needs to be so due to scope reasons in JavaScript
+        mainController.newItem.active = 'true';
         mainController.newItem.user_function_id = [];
         mainController.newItem.invoice_attachment_type = 'excel';
         mainController.newItem.taxable = 'true';

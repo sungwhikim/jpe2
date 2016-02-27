@@ -1,7 +1,7 @@
 <!-- app/views/main.blade.php -->
 
 <!DOCTYPE html>
-<html lang="en" ng-app="myApp">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,7 +19,7 @@
 
 </head>
 
-<body>
+<body ng-app="myApp">
 
 <!-- navigation -->
 <nav class="navbar navbar-default navbar-fixed-top">

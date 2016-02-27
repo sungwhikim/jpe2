@@ -18,7 +18,7 @@
     }
     .td-form .checkbox-list-left .panel-checkbox {
         width: 395px;
-        margin: 0 0px 30px 0px;
+        margin: 0 0 30px 0;
     }
 }
 
@@ -28,6 +28,10 @@
     }
     .navbar-right {
         float: left !important;
+    }
+    .td-form .checkbox-list-right .panel-checkbox {
+        width: 395px;
+        margin: 0 0 30px 0;
     }
 }
 

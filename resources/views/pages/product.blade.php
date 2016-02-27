@@ -1,4 +1,4 @@
-<!-- app/views/page/user.blade.php -->
+<!-- app/views/page/country.blade.php -->
 
 @extends('main')
 
@@ -10,9 +10,13 @@
     <div class="container main-content" ng-controller="ListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
             <div class="col-lg-7 col-md-6 col-sm-5">
-                <h1>Users</h1>
+                <h1>Products</h1>
             </div>
-            @include('layouts.search-bar', ['criterias' => ['username' => 'User Name', 'name' => 'Name', 'email' => 'Email', 'active' => 'Active']])
+            @include('layouts.search-bar', ['criterias' => ['sku' => 'SKU',
+                                                            'name' => 'Name',
+                                                            'client_sku' => 'Client SKU',
+                                                            'barcode' => 'Barcode',
+                                                            'active' => 'Active']])
         </div>
         <div class="status-row">
             <div class="col-lg-12">
@@ -30,31 +34,31 @@
                     <thead>
                     <tr>
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
-                        <th class="sort-header" st-sort="name" st-sort-default="true">Name</th>
-                        <th class="sort-header" st-sort="username">User Name</th>
-                        <th class="sort-header" st-sort="email">Email</th>
+                        <th class="sort-header" st-sort="sku" st-sort-default="true">SKU</th>
+                        <th class="sort-header" st-sort="name">Name</th>
+                        <th class="sort-header" st-sort="barcode">Barcode</th>
                         <th class="sort-header" st-sort="active">Active</th>
                     </tr>
                     <tr>
                         <td colspan="5" class="td-form">
                             <div class="collapse" id="new-item">
                                 <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.add(formNew)" novalidate>
-                                    <input type="hidden" name="remember_current_warehouse_client" value="true">
                                     <fieldset>
-                                        @include('forms.new-username')
-                                        @include('forms.new-user-group')
-                                        @include('forms.new-name', ['size' => 50])
-                                        @include('forms.new-email', ['required' => 'required'])
-                                        @include('forms.new-password')
+                                        @include('forms.new-product-type')
+                                        @include('forms.new-sku')
+                                        @include('forms.new-name', ['size' => 500])
+                                        @include('forms.new-text', ['title' => 'Barcode',
+                                                                    'name' => 'barcode',
+                                                                    'size' => 100,
+                                                                    'required' => false])
+                                        @include('forms.new-text', ['title' => 'Client SKU',
+                                                                    'name' => 'client_sku',
+                                                                    'size' => 250,
+                                                                    'required' => false])
 
-                                        @include('forms.divider')
-                                        @include('forms.new-checkbox-list', ['title' => 'Warehouses',
-                                                                             'name' => 'warehouses',
-                                                                             'container_class' => 'checkbox-list-left',
-                                                                             'list_data' => $warehouse_data,
-                                                                             'master_list' => 'mainList.warehouseData'])
-                                        @include('forms.new-client-list', ['container_class' => 'checkbox-list-right'])
+                                        @include('forms.divider', ['title' => 'Unit Of Measure'])
 
+                                        @include('forms.divider', ['title' => 'Variants'])
 
                                         @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
@@ -70,9 +74,9 @@
                                 <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#item-@{{ item.id }}">Edit</button>
                             </div>
                         </td>
+                        <td ng-bind="item.sku"></td>
                         <td ng-bind="item.name"></td>
-                        <td ng-bind="item.username"></td>
-                        <td ng-bind="item.email"></td>
+                        <td ng-bind="item.barcode"></td>
                         <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
                     </tr>
                     <tr>
@@ -80,27 +84,24 @@
                             <div class="collapse col-lg-12" id="item-@{{ item.id }}">
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <input class="item-id" type="hidden" ng-model="item.id" name="id">
-                                    <input type="hidden" name="remember_current_warehouse_client" value="true">
                                     <fieldset>
-                                        @include('forms.username')
-                                        @include('forms.user-group')
-                                        @include('forms.name', ['size' => 50])
-                                        @include('forms.email', ['required' => 'required'])
-                                        @include('forms.password')
+                                        @include('forms.product-type')
+                                        @include('forms.sku')
+                                        @include('forms.name', ['size' => 500])
+                                        @include('forms.text', ['title' => 'Barcode',
+                                                                    'name' => 'barcode',
+                                                                    'size' => 100,
+                                                                    'required' => false])
+                                        @include('forms.text', ['title' => 'Client SKU',
+                                                                    'name' => 'client_sku',
+                                                                    'size' => 250,
+                                                                    'required' => false])
 
-                                        @include('forms.divider')
-                                        @include('forms.checkbox-list', ['title' => 'Warehouses',
-                                                                         'name' => 'warehouses',
-                                                                         'id_name' => 'warehouse_id',
-                                                                         'container_class' => 'checkbox-list-left',
-                                                                         'list_data' => $warehouse_data,
-                                                                         'master_list' => 'mainList.warehouseData'])
-                                        @include('forms.client-list', ['container_class' => 'checkbox-list-right'])
+                                        @include('forms.divider', ['title' => 'Unit Of Measure'])
 
-                                        @include('forms.warehouse-client')
+                                        @include('forms.divider', ['title' => 'Variants'])
 
                                         @include('forms.edit-buttons', ['active_flag' => true])
-
                                     </fieldset>
                                 </form>
                             </div>
@@ -122,9 +123,7 @@
          var myName  = '{{ $my_name }}';
          var appUrl  = '{{ $url }}';
          var appData = {!! $main_data !!};
-         var userGroupData = {!! $user_group_data !!};
-         var warehouseData = {!! $warehouse_data !!};
-         var clientData = {!! $client_data !!};
+         var productTypeData = {!! $product_type_data !!};
      </script>
 @stop
 

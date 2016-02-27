@@ -41,8 +41,7 @@ class ClientController extends Controller
         $url = url('/client');
 
         //build the list data
-        $warehouses = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
-        $warehouse_data = Warehouse::orderBy('name')->lists('id');
+        $warehouse_data = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
         $company_data = Company::select('id', 'short_name', 'name')->orderBy('name')->get();
         $product_type_data = ProductType::select('id', 'name')->orderBy('name')->get();
 
@@ -52,7 +51,6 @@ class ClientController extends Controller
                                                  'my_name' => $this->my_name,
                                                  'country_data' => $this->getCountryList(),
                                                  'company_data' => $company_data,
-                                                 'warehouses' => $warehouses,
                                                  'warehouse_data' => $warehouse_data,
                                                  'product_type_data' => $product_type_data]);
     }

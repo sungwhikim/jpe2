@@ -6,4 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 class UserGroup extends Model
 {
     protected $table = 'user_group';
+
+    public function user_functions()
+    {
+        $this->hasManyThrough('App\Models\UserFunction', 'App\Models\UserGroupToUserFunction');
+    }
 }
