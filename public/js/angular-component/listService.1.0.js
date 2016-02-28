@@ -1,6 +1,6 @@
 /**
  * ---------------------------------------
- * See countryController-1.1.js for usage
+ * See listController.1.0.js for usage
  * ---------------------------------------
  * */
 

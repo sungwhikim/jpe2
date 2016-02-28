@@ -82,11 +82,9 @@ class User extends Model implements AuthenticatableContract,
      */
     public function warehouseClientGet()
     {
-        debugbar()->info($this->warehouseClientCurrent());
         //if current is set return it
         if( $this->current_warehouse_id != null && $this->current_client_id != null )
         {
-            return 'test';
             return $this->warehouseClientCurrent();
         }
 
@@ -98,12 +96,14 @@ class User extends Model implements AuthenticatableContract,
             $this->current_client_id = $this->default_client_id;
             $this->save();
 
-            return 'test';
             return $this->warehouseClientCurrent();
         }
 
         //since neither the default nor the current items were set, return nothing
-        return '';
+        return ['warehouse_id' => null,
+                'warehouse_name' => null,
+                'client_id' => null,
+                'client_short_name' => null];
     }
 
     /**

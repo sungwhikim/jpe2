@@ -1,12 +1,21 @@
+/**
+ *
+ *  THE EXTERNAL VARIABLES NEED FOR THIS CONTROLLER FOR WORK ARE:
+ *  1) warehouseClientCurrent - The currently selected data.
+ *  2) warehouseClientData - The list of warehouses and clients available to this user.
+ *
+ */
+
 app.controller('WarehouseClientSelectController', function($scope, warehouseClientSelectService) {
     var WarehouseClientSelectController = this;
 
-    /* MAP PASS THROUGH FUNCTIONS */
-    WarehouseClientSelectController.openSelectDialog = warehouseClientSelectService.openSelectDialog;
+    /* SET THE DATA FOR THE SERVICE */
+    warehouseClientSelectService.selectedData = warehouseClientCurrent;
+    warehouseClientSelectService.listData = warehouseClientData;
 
-    warehouseClientSelectService.client_name = 'Hailing';
-    warehouseClientSelectService.warehouse_name = 'TC Dallas';
-    WarehouseClientSelectController.warehouse_name = warehouseClientSelectService.warehouse_name;
-    WarehouseClientSelectController.client_name = warehouseClientSelectService.client_name;
-
+    /* MAP PASS THROUGH FUNCTIONS AND PROPERTIES*/
+    WarehouseClientSelectController.updateData = warehouseClientSelectService.updateData;
+    WarehouseClientSelectController.updateName = warehouseClientSelectService.updateName;
+    WarehouseClientSelectController.selectedData = warehouseClientSelectService.selectedData;
+    WarehouseClientSelectController.listData = warehouseClientSelectService.listData;
 });

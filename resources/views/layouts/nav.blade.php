@@ -25,12 +25,13 @@
             @endforeach
         </ul>
         <ul class="nav navbar-nav navbar-right hidden-xs" ng-controller="WarehouseClientSelectController as wcc">
-            <li class="dropdown" ng-cloak>
-                <a ng-click="wcc.selectWC();"><span class="glyphicon glyphicon-wrench"></span>&nbsp;
-                    <span ng-bind="wcc.warehouse_name"></span> /
-                    <span ng-bind="wcc.client_name"></span>
+            <li class="dropdown warehouse-client-ul" ng-cloak>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">
+                    <span class="glyphicon glyphicon-wrench"></span>&nbsp;
+                    <span ng-bind="wcc.selectedData.warehouse_name"></span> /
+                    <span ng-bind="wcc.selectedData.client_short_name"></span>
                 </a>
-                <ul class="dropdown-menu" role="menu">
+                <ul class="dropdown-menu" role="menu" style="right: inherit;">
                     <li>@include('layouts.warehouse-client-select')</li>
                 </ul>
             </li>
@@ -39,7 +40,7 @@
         </ul>
     </div>
     <script>
-        var warehouseClientCurrent = {!! Auth::user()->warehouseClientGet() !!};
+        var warehouseClientCurrent = {!! json_encode(Auth::user()->warehouseClientGet()) !!};
         var warehouseClientData = {!! Auth::user()->warehouseClientList() !!};
     </script>
 </div>
