@@ -4,14 +4,12 @@
  * ---------------------------------------
  * */
 
-angular.module('listService',
-       ['alertService',
-        'ui.bootstrap',
-        'angularModalService',
-        'ngAnimate',
-        'angularUtils.directives.dirPagination',
-        'smart-table',
-        'ngMessages'])
+angular.module('listService',  ['alertService',
+                                'ui.bootstrap',
+                                'ngAnimate',
+                                'angularUtils.directives.dirPagination',
+                                'smart-table',
+                                'ngMessages'])
     .factory('ListService', function (alertService, modalService, $http) {
 
     //SET THE INTERFACE HERE

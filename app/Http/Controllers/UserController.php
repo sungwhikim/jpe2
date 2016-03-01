@@ -139,17 +139,12 @@ class UserController extends Controller
         $this->saveItem();
     }
 
-    public function putUpdateWarehouseClient($user_id, $warehouse_id, $client_id)
+    public function setWarehouseClient($warehouse_id, $client_id)
     {
-        $user = User::find($user_id);
-
-        //only update if the user wants the current selection to always update
-        if( $user->remember_current === true )
-        {
-            $user->current_warehouse_id = $warehouse_id;
-            $user->current_client_id = $client_id;
-            $user->save();
-        }
+        $user = auth()->user();
+        $user->current_warehouse_id = $warehouse_id;
+        $user->current_client_id = $client_id;
+        $user->save();
     }
 
     private function saveItem()

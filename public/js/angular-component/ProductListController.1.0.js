@@ -1,0 +1,69 @@
+/* THERE ARE THREE EXTERNAL DEPENDENT VARIABLES THAT MUST BE SET FOR THIS CONTROLLER TO WORK
+    1.  myName  = The name of the list to be used in messages
+    2.  appData = The main data for the app in JSON
+    3.  appUrl  = The path to the server to make the AJAX calls to
+ */
+
+/* app is instantiated in the myApp.js file */
+
+app.controller('ProductListController', function(ListService, alertService, checkBoxService, warehouseClientSelectService) {
+    //set object to variable to prevent self reference collisions
+    var ProductListController = this;
+
+    //set reference back to the service so the model variable scope can get passed back
+    //for some strange reason, the variable gets disconnected by reference assignment.
+    ListService.mainCtl = ProductListController;
+
+    /* SET DATA PROPERTIES */
+    ListService.myName = myName;
+    ListService.appUrl = appUrl;
+    ListService.alerts = alertService.get();
+
+    /* SET PASS THROUGH PROPERTIES */
+    ProductListController.items = appData;
+    ProductListController.displayItems = [].concat(appData);
+    ProductListController.newItem = {};
+    ProductListController.alerts = ListService.alerts;
+
+    /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
+    if( typeof warehouseClientData != "undefined" ) { ProductListController.warehouse_client = warehouseClientData; }
+    if( typeof productTypeData != "undefined" ) { ProductListController.product_types = productTypeData; }
+
+    /* CREATE OVER-LOADED FUNCTION TO RESET THE DATA */
+    /* -- This is mostly to initialize the new item model members -- */
+    ListService.resetModelPublic = function (mainController) {
+        //the mainController is a circular reference back to ListController, but needs to be so due to scope reasons in JavaScript
+        mainController.newItem.active = 'true';
+        mainController.newItem.product_type = {};
+    };
+
+    /* INIT DATA */
+    ListService.resetModel();
+
+    /* SET MEMBER METHODS */
+    ProductListController.setProductType = setProductType;
+
+    /* CREATE PASS THROUGH FUNCTIONS */
+    ProductListController.add = ListService.add;
+    ProductListController.save = ListService.save;
+    ProductListController.deleteConfirm = ListService.deleteConfirm;
+    ProductListController.resetData = ListService.resetData;
+    ProductListController.closeAlert = ListService.closeAlert;
+    ProductListController.toggleCheckBox = checkBoxService.toggleCheckBox;
+    ProductListController.allCheckBoxes = checkBoxService.allCheckBoxes;
+    ProductListController.noneCheckBoxes = checkBoxService.noneCheckBoxes;
+
+    function setProductType(model_item) {
+        //get and set the selected product type object
+        model_item.product_type = getObjectById(ProductListController.product_types, model_item.product_type_id);
+        console.log(model_item.product_type);
+    }
+
+    /* Helper function to get object by id value */
+    function getObjectById(data, id) {
+        for( var i = 0; i < data.length; i++ ) {
+            if( data[i].id == id ) { return data[i]; }
+        }
+        return {};
+    }
+});

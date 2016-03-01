@@ -7,7 +7,7 @@
 @stop
 
 @section('body')
-    <div class="container main-content" ng-controller="ListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
+    <div class="container main-content" ng-controller="ProductListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
             <div class="col-lg-7 col-md-6 col-sm-5">
                 <h1>Products</h1>
@@ -44,7 +44,7 @@
                             <div class="collapse" id="new-item">
                                 <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.add(formNew)" novalidate>
                                     <fieldset>
-                                        @include('forms.new-product-type')
+                                        @include('forms.new-product-type', ['product_page' => true])
                                         @include('forms.new-sku')
                                         @include('forms.new-name', ['size' => 500])
                                         @include('forms.new-text', ['title' => 'Barcode',
@@ -57,6 +57,7 @@
                                                                     'required' => false])
 
                                         @include('forms.divider', ['title' => 'Unit Of Measure'])
+                                        @include('forms.new-uom')
 
                                         @include('forms.divider', ['title' => 'Variants'])
 
@@ -129,5 +130,5 @@
 
 @section('js-footer')
     @include('layouts.angular-js')
-    @include('layouts.js-lists')
+    @include('layouts.product-list-js')
 @stop

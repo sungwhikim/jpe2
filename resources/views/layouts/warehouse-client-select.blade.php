@@ -8,7 +8,7 @@
         </div>
         <div class="row">
             <label class="control-label">Client</label>
-                <select class="form-control" name="client_id" ng-model="wcc.selectedData.client_id" ng-change=";wcc.updateName();wcc.updateData();"
+                <select class="form-control" name="client_id" ng-model="wcc.selectedData.client_id" ng-change="wcc.updateName();wcc.updateData();"
                         ng-options="client.id as client.short_name for client in (wcc.listData | filter:{id:wcc.selectedData.warehouse_id})[0].clients">
                     <option value="">-- select a client --</option>
                 </select>

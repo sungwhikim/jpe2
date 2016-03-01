@@ -44,7 +44,7 @@ body {
     display: block;
 }
 .dropdown.warehouse-client-ul {
-    width: 250px;
+    min-width: 250px;
     text-align: right;
 }
 .dropdown.warehouse-client-ul:hover {
@@ -228,6 +228,13 @@ body {
     top: -15px;
 }
 
+/* UOM */
+.uom-container {
+    margin-bottom: 35px;
+}
+.uom input {
+    width: 100px;
+}
 
 /* TABLE SORTING - SMART TABLE COMPONENT */
 .st-sort-ascent {

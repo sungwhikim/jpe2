@@ -28,11 +28,17 @@ class ProductController extends Controller
         $url = url('/product');
 
         //build the list data
-        $product_type_data = ProductType::select('id', 'name')->orderBy('name')->get();
+        $product_type_data = ProductType::orderBy('name')->get();
+
+        //build UOM and variant array - This is so we don't have to do variable assignments in the template
+        for( $i = 1; $i < 9; $i++ ) { $uom[$i] = 'uom' . $i; }
+        for( $i = 1; $i < 5; $i++ ) { $variant[$i] = 'variant' . $i; }
 
         return response()->view('pages.product', ['main_data' => $data,
                                                   'url' => $url,
                                                   'my_name' => $this->my_name,
+                                                  'uom' => $uom,
+                                                  'variant' => $variant,
                                                   'product_type_data' => $product_type_data]);
     }
 
@@ -71,7 +77,7 @@ class ProductController extends Controller
 
     private function saveItem()
     {
-        $product = ( !empty(request()->json('id')) ) ? Product::find(request()->json('id')) : new Product();
+        $product = !empty(request()->json('id')) ? Product::find(request()->json('id')) : new Product();
         $product->sku             = request()->json('sku');
         $product->name            = request()->json('name');
         $product->bar_code        = request()->json('bar_code');

@@ -34,8 +34,7 @@ class User extends Model implements AuthenticatableContract,
      */
     protected $fillable = ['username', 'name', 'email', 'password', 'user_group_id',
                            'default_warehouse_id', 'default_client_id',
-                           'current_warehouse_id', 'current_warehouse_name',
-                           'current_client_id', 'current_client_name', 'active'];
+                           'current_warehouse_id', 'current_client_id', 'active'];
 
     /**
      * The attributes excluded from the model's JSON form.

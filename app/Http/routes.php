@@ -33,8 +33,9 @@ Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
 Route::post('password/reset', 'Auth\PasswordController@postReset');
 
 /* USER */
-Route::controller('/user', 'UserController');
+Route::put('/user/update-warehouse-client/{warehouse_id}/{client_id}', 'UserController@setWarehouseClient');
 Route::get('/users', 'UserController@getListView');
+Route::controller('/user', 'UserController');
 
 /* USER GROUP */
 Route::controller('/user-group', 'UserGroupController');

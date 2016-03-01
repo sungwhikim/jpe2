@@ -3,7 +3,9 @@
     <label class="col-lg-3 control-label text-right">{{ $default or '' }} Product Type <span class="required-field glyphicon glyphicon-asterisk" /></label>
     <div class="col-lg-8">
         <select class="form-control" name="product_type_id" ng-model="mainList.newItem.product_type_id"
-                ng-options="product_type.id as product_type.name for product_type in mainList.product_types" required>
+                ng-options="product_type.id as product_type.name for product_type in mainList.product_types"
+                @if( isset($product_page) ) ng-change="mainList.setProductType(mainList.newItem)" @endif
+                required>
             <option value="">-- select a product type --</option>
         </select>
         <!-- ngMessages goes here -->

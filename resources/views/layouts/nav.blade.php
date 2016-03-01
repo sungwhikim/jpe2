@@ -40,6 +40,7 @@
         </ul>
     </div>
     <script>
+        var baseUrl = '{!! url('/') !!}';
         var warehouseClientCurrent = {!! json_encode(Auth::user()->warehouseClientGet()) !!};
         var warehouseClientData = {!! Auth::user()->warehouseClientList() !!};
     </script>
