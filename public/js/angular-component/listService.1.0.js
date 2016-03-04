@@ -21,7 +21,8 @@ angular.module('listService',  ['alertService',
             resetData: resetData,
             resetModel: resetModel,
             resetModelPublic: resetModelPublic,
-            closeAlert: closeAlert
+            closeAlert: closeAlert,
+            setProcessingAlert: setProcessingAlert
         },
         myName  = '',
         appUrl = '',

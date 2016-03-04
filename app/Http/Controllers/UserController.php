@@ -100,11 +100,6 @@ class UserController extends Controller
                                    'client_data' => $client_data]);
     }
 
-    public function getById($id)
-    {
-        return User::where('id', '=', $id)->get();
-    }
-
     public function getCheckDuplicate($username)
     {
         $users = User::where('username', 'ILIKE', $username)->get();
@@ -154,10 +149,7 @@ class UserController extends Controller
         $user->name                 = request()->json('name');
         $user->email                = request()->json('email');
         $user->user_group_id        = request()->json('user_group_id');
-        $user->default_warehouse_id = request()->json('default_warehouse_id', null);
-        $user->default_client_id    = request()->json('default_client_id', null);
         $user->active               = ( !empty(request()->json('active')) ) ? true : false;
-        $user->remember_current_warehouse_client = ( !empty(request()->json('remember_current_warehouse_client')) ) ? true : false;
 
         //Only update/add password if it was set
         if( !empty(request()->json('password')) )

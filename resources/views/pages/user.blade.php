@@ -55,7 +55,6 @@
                                                                              'master_list' => 'mainList.warehouseData'])
                                         @include('forms.new-client-list', ['container_class' => 'checkbox-list-right'])
 
-
                                         @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
@@ -96,8 +95,6 @@
                                                                          'list_data' => $warehouse_data,
                                                                          'master_list' => 'mainList.warehouseData'])
                                         @include('forms.client-list', ['container_class' => 'checkbox-list-right'])
-
-                                        @include('forms.warehouse-client')
 
                                         @include('forms.edit-buttons', ['active_flag' => true])
 

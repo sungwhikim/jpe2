@@ -3,7 +3,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Country;
-use App\Models\Province;
 use App\Models\Warehouse;
 use App\Models\Company;
 use App\Models\ClientWarehouse;
@@ -44,30 +43,16 @@ class ClientController extends Controller
         $warehouse_data = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
         $company_data = Company::select('id', 'short_name', 'name')->orderBy('name')->get();
         $product_type_data = ProductType::select('id', 'name')->orderBy('name')->get();
-
+        $country = new Country();
+        $country_data = $country->ListWithProvinces();
 
         return response()->view('pages.client', ['main_data' => $data,
                                                  'url' => $url,
                                                  'my_name' => $this->my_name,
-                                                 'country_data' => $this->getCountryList(),
+                                                 'country_data' => $country_data,
                                                  'company_data' => $company_data,
                                                  'warehouse_data' => $warehouse_data,
                                                  'product_type_data' => $product_type_data]);
-    }
-
-    private function getCountryList()
-    {
-        //first get the list of countries
-        $countries = Country::select('id', 'code', 'currency_name', 'currency_prefix', 'name')->orderBy('code')->get();
-
-        //loop through and add the provinces
-        foreach( $countries as $country )
-        {
-            $provinces = Province::select('id', 'code', 'name')->where('country_id', '=', $country->id)->get();
-            $country->provinces = $provinces->toArray();
-        }
-
-        return $countries;
     }
 
     public function getById($id)

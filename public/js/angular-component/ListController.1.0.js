@@ -43,7 +43,7 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
     /* -- This is mostly to initialize the new item model members -- */
     ListService.resetModelPublic = function (mainController) {
         //the mainController is a circular reference back to ListController, but needs to be so due to scope reasons in JavaScript
-        mainController.newItem.active = 'true';
+        mainController.newItem.active = true;
         mainController.newItem.user_function_id = [];
         mainController.newItem.invoice_attachment_type = 'excel';
         mainController.newItem.taxable = 'true';

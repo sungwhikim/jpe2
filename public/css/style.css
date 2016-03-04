@@ -236,6 +236,23 @@ body {
     width: 100px;
 }
 
+/* TAGS */
+.tags {
+    padding: 0;
+}
+.tags li {
+    float: left;
+    display: table-cell;
+    vertical-align: middle;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin: 0 15px 10px 0;
+}
+.tag-default {
+    color: #fff;
+    background-color: #777;
+}
+
 /* TABLE SORTING - SMART TABLE COMPONENT */
 .st-sort-ascent {
     color: #1a6ecc;
@@ -314,7 +331,7 @@ body {
     vertical-align: middle;
 }
 
-/* OVER RIDE STYLING FOR TITATOGGLE */
+/* OVER RIDE STYLING FOR INITTOGGLE */
 .checkbox.checkbox-slider--b {
     padding: 0;
 }

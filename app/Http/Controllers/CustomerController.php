@@ -3,7 +3,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Country;
-use App\Models\Province;
 
 class CustomerController extends Controller
 {
@@ -24,25 +23,14 @@ class CustomerController extends Controller
         //we need to send the url to do Ajax queries back here
         $url = url('/customer');
 
+        //set lists
+        $country = new Country();
+        $country_data = $country->ListWithProvinces();
+
         return response()->view('pages.customer', ['main_data' => $data,
                                                     'url' => $url,
                                                     'my_name' => $this->my_name,
-                                                    'country_data' => $this->getCountryList()]);
-    }
-
-    private function getCountryList()
-    {
-        //first get the list of countries
-        $countries = Country::select('id', 'code', 'name')->orderBy('code')->get();
-
-        //loop through and add the provinces
-        foreach( $countries as $country )
-        {
-            $provinces = Province::select('id', 'code', 'name')->where('country_id', '=', $country->id)->get();
-            $country->provinces = $provinces->toArray();
-        }
-
-        return $countries;
+                                                    'country_data' => $country_data]);
     }
 
     public function getById($id)

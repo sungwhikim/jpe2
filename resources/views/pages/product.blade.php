@@ -14,7 +14,7 @@
             </div>
             @include('layouts.search-bar', ['criterias' => ['sku' => 'SKU',
                                                             'name' => 'Name',
-                                                            'client_sku' => 'Client SKU',
+                                                            'sku_client' => 'Client SKU',
                                                             'barcode' => 'Barcode',
                                                             'active' => 'Active']])
         </div>
@@ -47,19 +47,30 @@
                                         @include('forms.new-product-type', ['product_page' => true])
                                         @include('forms.new-sku')
                                         @include('forms.new-name', ['size' => 500])
+                                        @include('forms.new-text', ['title' => 'Client SKU',
+                                                                    'name' => 'sku_client',
+                                                                    'size' => 250,
+                                                                    'required' => false])
                                         @include('forms.new-text', ['title' => 'Barcode',
                                                                     'name' => 'barcode',
                                                                     'size' => 100,
                                                                     'required' => false])
-                                        @include('forms.new-text', ['title' => 'Client SKU',
-                                                                    'name' => 'client_sku',
-                                                                    'size' => 250,
+                                        @include('forms.new-text', ['title' => 'Client Barcode',
+                                                                    'name' => 'barcode_client',
+                                                                    'size' => 200,
                                                                     'required' => false])
+                                        @include('forms.new-text', ['title' => 'RFID',
+                                                                    'name' => 'rfid',
+                                                                    'size' => 200,
+                                                                    'required' => false])
+                                        @include('forms.new-toggle-button', ['title' => 'Over Sized Pallet',
+                                                                             'name' => 'oversized_pallet',
+                                                                             'default' => 'false',
+                                                                             'required' => false])
+                                        @include('forms.new-variant-product')
 
                                         @include('forms.divider', ['title' => 'Unit Of Measure'])
-                                        @include('forms.new-uom')
-
-                                        @include('forms.divider', ['title' => 'Variants'])
+                                        @include('forms.new-uom-product')
 
                                         @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
@@ -86,21 +97,32 @@
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <input class="item-id" type="hidden" ng-model="item.id" name="id">
                                     <fieldset>
-                                        @include('forms.product-type')
+                                        @include('forms.product-type', ['product_page' => true])
                                         @include('forms.sku')
                                         @include('forms.name', ['size' => 500])
-                                        @include('forms.text', ['title' => 'Barcode',
+                                        @include('forms.text', ['title' => 'Client SKU',
+                                                                'name' => 'sku_client',
+                                                                'size' => 250,
+                                                                'required' => false])
+                                        @include('forms.text', ['title' => 'JPE Barcode',
                                                                     'name' => 'barcode',
                                                                     'size' => 100,
                                                                     'required' => false])
-                                        @include('forms.text', ['title' => 'Client SKU',
-                                                                    'name' => 'client_sku',
-                                                                    'size' => 250,
-                                                                    'required' => false])
+                                        @include('forms.text', ['title' => 'Client Barcode',
+                                                                'name' => 'barcode_client',
+                                                                'size' => 200,
+                                                                'required' => false])
+                                        @include('forms.text', ['title' => 'RFID',
+                                                                'name' => 'rfid',
+                                                                'size' => 200,
+                                                                'required' => false])
+                                        @include('forms.toggle-button', ['title' => 'Over Sized Pallet',
+                                                                         'name' => 'oversized_pallet',
+                                                                         'required' => false])
+                                        @include('forms.variant-product')
 
                                         @include('forms.divider', ['title' => 'Unit Of Measure'])
-
-                                        @include('forms.divider', ['title' => 'Variants'])
+                                        @include('forms.uom-product')
 
                                         @include('forms.edit-buttons', ['active_flag' => true])
                                     </fieldset>

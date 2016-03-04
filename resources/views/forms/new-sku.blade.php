@@ -3,7 +3,7 @@
     <label class="col-lg-3 control-label">SKU <span class="required-field glyphicon glyphicon-asterisk" /></label>
     <div class="col-lg-8">
         <input type="text" class="form-control" name="sku"
-               placeholder="Code" ng-model="mainList.newItem.sku"
+               placeholder="SKU" ng-model="mainList.newItem.sku"
                ng-maxlength="{{ $size or 100 }}"
                required>
         <!-- ngMessages goes here -->
