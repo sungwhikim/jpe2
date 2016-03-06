@@ -70,13 +70,15 @@ app.controller('ProductListController', function($http, ListService, alertServic
         //sends "processing" message to user
         ListService.setProcessingAlert();
 
+        //delete old data
+        ProductListController.items = 0;
+
         //run ajax add
         $http({
             method: 'GET',
             url: ListService.appUrl + '/list'
         }).then(function successCallback(response) {
             //replace data
-            ProductListController.items.length = 0;
             ProductListController.items = response.data;
             ProductListController.displayItems.length = 0;
             ProductListController.displayItems = [].concat(response.data);
@@ -87,6 +89,9 @@ app.controller('ProductListController', function($http, ListService, alertServic
             //clear alerts
             alertService.clear();
         }, function errorCallback(response) {
+            //put data back
+            ProductListController.displayItems = [].concat(ProductListController.items);
+
             //set alert
             alertService.add('danger', 'The following error occurred in loading the data: ' + response.statusText);
         });

@@ -253,6 +253,19 @@ body {
     background-color: #777;
 }
 
+/* PRODUCT DROPDWN */
+.product-dropdown {
+    margin-top: 20px;
+    min-width: 350px;
+}
+.product-dropdown .product-label {
+    width: 300px;
+}
+.product-dropdown ul {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
 /* TABLE SORTING - SMART TABLE COMPONENT */
 .st-sort-ascent {
     color: #1a6ecc;

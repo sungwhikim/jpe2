@@ -80,3 +80,6 @@ Route::get('/products', 'ProductController@getListView');
 /* PRODUCT TYPE */
 Route::controller('/product-type', 'ProductTypeController');
 Route::get('/product-types', 'ProductTypeController@getListView');
+
+/* PRODUCT */
+Route::controller('/inventory', 'InventoryController');

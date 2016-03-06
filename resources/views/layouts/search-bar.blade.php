@@ -4,18 +4,18 @@
         <div class="form-group">
             <label class="control-label"></label>
             <div class="input-group">
-                        <span class="search-criteria">
-                            <select class="form-control" ng-model="mainList.searchCriteria">
-                                <option value="">All</option>
-                                @foreach( $criterias as $criteria => $label )
-                                    <option value="{{ $criteria }}">{{ ucfirst($label) }}</option>
-                                @endforeach
-                            </select>
-                        </span>
+                <span class="search-criteria">
+                    <select class="form-control" ng-model="mainList.searchCriteria">
+                        <option value="">All</option>
+                        @foreach( $criterias as $criteria => $label )
+                            <option value="{{ $criteria }}">{{ ucfirst($label) }}</option>
+                        @endforeach
+                    </select>
+                </span>
                 <input placeholder="Search" st-search="@{{ mainList.searchCriteria }}" class="form-control" type="search"/>
-                        <span class="input-group-btn">
-                          <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
-                        </span>
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+                </span>
             </div>
         </div>
     </form>

@@ -24,19 +24,9 @@ class CountryController extends Controller
         return view('pages.country', ['main_data' => $data, 'url' => $url, 'my_name' => $this->my_name]);
     }
 
-    public function getById($id)
-    {
-        return Country::where('id', '=', $id)->get();
-    }
-
-    public function getByCode($code)
-    {
-        return Country::select('id')->where('code', 'ILIKE', $code)->take(1)->get();
-    }
-
     public function getCheckDuplicate($code)
     {
-        return $this->getByCode($code);
+        return Country::select('id')->where('code', 'ILIKE', $code)->take(1)->get();
     }
 
     public function postNew()

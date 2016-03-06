@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UserFunction;
 use App\Models\UserFunctionCategory;
+use App\Models\UserGroupToUserFunction;
 
 
 class UserFunctionController extends Controller
@@ -88,6 +89,10 @@ class UserFunctionController extends Controller
 
     public function putDelete($id)
     {
+        //first delete from user group to user function table
+        UserGroupToUserFunction::where('user_function_id','=', $id)->delete();
+
+        //delete the user function
         UserFunction::find($id)->delete();
     }
 }
