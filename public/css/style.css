@@ -173,7 +173,7 @@ body {
 .td-form .button-group {
     margin-bottom: 0;
 }
-.td-form .button-group .btn-delete {
+.td-form .btn-delete {
     font-size: 22px;
     padding: 0 0 0 15px;
 }
@@ -264,6 +264,39 @@ body {
 .product-dropdown ul {
     max-height: 600px;
     overflow-y: auto;
+}
+.product-label {
+    width: 275px;
+    border-right: none;
+}
+
+/* INVENTORY SCREEN */
+.inventory-action-buttons {
+    margin-bottom: 10px;
+}
+.inventory-action-buttons button:first-of-type {
+    margin-right: 75px;
+}
+.inventory-action-buttons button {
+    margin-right: 10px;
+}
+
+/* BIN INPUT */
+.bin-item-container {
+    /*margin-right: 5px !important;*/
+}
+.bin-item-container:first-of-type {
+    margin-right: 0 !important;
+}
+.bin-item-container label {
+    text-align: center !important;
+    width: 50px;
+}
+.bin-item.aisle input {
+    width: 55px;
+}
+.bin-item input {
+    width: 50px;
 }
 
 /* TABLE SORTING - SMART TABLE COMPONENT */

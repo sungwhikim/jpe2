@@ -70,10 +70,10 @@ class ProductTypeController extends Controller
         $product_type->name            = request()->json('name');
         $product_type->description     = request()->json('description');
         $product_type->active          = ( !empty(request()->json('active')) ) ? true : false;
-        $product_type->variant1        = request()->json('variant1', null);
-        $product_type->variant2        = request()->json('variant2', null);
-        $product_type->variant3        = request()->json('variant3', null);
-        $product_type->variant4        = request()->json('variant4', null);
+        $product_type->variant1        = ( strlen(trim(request()->json('variant1', null))) > 0 ) ? request()->json('variant1') : null;
+        $product_type->variant2        = ( strlen(trim(request()->json('variant2', null))) > 0 ) ? request()->json('variant2') : null;
+        $product_type->variant3        = ( strlen(trim(request()->json('variant3', null))) > 0 ) ? request()->json('variant3') : null;
+        $product_type->variant4        = ( strlen(trim(request()->json('variant4', null))) > 0 ) ? request()->json('variant4') : null;
         $product_type->variant1_active = ( !empty(request()->json('variant1_active')) ) ? true : false;
         $product_type->variant2_active = ( !empty(request()->json('variant2_active')) ) ? true : false;
         $product_type->variant3_active = ( !empty(request()->json('variant3_active')) ) ? true : false;

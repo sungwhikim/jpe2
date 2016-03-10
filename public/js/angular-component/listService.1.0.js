@@ -22,7 +22,9 @@ angular.module('listService',  ['alertService',
             resetModel: resetModel,
             resetModelPublic: resetModelPublic,
             closeAlert: closeAlert,
-            setProcessingAlert: setProcessingAlert
+            setProcessingAlert: setProcessingAlert,
+            sendAlert: sendAlert,
+            getAlertMsg: getAlertMsg
         },
         myName  = '',
         appUrl = '',

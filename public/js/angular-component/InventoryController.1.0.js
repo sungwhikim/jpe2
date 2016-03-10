@@ -6,7 +6,7 @@
 
 /* app is instantiated in the myApp.js file */
 
-app.controller('InventoryController', function($http, ListService, alertService, checkBoxService, warehouseClientSelectService) {
+app.controller('InventoryController', function($http, ListService, alertService, checkBoxService, warehouseClientSelectService, modalService) {
     //set object to variable to prevent self reference collisions
     var InventoryController = this;
 
@@ -14,18 +14,20 @@ app.controller('InventoryController', function($http, ListService, alertService,
     //for some strange reason, the variable gets disconnected by reference assignment.
     ListService.mainCtl = InventoryController;
 
-    /* SET DATA PROPERTIES */
+    /* SET PASS THROUGH PROPERTIES */
     ListService.myName = myName;
     ListService.appUrl = appUrl;
     ListService.alerts = alertService.get();
 
-    /* SET PASS THROUGH PROPERTIES */
+    /* SET DATA PROPERTIES */
     InventoryController.items = appData;
     InventoryController.displayItems = [].concat(appData);
     InventoryController.newItem = {};
     InventoryController.alerts = ListService.alerts;
     InventoryController.products = productData;
     InventoryController.displayProducts = [].concat(productData);
+    InventoryController.product = {};
+    InventoryController.allow_adjustment = false;
 
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { InventoryController.warehouse_client = warehouseClientData; }
@@ -42,6 +44,10 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
     /* SET MEMBER METHODS */
     InventoryController.selectProduct = updateMainData;
+    InventoryController.saveInventory = saveInventory;
+    InventoryController.addBin = addBin;
+    InventoryController.deleteConfirmBin = deleteConfirmBin;
+    InventoryController.deleteBin = deleteBin;
 
     /* CREATE PASS THROUGH FUNCTIONS */
     InventoryController.add = ListService.add;
@@ -73,7 +79,7 @@ app.controller('InventoryController', function($http, ListService, alertService,
         //run ajax add
         $http({
             method: 'GET',
-            url: ListService.appUrl + '/products'
+            url: ListService.appUrl + '/product-list'
         }).then(function successCallback(response) {
             //replace data
             InventoryController.products = 0;
@@ -89,6 +95,10 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
             //clear alerts
             alertService.clear();
+
+            //set label
+            InventoryController.selectedProduct = {};
+            InventoryController.selectedProduct.sku = '- select a product';
         }, function errorCallback(response) {
             //put data back
             InventoryController.displayProducts = [].concat(InventoryController.items);
@@ -109,8 +119,10 @@ app.controller('InventoryController', function($http, ListService, alertService,
         //run ajax add
         $http({
             method: 'GET',
-            url: ListService.appUrl + '/product/' + product.id
+            url: ListService.appUrl + '/product-inventory/' + product.id
         }).then(function successCallback(response) {
+            console.log(product);
+            console.log(response.data);
             //replace data
             InventoryController.items = 0;
             InventoryController.items = response.data;
@@ -121,12 +133,144 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
             //clear alerts
             alertService.clear();
+
+            //set label
+            InventoryController.selectedProduct = product;
         }, function errorCallback(response) {
             //put data back
             InventoryController.displayItems = [].concat(InventoryController.items);
 
             //set alert
             alertService.add('danger', 'The following error occurred in loading the data: ' + response.statusText);
+        });
+    }
+
+    /* Save the inventory data */
+    function saveInventory() {
+    /* DO NOTHING FOR NOW */
+        return false;
+
+        //make sure product id was set.  Just in case we are in a weird state
+        if( !InventoryController.selectedProduct.id ) {
+            alertService.add('danger', 'A valid product was not selected.  Please select a product and try again.');
+            return false;
+        }
+
+        //sends "processing" message to user
+        ListService.setProcessingAlert();
+
+        //validate the data
+
+        //run ajax save
+        $http({
+            method: 'POST',
+            url: ListService.appUrl + '/product/' + product.id,
+            data: mainList.items
+        }).then(function successCallback(response) {
+            //reset original model
+            ListService.resetModel();
+
+            //clear alerts
+            alertService.clear();
+
+            //set success message
+            alertService.add('success', 'The inventory data has been saved');
+        }, function errorCallback(response) {
+            //set alert
+            alertService.add('danger', 'The following error occurred in saving the data: ' + response.statusText);
+        });
+    }
+
+    /* ADD NEW BIN */
+    function addBin(form) {
+        //reset item name
+        var itemName = 'Bin';
+
+        //set the data
+        var newData = InventoryController.newItem;
+        newData.product_id = InventoryController.selectedProduct.id;
+
+        //reset form validation
+        form.$setPristine();
+        form.$setUntouched();
+
+        //sends "processing" message to user
+        ListService.setProcessingAlert();
+
+        //run ajax add
+        $http({
+            method: 'POST',
+            url: ListService.appUrl + '/new-bin',
+            data: newData
+        }).then(function successCallback(response) {
+            //do an error check to see if this was a duplicate or something
+            if( response.data.errorMsg ) {
+                //set alert
+                ListService.sendAlert('danger', ListService.getAlertMsg(itemName, 'added', response.data.errorMsg));
+            } else {
+                var id = response.data.id;
+
+                //need to check for valid id - there could be situations where this gets screwed up
+                if( !id || isNaN(id) ) {
+                    ListService.sendAlert('danger', ListService.getAlertMsg(itemName, 'added', 'New id was not returned. Please verify your data and try again.'));
+                } else {
+                    //set alert
+                    ListService.sendAlert('success', ListService.getAlertMsg(itemName, 'added', ''));
+
+                    //add to model
+                    ListService.mainCtl.items.unshift(response.data);
+
+                    //reset original model
+                    ListService.resetModel();
+                }
+            }
+        }, function errorCallback(response) {
+            console.log(response);
+            //set alert
+            ListService.sendAlert('danger', ListService.getAlertMsg(itemName, 'added', response.statusText));
+        });
+    }
+
+    /* DELETE BIN CONFIRMATION DIALOG */
+    function deleteConfirmBin(index) {
+        modalService.showModal({
+            templateUrl: "/js/angular-component/modalService-delete.html",
+            controller: "YesNoController"
+        }).then(function(modal) {
+            modal.element.modal();
+            modal.close.then(function(result) {
+                if( result === true ) { InventoryController.deleteBin(index); }
+            });
+        });
+    }
+
+    /* DELETE THE DATA */
+    function deleteBin(index) {
+        //sends "processing" message to user
+        ListService.setProcessingAlert();
+
+        //run ajax delete
+        $http({
+            method: 'PUT',
+            url: ListService.appUrl + '/bin/delete/' + ListService.mainCtl.displayItems[index].bin_id
+        }).then(function successCallback(response) {
+            if( response.data.errorMsg ) {
+                //set alert
+                ListService.sendAlert('danger', ListService.getAlertMsg('Bin', 'deleted', response.data.errorMsg));
+            } else {
+                //set alert
+                ListService.sendAlert('success', 'The bin was deleted.');
+
+                //remove item from model
+                ListService.mainCtl.displayItems.splice(index, 1);
+                ListService.mainCtl.items = angular.copy(ListService.mainCtl.displayItems);
+
+                //reset original model
+                ListService.resetModel();
+            }
+        }, function errorCallback(response) {
+            //set alert
+            ListService.sendAlert('danger', ListService.getAlertMsg('Bin', 'deleted', response.statusText));
         });
     }
 

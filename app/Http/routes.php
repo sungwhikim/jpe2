@@ -81,5 +81,9 @@ Route::get('/products', 'ProductController@getListView');
 Route::controller('/product-type', 'ProductTypeController');
 Route::get('/product-types', 'ProductTypeController@getListView');
 
-/* PRODUCT */
+/* INVENTORY */
+Route::get('/inventory/product-list', 'InventoryController@getProductList');
+Route::get('/inventory/product-inventory/{product_id}', 'InventoryController@getProductInventory');
+Route::post('/inventory/new-bin', 'BinController@postNew');
+Route::put('/inventory/bin/delete/{id}', 'BinController@putDelete');
 Route::controller('/inventory', 'InventoryController');

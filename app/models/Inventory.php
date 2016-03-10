@@ -9,21 +9,21 @@ class Inventory extends Model
 
     public function variant1()
     {
-        $this->hasOne('App\Models\Variant1', 'id', 'variant1_id');
+        $this->hasOne('App\Models\ProductVariant1', 'id', 'variant1_id');
     }
 
     public function variant2()
     {
-        $this->hasOne('App\Models\Variant2', 'id', 'variant2_id');
+        $this->hasOne('App\Models\ProductVariant2', 'id', 'variant2_id');
     }
 
     public function variant3()
     {
-        $this->hasOne('App\Models\Variant3', 'id', 'variant3_id');
+        $this->hasOne('App\Models\ProductVariant3', 'id', 'variant3_id');
     }
 
     public function variant4()
     {
-        $this->hasOne('App\Models\Variant4', 'id', 'variant4_id');
+        $this->hasOne('App\Models\ProductVariant4', 'id', 'variant4_id');
     }
 }

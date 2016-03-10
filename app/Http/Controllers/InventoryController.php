@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Inventory;
 use App\Models\InventoryLog;
 use App\Models\Product;
+use DB;
 
 class InventoryController extends Controller
 {
@@ -18,7 +19,7 @@ class InventoryController extends Controller
     public function getIndex()
     {
         //get the list data with the default sort set the same as in the angular table
-        $product_data = $this->getProducts();
+        $product_data = $this->getProductList();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/inventory');
@@ -32,20 +33,63 @@ class InventoryController extends Controller
         return view('pages.inventory', $params);
     }
 
-    protected function getProducts()
+    public function getProductList()
     {
-        return Product::where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
+        return Product::select('product.id', 'product.sku', 'product.name', 'product.active',
+                               'product_type.variant1', 'product_type.variant1_active',
+                               'product_type.variant2', 'product_type.variant2_active',
+                               'product_type.variant3', 'product_type.variant3_active',
+                               'product_type.variant4', 'product_type.variant4_active')
+                        ->join('product_type', 'product.product_type_id', '=', 'product_type.id')
+                        ->where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
                         ->where('product.client_id', '=', auth()->user()->current_client_id)
+                        ->where('product.active', '=', true)
                         ->get();
     }
 
-    public function getProduct($product_id)
+    public function getProductInventory($product_id)
     {
-        $data = Inventory::with('variant1', 'variant2', 'variant3', 'variant4')
-                           ->where('product_id', '=', $product_id)
+        //first grab the bins and the rollup total in each and the product type data to get the variants
+        $bins = Inventory::select('bin.id', 'bin.aisle', 'bin.section', 'bin.tier', 'bin.position', 'bin.active',
+                                  DB::raw('SUM(inventory.quantity) as total'),
+                                  'product_type.variant1', 'product_type.variant2', 'product_type.variant3', 'product_type.variant4')
+                           ->rightJoin('bin', 'inventory.bin_id', '=', 'bin.id')
+                           ->join('product', 'bin.product_id', '=', 'product.id')
+                           ->join('product_type', 'product.product_type_id', '=', 'product_type.id')
+                           ->where('bin.product_id', '=', $product_id)
+                           ->groupBy('bin.id', 'bin.aisle', 'bin.section', 'bin.tier', 'bin.position', 'bin.active',
+                                     'product_type.variant1', 'product_type.variant2', 'product_type.variant3', 'product_type.variant4')
+                           ->orderBy('bin.aisle')->orderBy('bin.section')->orderBy('bin.tier')->orderBy('bin.position')
                            ->get();
-  debugbar()->info($data);
-        return $data;
+
+        //now add the variants and items from each receive date
+        foreach( $bins as $bin )
+        {
+            $bin_data = Inventory::select('inventory.*',
+                                          'product_variant1.value as variant1_value',
+                                          'product_variant2.value as variant2_value',
+                                          'product_variant3.value as variant3_value',
+                                          'product_variant4.value as variant4_value')
+                                   ->leftJoin('product_variant1', 'inventory.variant1_id', '=', 'product_variant1.id')
+                                   ->leftJoin('product_variant2', 'inventory.variant2_id', '=', 'product_variant2.id')
+                                   ->leftJoin('product_variant3', 'inventory.variant3_id', '=', 'product_variant3.id')
+                                   ->leftJoin('product_variant4', 'inventory.variant4_id', '=', 'product_variant4.id')
+                                   ->where('inventory.bin_id', '=', $bin->id)
+                                   ->orderBy('product_variant1.value')
+                                   ->orderBy('product_variant2.value')
+                                   ->orderBy('product_variant3.value')
+                                   ->orderBy('product_variant4.value')
+                                   ->orderBy('inventory.receive_date')
+                                   ->orderBy('inventory.quantity')
+                                   ->get();
+
+            //$bin_data_sorted = $bin_data->sortBy('receive_date');
+            $bin->bin_items = $bin_data;
+        }
+
+        debugbar()->info($bins->toArray());
+
+        return $bins;
     }
     
     public function getCheckDuplicate($code)
