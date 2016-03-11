@@ -44,10 +44,12 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
     /* SET MEMBER METHODS */
     InventoryController.selectProduct = updateMainData;
+    InventoryController.saveConfirmInventory = saveConfirmInventory;
     InventoryController.saveInventory = saveInventory;
     InventoryController.addBin = addBin;
     InventoryController.deleteConfirmBin = deleteConfirmBin;
     InventoryController.deleteBin = deleteBin;
+    InventoryController.newBinItem = newBinItem;
 
     /* CREATE PASS THROUGH FUNCTIONS */
     InventoryController.add = ListService.add;
@@ -116,17 +118,13 @@ app.controller('InventoryController', function($http, ListService, alertService,
         //clear data
         InventoryController.displayItems.length = 0;
 
-        //run ajax add
+        //run ajax call
         $http({
             method: 'GET',
             url: ListService.appUrl + '/product-inventory/' + product.id
         }).then(function successCallback(response) {
-            console.log(product);
-            console.log(response.data);
             //replace data
-            InventoryController.items = 0;
-            InventoryController.items = response.data;
-            InventoryController.displayItems = [].concat(response.data);
+            loadMainData(response.data);
 
             //reset original model
             ListService.resetModel();
@@ -145,10 +143,28 @@ app.controller('InventoryController', function($http, ListService, alertService,
         });
     }
 
+    /* PRIVATE FUNCTION USED TO UPDATE MAIN DATA */
+    function loadMainData(data) {
+        InventoryController.items = 0;
+        InventoryController.items = data;
+        InventoryController.displayItems = [].concat(data);
+    }
+
+    /* SAVE CONFIRMATION DIALOG */
+    function saveConfirmInventory() {
+        modalService.showModal({
+            templateUrl: "/js/angular-component/modalService-save.html",
+            controller: "YesNoController"
+        }).then(function(modal) {
+            modal.element.modal();
+            modal.close.then(function(result) {
+                if( result === true ) { InventoryController.saveInventory(); }
+            });
+        });
+    }
+
     /* Save the inventory data */
     function saveInventory() {
-    /* DO NOTHING FOR NOW */
-        return false;
 
         //make sure product id was set.  Just in case we are in a weird state
         if( !InventoryController.selectedProduct.id ) {
@@ -164,9 +180,12 @@ app.controller('InventoryController', function($http, ListService, alertService,
         //run ajax save
         $http({
             method: 'POST',
-            url: ListService.appUrl + '/product/' + product.id,
-            data: mainList.items
+            url: ListService.appUrl + '/save/' + InventoryController.selectedProduct.id,
+            data: InventoryController.items
         }).then(function successCallback(response) {
+            //load data
+            loadMainData(response.data);
+
             //reset original model
             ListService.resetModel();
 
@@ -176,6 +195,9 @@ app.controller('InventoryController', function($http, ListService, alertService,
             //set success message
             alertService.add('success', 'The inventory data has been saved');
         }, function errorCallback(response) {
+            //clear alerts
+            alertService.clear();
+
             //set alert
             alertService.add('danger', 'The following error occurred in saving the data: ' + response.statusText);
         });
@@ -229,6 +251,25 @@ app.controller('InventoryController', function($http, ListService, alertService,
             //set alert
             ListService.sendAlert('danger', ListService.getAlertMsg(itemName, 'added', response.statusText));
         });
+    }
+
+    /* NEW BIN ITEM */
+    function newBinItem(item) {
+        //create empty new item data object
+        var new_item = {
+            'variant1_value' : null,
+            'variant2_value' : null,
+            'variant3_value' : null,
+            'receive_date'   : new Date(),
+            'quantity'       : null,
+            'quantity_new'   : null
+        };
+
+        //create the new bin items array if not already created to avoid error in next step.
+        if( !item.new_bin_items ) { item.new_bin_items = []; }
+
+        //add to new bin items array
+        item.new_bin_items.push(new_item);
     }
 
     /* DELETE BIN CONFIRMATION DIALOG */

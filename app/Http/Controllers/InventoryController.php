@@ -97,40 +97,58 @@ class InventoryController extends Controller
         return Inventory::select('id')->where('code', 'ILIKE', $code)->take(1)->get();
     }
 
-    public function postNew()
+    public function postSave($product_id)
     {
-        //set code to a variable
-        $code = request()->json('code');
+        /* for debugging */
+        debugbar()->info(request()->json());
 
-        //first check to make sure this is not a duplicate
-        $countries = $this->getCheckDuplicate($code);
-        if( count($countries) > 0 )
+    /* !!!! WRAP BELOW IN A TRANSACTION !!!!! */
+        /* loop through and update data */
+        foreach( request()->json() as $bin )
         {
-            $error_message = array('errorMsg' => 'The inventory code of ' . $code . ' already exists.');
-            return response()->json($error_message);
+            //go through each bin item
+            foreach( $bin as $bin_item )
+            {
+                //only update if new quantity is set
+                if( isset($bin_item->quantity_new) && is_numeric($bin_item->quantity_new) )
+                {
+                    //update the main inventory table
+                    $bin_item = Inventory::get($bin->id);
+                    $bin_item->quantity = $bin->quantity_new;
+                    $bin_item->save();
+
+                    //update inventory log table
+                    $bin_log = new InventoryLog();
+
+                }
+            }
+
+            //see if any new bin item need to be added
+            if( isset($bin->new_items) )
+            {
+                //go through each bin item
+                foreach( $bin->new_items as $new_bin_item )
+                {
+                    //only update if new quantity is set
+                    if( isset($new_bin_item->quantity_new) && is_numeric($new_bin_item->quantity_new) )
+                    {
+                        //add to main inventory table
+                        $new_bin_item = new Inventory();
+                        $new_bin_item->bin_id = $bin->id;
+                        $new_bin_item->quantity = $new_bin_item->quantity_new;
+                        $new_bin_item->save();
+
+                        //update inventory log table
+                        $bin_log = new InventoryLog();
+
+                    }
+                }
+            }
+
         }
 
-        //create new item
-        $inventory_id = $this->saveItem();
-
-        return response()->json(['id' => $inventory_id]);
-    }
-
-    public function postUpdate()
-    {
-        $this->saveItem();
-    }
-
-    private function saveItem()
-    {
-        $inventory = ( !empty(request()->json('id')) ) ? Inventory::find(request()->json('id')) : new Inventory();
-        $inventory->code = request()->json('code');
-        $inventory->name = request()->json('name');
-        $inventory->currency_name = request()->json('currency_name');
-        $inventory->currency_prefix = request()->json('currency_prefix');
-        $inventory->save();
-
-        return $inventory->id;
+        //return updated data as a way to refresh the list and reset the UX
+        return $this->getProductInventory($product_id);
     }
 
     public function putDelete($id)

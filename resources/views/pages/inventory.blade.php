@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="row col-lg-12 inventory-action-buttons" ng-show="mainList.items.length > 0" ng-cloak>
-            <button type="button" class="btn btn-success" ng-click="mainList.saveInventory()">Update Quantities</button>
+            <button type="button" class="btn btn-success" ng-click="mainList.saveConfirmInventory()">Update Quantities</button>
             <button class="btn btn-warning" data-toggle="collapse" data-target="#new-item">New Bin</button>
             <button class="btn btn-default" ng-click="mainList.resetData(mainList)" type="button">Cancel</button>
         </div>
@@ -87,6 +87,7 @@
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <table class="table table-striped table-hover table-form">
                                         <tr>
+                                            <th><button class="btn btn-warning" type="button" ng-click="mainList.newBinItem(item)">New</button></th>
                                             <th ng-show="mainList.selectedProduct.variant1_active == true"
                                                 ng-bind="mainList.selectedProduct.variant1"></th>
                                             <th ng-show="mainList.selectedProduct.variant2_active == true"
@@ -100,25 +101,27 @@
                                             <th>New Quantity</th>
                                             <th></th>
                                         </tr>
-                                        <tr>
+                                        <tr ng-repeat="new_item in item.new_bin_items">
+                                            <td></td>
                                             <td ng-show="mainList.selectedProduct.variant1_active == true">
-                                                <input class="form-control" type="text" ng-model="bin_item.variant1_value">
+                                                <input class="form-control" type="text" ng-model="new_item.variant1_value">
                                             </td>
                                             <td ng-show="mainList.selectedProduct.variant2_active == true">
-                                                <input class="form-control" type="text" ng-model="bin_item.variant2_value">
+                                                <input class="form-control" type="text" ng-model="new_item.variant2_value">
                                             </td>
                                             <td ng-show="mainList.selectedProduct.variant3_active == true">
-                                                <input class="form-control" type="text" ng-model="bin_item.variant3_value">
+                                                <input class="form-control" type="text" ng-model="new_item.variant3_value">
                                             </td>
                                             <td ng-show="mainList.selectedProduct.variant4_active == true">
-                                                <input class="form-control" type="text" ng-model="bin_item.variant4_value">
+                                                <input class="form-control" type="text" ng-model="new_item.variant4_value">
                                             </td>
-                                            <td><input class="form-control" type="date"></td>
-                                            <td><input class="form-control" type="number" ng-model="bin_item.quantity" value="0" disabled></td>
-                                            <td><input class="form-control" type="number" ng-model="bin_item.quantity_new"></td>
-                                            <td></td>
+                                            <td><input class="form-control" type="date" ng-model="new_item.receive_date"></td>
+                                            <td><input class="form-control" type="number" value="0" disabled></td>
+                                            <td><input class="form-control" type="number" ng-model="new_item.quantity_new"></td>
+                                            {{--<td></td>--}}
                                         </tr>
                                         <tr ng-repeat="bin_item in item.bin_items">
+                                            <td></td>
                                             <td ng-show="mainList.selectedProduct.variant1_active == true"
                                                 ng-bind="bin_item.variant1_value" ></td>
                                             <td ng-show="mainList.selectedProduct.variant2_active == true"
@@ -127,10 +130,10 @@
                                                 ng-bind="bin_item.variant3_value" ></td>
                                             <td ng-show="mainList.selectedProduct.variant4_active == true"
                                                 ng-bind="bin_item.variant4_value" ></td>
-                                            <td>@{{ bin_item.receive_date }}</td>
+                                            <td>@{{ bin_item.receive_date | dateToISO | date: "MM-dd-yyyy" }}</td>
                                             <td><input class="form-control" type="number" ng-model="bin_item.quantity" disabled></td>
                                             <td><input class="form-control" type="number" ng-model="bin_item.quantity_new"></td>
-                                            <td><button class="btn btn-primary" ng-click="mainList.moveBinItem">Move</button></td>
+                                            {{--<td><button class="btn btn-primary" ng-click="mainList.moveBinItem">Move</button></td>--}}
                                         </tr>
                                     </table>
                                 </form>
