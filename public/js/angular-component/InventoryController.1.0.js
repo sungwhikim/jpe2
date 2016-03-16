@@ -239,6 +239,13 @@ app.controller('InventoryController', function($http, ListService, alertService,
                     //set alert
                     ListService.sendAlert('success', ListService.getAlertMsg(itemName, 'added', ''));
 
+                    //add variants - we could add them in sending back the data from the backend, but
+                    //it is available here.  Same difference either way, but one less db query.
+                    response.data.variant1 = InventoryController.selectedProduct.variant1;
+                    response.data.variant2 = InventoryController.selectedProduct.variant2;
+                    response.data.variant3 = InventoryController.selectedProduct.variant3;
+                    response.data.variant4 = InventoryController.selectedProduct.variant4;
+
                     //add to model
                     ListService.mainCtl.items.unshift(response.data);
 
@@ -260,8 +267,9 @@ app.controller('InventoryController', function($http, ListService, alertService,
             'variant1_value' : null,
             'variant2_value' : null,
             'variant3_value' : null,
+            'variant4_value' : null,
             'receive_date'   : new Date(),
-            'quantity'       : null,
+            'quantity'       : 0,
             'quantity_new'   : null
         };
 
@@ -293,7 +301,7 @@ app.controller('InventoryController', function($http, ListService, alertService,
         //run ajax delete
         $http({
             method: 'PUT',
-            url: ListService.appUrl + '/bin/delete/' + ListService.mainCtl.displayItems[index].bin_id
+            url: ListService.appUrl + '/bin/delete/' + ListService.mainCtl.displayItems[index].id
         }).then(function successCallback(response) {
             if( response.data.errorMsg ) {
                 //set alert

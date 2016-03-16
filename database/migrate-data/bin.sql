@@ -48,3 +48,5 @@ INSERT INTO "bin" (id, product_id, aisle, section, tier, position, default_bin, 
                INNER JOIN product p
                     ON bm.product_id = p.id
      );
+
+SELECT setval('product_variant1_id_seq', (SELECT MAX(id) FROM bin));

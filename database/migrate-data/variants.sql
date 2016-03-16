@@ -6,7 +6,7 @@ SELECT 'INSERT INTO "variant1_migrate" (id, product_id, "name", active)
        CASE WHEN dl.IsActive = 1 THEN 'true' ELSE 'false' END + ');'
 FROM tblDLot dl
 
-INSERT INTO product_variant1 (id, product_id, "name", "value", active, created_at, updated_at)
+INSERT INTO variant1 (id, product_id, "name", "value", active, created_at, updated_at)
   (
       SELECT
         vm.id,

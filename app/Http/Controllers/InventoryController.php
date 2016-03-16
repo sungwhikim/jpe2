@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inventory;
-use App\Models\InventoryLog;
+use App\Models\Bin;
 use App\Models\Product;
+use App\Models\InventoryLog;
+use App\Enum\InventoryLogType;
 use DB;
 
 class InventoryController extends Controller
@@ -66,19 +68,19 @@ class InventoryController extends Controller
         foreach( $bins as $bin )
         {
             $bin_data = Inventory::select('inventory.*',
-                                          'product_variant1.value as variant1_value',
-                                          'product_variant2.value as variant2_value',
-                                          'product_variant3.value as variant3_value',
-                                          'product_variant4.value as variant4_value')
-                                   ->leftJoin('product_variant1', 'inventory.variant1_id', '=', 'product_variant1.id')
-                                   ->leftJoin('product_variant2', 'inventory.variant2_id', '=', 'product_variant2.id')
-                                   ->leftJoin('product_variant3', 'inventory.variant3_id', '=', 'product_variant3.id')
-                                   ->leftJoin('product_variant4', 'inventory.variant4_id', '=', 'product_variant4.id')
+                                          'variant1.value as variant1_value',
+                                          'variant2.value as variant2_value',
+                                          'variant3.value as variant3_value',
+                                          'variant4.value as variant4_value')
+                                   ->leftJoin('variant1', 'inventory.variant1_id', '=', 'variant1.id')
+                                   ->leftJoin('variant2', 'inventory.variant2_id', '=', 'variant2.id')
+                                   ->leftJoin('variant3', 'inventory.variant3_id', '=', 'variant3.id')
+                                   ->leftJoin('variant4', 'inventory.variant4_id', '=', 'variant4.id')
                                    ->where('inventory.bin_id', '=', $bin->id)
-                                   ->orderBy('product_variant1.value')
-                                   ->orderBy('product_variant2.value')
-                                   ->orderBy('product_variant3.value')
-                                   ->orderBy('product_variant4.value')
+                                   ->orderBy('variant1.value')
+                                   ->orderBy('variant2.value')
+                                   ->orderBy('variant3.value')
+                                   ->orderBy('variant4.value')
                                    ->orderBy('inventory.receive_date')
                                    ->orderBy('inventory.quantity')
                                    ->get();
@@ -87,72 +89,101 @@ class InventoryController extends Controller
             $bin->bin_items = $bin_data;
         }
 
-        debugbar()->info($bins->toArray());
-
         return $bins;
-    }
-    
-    public function getCheckDuplicate($code)
-    {
-        return Inventory::select('id')->where('code', 'ILIKE', $code)->take(1)->get();
     }
 
     public function postSave($product_id)
     {
-        /* for debugging */
-        debugbar()->info(request()->json());
 
     /* !!!! WRAP BELOW IN A TRANSACTION !!!!! */
         /* loop through and update data */
-        foreach( request()->json() as $bin )
+        foreach( collect(request()->all()) as $bin )
         {
-            //go through each bin item
-            foreach( $bin as $bin_item )
+            //go through each bin item if set
+            if( isset($bin['bin_items']) )
             {
-                //only update if new quantity is set
-                if( isset($bin_item->quantity_new) && is_numeric($bin_item->quantity_new) )
-                {
-                    //update the main inventory table
-                    $bin_item = Inventory::get($bin->id);
-                    $bin_item->quantity = $bin->quantity_new;
-                    $bin_item->save();
-
-                    //update inventory log table
-                    $bin_log = new InventoryLog();
-
-                }
-            }
-
-            //see if any new bin item need to be added
-            if( isset($bin->new_items) )
-            {
-                //go through each bin item
-                foreach( $bin->new_items as $new_bin_item )
+                foreach( $bin['bin_items'] as $bin_item )
                 {
                     //only update if new quantity is set
-                    if( isset($new_bin_item->quantity_new) && is_numeric($new_bin_item->quantity_new) )
+                    if( isset($bin_item['quantity_new']) && is_numeric($bin_item['quantity_new']) )
                     {
-                        //add to main inventory table
-                        $new_bin_item = new Inventory();
-                        $new_bin_item->bin_id = $bin->id;
-                        $new_bin_item->quantity = $new_bin_item->quantity_new;
-                        $new_bin_item->save();
+                        //update the main inventory table
+                        $inventory_item = Inventory::find($bin_item['id']);
+                        $inventory_item->quantity = $bin_item['quantity_new'];
+                        $inventory_item->save();
 
                         //update inventory log table
-                        $bin_log = new InventoryLog();
-
+                        $inventory_log = new InventoryLog();
+                        $inventory_log->addItem(InventoryLogType::INVENTORY_EDIT, $product_id, $bin['id'], $bin_item);
                     }
                 }
             }
 
+            //see if any new bin item need to be added
+            if( isset($bin['new_bin_items']) )
+            {
+                debugbar()->info($bin['new_bin_items']);
+                //go through each bin item
+                foreach( $bin['new_bin_items'] as $new_bin_item )
+                {
+                    //only update if new quantity is set
+                    if( isset($new_bin_item['quantity_new']) && is_numeric($new_bin_item['quantity_new']) && $new_bin_item['quantity_new'] > 0 )
+                    {
+                        //get variants
+                        $new_bin_item['variant1_id'] = $this->getVariantId($product_id, $new_bin_item['variant1_value'], $bin['variant1'], 'variant1');
+                        $new_bin_item['variant2_id'] = $this->getVariantId($product_id, $new_bin_item['variant2_value'], $bin['variant2'], 'variant2');
+                        $new_bin_item['variant3_id'] = $this->getVariantId($product_id, $new_bin_item['variant3_value'], $bin['variant3'], 'variant3');
+                        $new_bin_item['variant4_id'] = $this->getVariantId($product_id, $new_bin_item['variant4_value'], $bin['variant4'], 'variant4');
+
+                        //add to main inventory table
+                        $inventory_item = new Inventory();
+                        $inventory_item->bin_id = $bin['id'];
+                        $inventory_item->quantity = $new_bin_item['quantity_new'];
+                        $inventory_item->receive_date = $new_bin_item['receive_date'];
+                        $inventory_item->variant1_id = $new_bin_item['variant1_id'];
+                        $inventory_item->variant2_id = $new_bin_item['variant2_id'];
+                        $inventory_item->variant3_id = $new_bin_item['variant3_id'];
+                        $inventory_item->variant4_id = $new_bin_item['variant4_id'];
+                        $inventory_item->save();
+
+                        //update inventory log table
+                        $inventory_log = new InventoryLog();
+                        $inventory_log->addItem(InventoryLogType::INVENTORY_EDIT, $product_id, $bin['id'], $new_bin_item);
+                    }
+                }
+            }
         }
 
         //return updated data as a way to refresh the list and reset the UX
         return $this->getProductInventory($product_id);
     }
 
-    public function putDelete($id)
+    private function getVariantId($product_id, $variant_value, $variant_name, $table)
     {
-        Inventory::find($id)->delete();
+        //if value is null, then id is null
+        if( $variant_value === null || strlen($variant_name) == 0 ) { return null; }
+
+        //check to see if this variant exists
+        $variant = DB::table($table)
+                       ->where('product_id', '=', $product_id)
+                       ->where('value', 'ILIKE', $variant_value)
+                       ->take(1)->get();
+
+        //exists
+        if( count($variant) > 0 )
+        {
+            return $variant->id;
+        }
+
+        //does not exists so create it
+        else
+        {
+            return DB::table($table)->insertGetId(['product_id' => $product_id,
+                                                   'name' => $variant_name,
+                                                   'value' => $variant_value,
+                                                   'active' => true,
+                                                   'created_at' => date('Y-m-d G:i:s'),
+                                                   'updated_at' => date('Y-m-d G:i:s')]);
+        }
     }
 }
