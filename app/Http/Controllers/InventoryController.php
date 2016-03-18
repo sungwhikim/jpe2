@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\InventoryLog;
 use App\Enum\InventoryLogType;
 use DB;
+use Log;
 
 class InventoryController extends Controller
 {
@@ -94,65 +95,85 @@ class InventoryController extends Controller
 
     public function postSave($product_id)
     {
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try {
+            /* loop through and update data */
+            foreach ( collect(request()->all()) as $bin ) {
+                /* NEED TO ADD CHECK FOR NON-ZERO BIN ITEMS AND NOT ALLOW INACTIVATION IF ANY QUANTITIES EXIST */
+                //update active flag.
+                $bin_model = Bin::find($bin['id']);
+                $bin_model->active = $bin['active'];
+                $bin_model->save();
 
-    /* !!!! WRAP BELOW IN A TRANSACTION !!!!! */
-        /* loop through and update data */
-        foreach( collect(request()->all()) as $bin )
-        {
-            //go through each bin item if set
-            if( isset($bin['bin_items']) )
-            {
-                foreach( $bin['bin_items'] as $bin_item )
-                {
-                    //only update if new quantity is set
-                    if( isset($bin_item['quantity_new']) && is_numeric($bin_item['quantity_new']) )
-                    {
-                        //update the main inventory table
-                        $inventory_item = Inventory::find($bin_item['id']);
-                        $inventory_item->quantity = $bin_item['quantity_new'];
-                        $inventory_item->save();
+                //go through each bin item if set
+                if ( isset($bin['bin_items']) ) {
+                    foreach ( $bin['bin_items'] as $bin_item ) {
+                        //only update if new quantity is set
+                        if ( isset($bin_item['quantity_new']) && is_numeric($bin_item['quantity_new']) ) {
+                            //update the main inventory table
+                            $inventory_item = Inventory::find($bin_item['id']);
+                            $inventory_item->quantity = $bin_item['quantity_new'];
+                            $inventory_item->save();
 
-                        //update inventory log table
-                        $inventory_log = new InventoryLog();
-                        $inventory_log->addItem(InventoryLogType::INVENTORY_EDIT, $product_id, $bin['id'], $bin_item);
+                            //update inventory log table
+                            $inventory_log = new InventoryLog();
+                            $inventory_log->addItem(InventoryLogType::INVENTORY_EDIT, $product_id, $bin['id'], $bin_item);
+                        }
                     }
                 }
-            }
 
-            //see if any new bin item need to be added
-            if( isset($bin['new_bin_items']) )
-            {
-                debugbar()->info($bin['new_bin_items']);
-                //go through each bin item
-                foreach( $bin['new_bin_items'] as $new_bin_item )
-                {
-                    //only update if new quantity is set
-                    if( isset($new_bin_item['quantity_new']) && is_numeric($new_bin_item['quantity_new']) && $new_bin_item['quantity_new'] > 0 )
-                    {
-                        //get variants
-                        $new_bin_item['variant1_id'] = $this->getVariantId($product_id, $new_bin_item['variant1_value'], $bin['variant1'], 'variant1');
-                        $new_bin_item['variant2_id'] = $this->getVariantId($product_id, $new_bin_item['variant2_value'], $bin['variant2'], 'variant2');
-                        $new_bin_item['variant3_id'] = $this->getVariantId($product_id, $new_bin_item['variant3_value'], $bin['variant3'], 'variant3');
-                        $new_bin_item['variant4_id'] = $this->getVariantId($product_id, $new_bin_item['variant4_value'], $bin['variant4'], 'variant4');
+                //see if any new bin item need to be added
+                if ( isset($bin['new_bin_items']) ) {
+                    //go through each new bin item
+                    foreach ( $bin['new_bin_items'] as $new_bin_item ) {
+                        //only update if new quantity is set and greater than 0.  Since it is a new item, we can enforce the greater than 0 requirement.
+                        if ( isset($new_bin_item['quantity_new']) && is_numeric($new_bin_item['quantity_new']) && $new_bin_item['quantity_new'] > 0 ) {
+                            /* NEED TO CHECK IF THIS BIN ITEM EXISTS BY CHECKING THE VARIANTS AND RECEIVE DATE */
+                            //get variants
+                            $new_bin_item['variant1_id'] = $this->getVariantId($product_id, $new_bin_item['variant1_value'], $bin['variant1'], 'variant1');
+                            $new_bin_item['variant2_id'] = $this->getVariantId($product_id, $new_bin_item['variant2_value'], $bin['variant2'], 'variant2');
+                            $new_bin_item['variant3_id'] = $this->getVariantId($product_id, $new_bin_item['variant3_value'], $bin['variant3'], 'variant3');
+                            $new_bin_item['variant4_id'] = $this->getVariantId($product_id, $new_bin_item['variant4_value'], $bin['variant4'], 'variant4');
 
-                        //add to main inventory table
-                        $inventory_item = new Inventory();
-                        $inventory_item->bin_id = $bin['id'];
-                        $inventory_item->quantity = $new_bin_item['quantity_new'];
-                        $inventory_item->receive_date = $new_bin_item['receive_date'];
-                        $inventory_item->variant1_id = $new_bin_item['variant1_id'];
-                        $inventory_item->variant2_id = $new_bin_item['variant2_id'];
-                        $inventory_item->variant3_id = $new_bin_item['variant3_id'];
-                        $inventory_item->variant4_id = $new_bin_item['variant4_id'];
-                        $inventory_item->save();
+                            //add to main inventory table
+                            $inventory_item = new Inventory();
+                            $inventory_item->bin_id = $bin['id'];
+                            $inventory_item->quantity = $new_bin_item['quantity_new'];
+                            $inventory_item->receive_date = $new_bin_item['receive_date'];
+                            $inventory_item->variant1_id = $new_bin_item['variant1_id'];
+                            $inventory_item->variant2_id = $new_bin_item['variant2_id'];
+                            $inventory_item->variant3_id = $new_bin_item['variant3_id'];
+                            $inventory_item->variant4_id = $new_bin_item['variant4_id'];
+                            $inventory_item->save();
 
-                        //update inventory log table
-                        $inventory_log = new InventoryLog();
-                        $inventory_log->addItem(InventoryLogType::INVENTORY_EDIT, $product_id, $bin['id'], $new_bin_item);
+                            //update inventory log table
+                            $inventory_log = new InventoryLog();
+                            $inventory_log->addItem(InventoryLogType::INVENTORY_EDIT, $product_id, $bin['id'], $new_bin_item);
+                        }
                     }
                 }
             }
         }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The inventory was not updated with the error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
 
         //return updated data as a way to refresh the list and reset the UX
         return $this->getProductInventory($product_id);
@@ -172,7 +193,7 @@ class InventoryController extends Controller
         //exists
         if( count($variant) > 0 )
         {
-            return $variant->id;
+            return $variant[0]->id;
         }
 
         //does not exists so create it

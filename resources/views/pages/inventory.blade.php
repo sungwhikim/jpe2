@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="row col-lg-12 inventory-action-buttons" ng-show="mainList.items.length > 0" ng-cloak>
-            <button type="button" class="btn btn-success" ng-click="mainList.saveConfirmInventory()">Update Quantities</button>
+            <button type="button" class="btn btn-success" ng-click="mainList.saveConfirmInventory()">Update</button>
             <button class="btn btn-warning" data-toggle="collapse" data-target="#new-item">New Bin</button>
             <button class="btn btn-default" ng-click="mainList.resetData(mainList)" type="button">Cancel</button>
         </div>
@@ -37,11 +37,10 @@
                         <th class="td-button"></th>
                         <th class="sort-header">Bin</th>
                         <th class="sort-header">Inventory</th>
-                        <th class="sort-header">Quantity</th>
                         <th class="sort-header">Active</th>
                     </tr>
                     <tr>
-                        <td colspan="5" class="td-form">
+                        <td colspan="4" class="td-form">
                             <div class="collapse" id="new-item">
                                 <form class="form-horizontal" id="formNew" name="formNew" ng-submit="formNew.$valid && mainList.addBin(formNew)" novalidate>
                                     <fieldset>
@@ -78,11 +77,17 @@
                         </td>
                         <td>@{{ item.aisle }} @{{ item.section | numberFixedLen:2 }} @{{ item.tier | numberFixedLen:2 }} @{{ item.position | numberFixedLen:2 }}</td>
                         <td ng-bind="item.total"></td>
-                        <td ng-bind="item.quantity_new"></td>
-                        <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
+                        <td>
+                            <div class="checkbox checkbox-slider--b checkbox-slider-md">
+                                <label>
+                                    <input type="checkbox" name="active" value="true" ng-model="item.active">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="5" class="td-form">
+                        <td colspan="4" class="td-form">
                             <div class="collapse col-lg-11" id="item-@{{ item.id }}">
                                 <form class="form-horizontal" name="dataForm" ng-submit="dataForm.$valid && mainList.save(item)" novalidate>
                                     <table class="table table-striped table-hover table-form">
@@ -99,9 +104,8 @@
                                             <th>Receive Date</th>
                                             <th>Inventory</th>
                                             <th>New Quantity</th>
-                                            <th></th>
                                         </tr>
-                                        <tr ng-repeat="new_item in item.new_bin_items">
+                                        <tr class="tr-contains-date-picker" ng-repeat="new_item in item.new_bin_items">
                                             <td></td>
                                             <td ng-show="mainList.selectedProduct.variant1_active == true">
                                                 <input class="form-control" type="text" ng-model="new_item.variant1_value">
@@ -115,10 +119,14 @@
                                             <td ng-show="mainList.selectedProduct.variant4_active == true">
                                                 <input class="form-control" type="text" ng-model="new_item.variant4_value">
                                             </td>
-                                            <td><input class="form-control" type="date" ng-model="new_item.receive_date"></td>
+                                            <td>
+                                                @include('forms.date-picker', ['name' => 'receive_date',
+                                                                               'form_name' => 'dataForm',
+                                                                               'model_name' => 'new_item.receive_date',
+                                                                               'required' => true])
+                                            </td>
                                             <td><input class="form-control" type="number" value="0" disabled></td>
                                             <td><input class="form-control" type="number" ng-model="new_item.quantity_new"></td>
-                                            {{--<td></td>--}}
                                         </tr>
                                         <tr ng-repeat="bin_item in item.bin_items">
                                             <td></td>

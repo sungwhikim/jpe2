@@ -6,7 +6,8 @@
 
 /* app is instantiated in the myApp.js file */
 
-app.controller('InventoryController', function($http, ListService, alertService, checkBoxService, warehouseClientSelectService, modalService) {
+app.controller('InventoryController', function($http, ListService, alertService, checkBoxService,
+                                               warehouseClientSelectService, modalService, datePickerService) {
     //set object to variable to prevent self reference collisions
     var InventoryController = this;
 
@@ -60,6 +61,10 @@ app.controller('InventoryController', function($http, ListService, alertService,
     InventoryController.toggleCheckBox = checkBoxService.toggleCheckBox;
     InventoryController.allCheckBoxes = checkBoxService.allCheckBoxes;
     InventoryController.noneCheckBoxes = checkBoxService.noneCheckBoxes;
+
+    /* ASSIGN DATE PICKER SERVICE AND DO ANY OVERLOADING HERE */
+    InventoryController.datePicker = datePickerService;
+    console.log(datePickerService);
 
     /* OVERLOAD REFRESH DATA FUNCTION IN WAREHOUSE CLIENT SELECTOR */
     warehouseClientSelectService.refreshData = updateProductList;
@@ -183,17 +188,23 @@ app.controller('InventoryController', function($http, ListService, alertService,
             url: ListService.appUrl + '/save/' + InventoryController.selectedProduct.id,
             data: InventoryController.items
         }).then(function successCallback(response) {
-            //load data
-            loadMainData(response.data);
+            if( response.data.errorMsg ) {
+                //set alert
+                alertService.clear();
+                alertService.add('danger', response.data.errorMsg);
+            } else {
+                //load data
+                loadMainData(response.data);
 
-            //reset original model
-            ListService.resetModel();
+                //reset original model
+                ListService.resetModel();
 
-            //clear alerts
-            alertService.clear();
+                //clear alerts
+                alertService.clear();
 
-            //set success message
-            alertService.add('success', 'The inventory data has been saved');
+                //set success message
+                alertService.add('success', 'The inventory data has been saved');
+            }
         }, function errorCallback(response) {
             //clear alerts
             alertService.clear();

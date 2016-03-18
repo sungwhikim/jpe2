@@ -377,6 +377,37 @@ body {
     vertical-align: middle;
 }
 
+/* DATE PICKER ANGULAR-UI OVER LOADES */
+.uib-datepicker-popup {
+    padding-bottom: 15px;
+}
+.uib-datepicker {
+    padding: 5px 10px 0 10px;
+}
+.uib-daypicker tr:first-of-type th {
+    padding-bottom: 10px;
+}
+.uib-datepicker .btn {
+    border-radius: 0;
+    border-width: 0;
+}
+.uib-datepicker button, .uib-datepicker span, .uib-datepicker td, .uib-button-bar .btn-sm {
+    font-size: 16px !important; /* this changes the font size of the entire popup to better display on mobile devices */
+}
+.uib-day span {
+    font-weight: bold;
+}
+.uib-day span.text-muted {
+    font-weight: normal;
+}
+.uib-button-bar {
+    margin-top: 5px;
+}
+.tr-contains-date-picker > td {
+    padding-top: 10px !important;
+    vertical-align: top !important;
+}
+
 /* OVER RIDE STYLING FOR INITTOGGLE */
 .checkbox.checkbox-slider--b {
     padding: 0;

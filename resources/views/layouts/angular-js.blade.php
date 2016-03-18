@@ -6,6 +6,7 @@
 
 <!-- the following files are to instantiate the main app and the warehouse/client selector in the header -->
 <script src="/js/angular-component/myApp.js"></script>
+<script src="/js/angular-component/datePickerService.1.0.js"></script>
 <script src="/js/angular-component/modalService.1.0.js"></script>
 <script src="/js/angular-component/modalService-yesnocontroller.js"></script>
 <script src="/js/angular-component/warehouseClientSelectService.1.0.js"></script>
