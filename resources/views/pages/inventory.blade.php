@@ -138,7 +138,7 @@
                                                 ng-bind="bin_item.variant3_value" ></td>
                                             <td ng-show="mainList.selectedProduct.variant4_active == true"
                                                 ng-bind="bin_item.variant4_value" ></td>
-                                            <td>@{{ bin_item.receive_date | dateToISO | date: "MM-dd-yyyy" }}</td>
+                                            <td>@{{ bin_item.receive_date | date: "MM-dd-yyyy" }}</td>
                                             <td><input class="form-control" type="number" ng-model="bin_item.quantity" disabled></td>
                                             <td><input class="form-control" type="number" ng-model="bin_item.quantity_new"></td>
                                             {{--<td><button class="btn btn-primary" ng-click="mainList.moveBinItem">Move</button></td>--}}

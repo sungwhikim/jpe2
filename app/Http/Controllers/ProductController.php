@@ -105,9 +105,6 @@ class ProductController extends Controller
         $product->barcode_client  = request()->json('barcode_client', null);
         $product->rfid            = request()->json('rfid', null);
         $product->product_type_id = request()->json('product_type_id');
-        $product->custom1         = request()->json('custom1', null);
-        $product->custom2         = request()->json('custom2', null);
-        $product->custom3         = request()->json('custom3', null);
         $product->uom1            = request()->json('uom1');
         $product->uom2            = request()->json('uom2', null);
         $product->uom3            = request()->json('uom3', null);

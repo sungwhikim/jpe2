@@ -11,7 +11,7 @@
                 <li class="checkbox">
                     <label>
                         <input type="checkbox" name="clients[]" value=""
-                               ng-click="mainList.toggleCheckBox(item.clients, {{ $item->id }})"
+                               ng-click="mainList.toggleCheckBox(mainList.newItem.clients, {{ $item->id }})"
                                ng-checked="mainList.newItem.clients.indexOf({{ $item->id }}) > -1">
                         <strong>{{ $item->short_name }}</strong> - {{ $item->name }}
                     </label>

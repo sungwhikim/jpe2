@@ -103,7 +103,7 @@ class UserController extends Controller
     public function getCheckDuplicate($username)
     {
         $users = User::where('username', 'ILIKE', $username)->get();
-        debugbar()->info($users);
+
         return $users;
     }
 
@@ -114,7 +114,7 @@ class UserController extends Controller
 
         //set username to a variable
         $username = request()->json('username');
-        debugbar()->info($username);
+
         //first check to make sure this is not a duplicate
         $users = $this->getCheckDuplicate($username);
         if( count($users) > 0 )

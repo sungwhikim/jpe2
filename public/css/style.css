@@ -151,6 +151,9 @@ body {
 .table-form > thead > tr > th {
     border-bottom: 1px solid #ddd;
 }
+.table-form > tbody > tr > th {
+    vertical-align: middle;
+}
 .table > tbody > tr > td {
     vertical-align: middle;
 }
@@ -199,18 +202,12 @@ body {
     width: 410px;
     margin: 0 45px 30px 40px;
 }
-.td-form .checkbox-list-left .panel-checkbox .checkbox-list-body {
-    height: 200px;
-}
 .td-form .checkbox-list-right {
     width: inherit;
 }
 .td-form .checkbox-list-right .panel-checkbox {
     width: 410px;
     margin: 0 0 30px 40px;
-}
-.td-form .checkbox-list-right .panel-checkbox .checkbox-list-body {
-    height: 200px;
 }
 .td-form .divider-checkbox {
     height: 1px;

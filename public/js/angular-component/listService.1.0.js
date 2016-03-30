@@ -94,11 +94,16 @@ angular.module('listService',  ['alertService',
             url: ListService.appUrl + '/update',
             data: curItem
         }).then(function successCallback(response) {
-            //set alert
-            sendAlert('success', getAlertMsg(curItem.name, 'updated', ''));
+            if( response.data.errorMsg ) {
+                //set alert
+                sendAlert('danger', getAlertMsg(curItem.name, 'updated', response.data.errorMsg));
+            } else {
+                //set alert
+                sendAlert('success', getAlertMsg(curItem.name, 'updated', ''));
 
-            //reset original model
-            ListService.resetModel();
+                //reset original model
+                ListService.resetModel();
+            }
         }, function errorCallback(response) {
             //set alert
             sendAlert('danger', getAlertMsg(curItem.name, 'updated', response.statusText));

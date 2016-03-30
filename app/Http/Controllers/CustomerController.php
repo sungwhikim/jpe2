@@ -3,6 +3,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Country;
+use App\Models\Warehouse;
+use App\Models\Client;
+use App\Models\CustomerClientWarehouse;
 
 class CustomerController extends Controller
 {
@@ -27,15 +30,28 @@ class CustomerController extends Controller
         $country = new Country();
         $country_data = $country->ListWithProvinces();
 
+    /* FILTER DOWN BOTH LISTS TO ONLY WH AND CLIENT AVAILABLE TO THE LOGGED IN USER */
+        $warehouse_data = Warehouse::select('id', 'name', 'active')->orderBy('name')->get();
+        $client_data = Client::select('id', 'short_name', 'name', 'active')->orderBy('name')->get();
+
         return response()->view('pages.customer', ['main_data' => $data,
                                                     'url' => $url,
                                                     'my_name' => $this->my_name,
-                                                    'country_data' => $country_data]);
+                                                    'country_data' => $country_data,
+                                                    'warehouse_data' => $warehouse_data,
+                                                    'client_data' => $client_data]);
     }
 
-    public function getById($id)
+    public function getClientWarehouse($customer_id)
     {
-        return Customer::where('id', '=', $id)->get();
+        $clients = CustomerClientWarehouse::select('client_id')
+                                            ->where('customer_id', '=', $customer_id)->get();
+
+        $warehouses = CustomerClientWarehouse::select('warehouse_id')
+                                               ->where('customer_id', '=', $customer_id)->get();
+
+        return ['clients' => $clients->toArray(),
+                'warehouses' => $warehouses->toArray()];
     }
 
     public function getCheckDuplicate($name)
