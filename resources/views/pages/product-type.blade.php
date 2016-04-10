@@ -43,6 +43,7 @@
                                     <fieldset>
                                         @include('forms.new-name', ['size' => 50])
                                         @include('forms.new-description', ['size' => 250])
+                                        @include('forms.new-default-uom')
 
                                         @include('forms.divider', ['title' => 'Variants'])
                                         @include('forms.new-variant-product-type', ['number' => 1])
@@ -96,6 +97,7 @@
                                     <fieldset>
                                         @include('forms.name', ['size' => 50])
                                         @include('forms.description', ['size' => 250])
+                                        @include('forms.default-uom')
 
                                         @include('forms.divider', ['title' => 'Variants'])
                                         @include('forms.variant-product-type', ['number' => 1])
@@ -137,10 +139,11 @@
          var myName  = '{{ $my_name }}';
          var appUrl  = '{{ $url }}';
          var appData = {!! $main_data !!};
+         var defaultUomData = {!! $default_uom_data !!};
      </script>
 @stop
 
 @section('js-footer')
     @include('layouts.angular-js')
-    @include('layouts.js-lists')
+    @include('layouts.list-js')
 @stop

@@ -22,7 +22,8 @@ class InventoryController extends Controller
     public function getIndex()
     {
         //get the list data with the default sort set the same as in the angular table
-        $product_data = $this->getProductList();
+        $product = new Product();
+        $product_data = $product->getUserProductList();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/inventory');
@@ -34,20 +35,6 @@ class InventoryController extends Controller
                    'product_data' => $product_data];
 
         return view('pages.inventory', $params);
-    }
-
-    public function getProductList()
-    {
-        return Product::select('product.id', 'product.sku', 'product.name', 'product.active',
-                               'product_type.variant1', 'product_type.variant1_active',
-                               'product_type.variant2', 'product_type.variant2_active',
-                               'product_type.variant3', 'product_type.variant3_active',
-                               'product_type.variant4', 'product_type.variant4_active')
-                        ->join('product_type', 'product.product_type_id', '=', 'product_type.id')
-                        ->where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
-                        ->where('product.client_id', '=', auth()->user()->current_client_id)
-                        ->where('product.active', '=', true)
-                        ->get();
     }
 
     public function getProductInventory($product_id)

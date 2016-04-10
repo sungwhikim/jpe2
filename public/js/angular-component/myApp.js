@@ -1,1 +1,3 @@
-var app = angular.module('myApp', ['listService', 'checkBoxService', 'warehouseClientSelectService', 'angularModalService', 'datePickerService']);
+var app = angular.module('myApp', ['listService', 'checkBoxService',
+                                   'warehouseClientSelectService',
+                                   'angularModalService', 'datePickerService']);

@@ -6,7 +6,7 @@
 
 /* app is instantiated in the myApp.js file */
 
-app.controller('CarrierController', function(ListService, alertService, checkBoxService, warehouseClientSelectService) {
+app.controller('CarrierController', function(ListService, alertService, checkBoxService) {
     //set object to variable to prevent self reference collisions
     var CarrierController = this;
 

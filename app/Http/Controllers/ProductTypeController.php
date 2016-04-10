@@ -18,19 +18,23 @@ class ProductTypeController extends Controller
     public function getListView()
     {
         //get the list data with the default sort set the same as in the angular table
-        $data = ProductType::select('product_type.*',
-                                    DB::raw("COALESCE(variant1, '') || ' ' ||
-                                             COALESCE(variant2, '') || ' ' ||
-                                             COALESCE(variant3, '') || ' ' ||
-                                             COALESCE(variant4, '') as variants"))
+        $data = ProductType::select('product_type.*', DB::raw("COALESCE(variant1, '') || ' ' ||
+                                                               COALESCE(variant2, '') || ' ' ||
+                                                               COALESCE(variant3, '') || ' ' ||
+                                                               COALESCE(variant4, '') as variants"))
                              ->orderBy('product_type.name')->get();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/product-type');
 
+        //get default uom data
+        $product_type = new ProductType();
+        $default_uom_data = $product_type->getDefaultUomList();
+
         return response()->view('pages.product-type', ['main_data' => $data,
                                                        'url' => $url,
-                                                       'my_name' => $this->my_name]);
+                                                       'my_name' => $this->my_name,
+                                                       'default_uom_data' => $default_uom_data]);
     }
 
     public function getCheckDuplicate($name)
@@ -69,6 +73,7 @@ class ProductTypeController extends Controller
         $product_type = ( !empty(request()->json('id')) ) ? ProductType::find(request()->json('id')) : new ProductType();
         $product_type->name            = request()->json('name');
         $product_type->description     = request()->json('description');
+        $product_type->default_uom     = request()->json('default_uom');
         $product_type->active          = ( !empty(request()->json('active')) ) ? true : false;
         $product_type->variant1        = ( strlen(trim(request()->json('variant1', null))) > 0 ) ? request()->json('variant1') : null;
         $product_type->variant2        = ( strlen(trim(request()->json('variant2', null))) > 0 ) ? request()->json('variant2') : null;

@@ -147,6 +147,7 @@
          var appUrl  = '{{ $url }}';
          var appData = {!! $main_data !!};
          var productTypeData = {!! $product_type_data !!};
+         var defaultUomData = {!! $default_uom_data !!};
      </script>
 @stop
 

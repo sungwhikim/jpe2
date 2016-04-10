@@ -3,80 +3,43 @@ namespace App\Http\Controllers;
 
 use App\Models\AsnReceive;
 use App\Models\Product;
+use App\Models\CarrierClientWarehouse;
+//use App\Models\Services\TransactionService;
 
 class AsnReceiveController extends Controller
 {
-    protected $my_name = 'user group';
+    protected $my_name = 'asn_receive';
+    protected $tx_type_name = 'ASN Receive';
 
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    public function getListView()
+    public function getIndex($asn_receive_id = null)
     {
-        //get the list data with the default sort set the same as in the angular table
-        $data = AsnReceive::orderBy('name')->get();
+        //place holder until data needs to be set
+        $data = collect([]);
 
-        //add the user functions
-        foreach( $data as $item )
-        {
-            $item->user_function_id = AsnReceiveToUserFunction::where('user_group_id', '=', $item->id)->lists('user_function_id');
-        }
+        //get product data initially here, rather than making another ajax call on init
+        $product = new Product();
+        $product_data = $product->getUserProductList();
 
-        //create user function list just for the checkbox service
-        $user_function_ids = UserFunction::select('id')->get();
+        //set url
+        $url = url('/asn/receive');
 
-        return response()->view('pages.user-group', ['main_data' => $data,
-                                                     'url' => url('/user-group'),
-                                                     'my_name' => $this->my_name,
-                                                     'user_functions' => $this->getUserFunctionList(),
-                                                     'user_function_ids' => $user_function_ids]);
+        return response()->view('pages.asn-receive', ['main_data' => $data,
+                                                      'url' => $url,
+                                                      'my_name' => $this->my_name,
+                                                      'product_data' => $product_data,
+                                                      'tx_type_name' => $this->tx_type_name]);
     }
 
-    public function getUserFunctionList()
+    public function postSave()
     {
-        //get just the function categories
-        $categories = UserFunctionCategory::where('active', '=', true)
-                                            ->orderBy('sort_order')->get();
+        /* DO DATA VALIDATION */
 
-        //loop through and add the user functions.  Yes, it is more efficient to use
-        //a single query, then parse, but there are only 4 categories.
-        foreach( $categories as $category )
-        {
-            //get the functions for this category
-            $functions = UserFunction::where('user_function_category_id', '=', $category->id)
-                                       ->orderBy('sort_order')->get();
 
-            //assign to return array
-            $user_functions[] = array('category_name' => $category->name,
-                                      'functions' => $functions);
-        }
-
-        return $user_functions;
-    }
-
-    public function getCheckDuplicate($name)
-    {
-        return AsnReceive::select('id')->where('name', 'ILIKE', $name)
-                                      ->take(1)->get();
-    }
-
-    public function postNew()
-    {
-        //set to a variables;
-        $name = request()->json('name');
-
-        //first check to make sure this is not a duplicate
-        $user_groups = $this->getCheckDuplicate($name);
-        if( count($user_groups) > 0 )
-        {
-            $error_message = array('errorMsg' => 'The user group with name of ' . $name . ' already exists.');
-            return response()->json($error_message);
-        }
-
-        //create new item
-        $user_group_id = $this->saveItem();
 
         return response()->json(['id' => $user_group_id]);
     }
@@ -112,9 +75,9 @@ class AsnReceiveController extends Controller
         return $user_group->id;
     }
 
-    public function putDelete($id)
+    public function putCancel($id)
     {
-        AsnReceive::find($id)->delete();
+        //AsnReceive::find($id)->delete();
     }
 }
 ?>

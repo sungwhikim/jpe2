@@ -1,3 +1,5 @@
+/* -!- ADD default_uom -!- */
+
 SELECT 'INSERT INTO "product" (id, client_id, warehouse_id, product_type_id, sku, sku_client, "name", uom1, uom2, uom3, oversized_pallet, created_at, updated_at, active )
         VALUES (' + CAST( p.id AS varchar(50) ) + ', ' +
        CAST( p.clientId AS varchar(50) ) + ', ' +

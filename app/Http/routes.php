@@ -78,8 +78,9 @@ Route::controller('/carrier', 'CarrierController');
 Route::get('/carriers', 'CarrierController@getListView');
 
 /* PRODUCT */
-Route::controller('/product', 'ProductController');
 Route::get('/products', 'ProductController@getListView');
+Route::get('/product/tx-detail/{product_id}', 'ProductController@getTxDetail');
+Route::controller('/product', 'ProductController');
 
 /* PRODUCT TYPE */
 Route::controller('/product-type', 'ProductTypeController');
@@ -91,3 +92,9 @@ Route::get('/inventory/product-inventory/{product_id}', 'InventoryController@get
 Route::post('/inventory/new-bin', 'BinController@postNew');
 Route::put('/inventory/bin/delete/{id}', 'BinController@putDelete');
 Route::controller('/inventory', 'InventoryController');
+
+/* COMMON TO ALL TRANSACTIONS */
+Route::get('/transaction/product-list', 'TransactionController@getUserProductList');
+
+/* ASN - RECEIVE */
+Route::controller('/transaction/asn/receive', 'AsnReceiveController');

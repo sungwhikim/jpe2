@@ -27,8 +27,6 @@ app.controller('InventoryController', function($http, ListService, alertService,
     InventoryController.alerts = ListService.alerts;
     InventoryController.products = productData;
     InventoryController.displayProducts = [].concat(productData);
-    InventoryController.product = {};
-    InventoryController.allow_adjustment = false;
 
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { InventoryController.warehouse_client = warehouseClientData; }

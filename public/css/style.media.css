@@ -33,6 +33,16 @@
         width: 395px;
         margin: 0 0 30px 0;
     }
+    #tx-note-container {
+        padding-left: 30px;
+        padding-right: 0;
+    }
+    #tx-note {
+        height: 60px;
+    }
+    #tx-product-input-container {
+        margin-top: 35px;
+    }
 }
 
 @media (max-width: 767px) {

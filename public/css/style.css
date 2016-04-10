@@ -176,7 +176,7 @@ body {
 .td-form .button-group {
     margin-bottom: 0;
 }
-.td-form .btn-delete {
+.btn-delete {
     font-size: 22px;
     padding: 0 0 0 15px;
 }
@@ -296,7 +296,58 @@ body {
     width: 50px;
 }
 
-/* TABLE SORTING - SMART TABLE COMPONENT */
+/* TRANSACTION SCREENS */
+.tx-panel {
+    min-height: 450px;
+}
+.tx-panel a {
+    cursor: pointer;
+}
+.tx-container .form-horizontal .control-label {
+    display: inline-block;
+    text-align: left;
+    white-space: nowrap;
+}
+.tx-container .control-label, .tx-container .no-float {
+    float: none;
+}
+.tx-container .form-group {
+    margin-bottom: 0;
+    height: 80px;
+}
+#tx-note {
+    height: 115px;
+}
+#tx-product-input-container {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    margin-top: 10px;
+    padding: 15px 0 25px 15px;
+}
+#tx-product-container {
+    margin-left: 0;
+    margin-top: 15px;
+}
+.tx-container .no-padding {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+.tx-container .quantity-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 10px 0 0;
+}
+.tx-container .variant-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-right: 10px;
+}
+.tx-container .dropdown-select-col-2 {
+    left: -90px;
+    right: auto;
+}
+
+    /* TABLE SORTING - SMART TABLE COMPONENT */
 .st-sort-ascent {
     color: #1a6ecc;
 }

@@ -105,5 +105,5 @@
 
 @section('js-footer')
     @include('layouts.angular-js')
-    @include('layouts.js-lists');
+    @include('layouts.list-js');
 @stop

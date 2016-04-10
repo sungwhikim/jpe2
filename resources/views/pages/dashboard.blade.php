@@ -13,7 +13,7 @@
             @foreach( Auth::user()->userFunctions() as $category => $functions )
             <div class="col-lg-6">
                 <div class="panel panel-default panel-nav box-shadow--4dp">
-                <div class="panel-heading">{{ $category }}</div>
+                    <div class="panel-heading">{{ $category }}</div>
                     <div class="panel-body panel-body-large">
                         <ul class="nav nav-pills nav-stacked">
                         @foreach( $functions as $user_function )
@@ -35,5 +35,5 @@
 
 @section('js-footer')
     @include('layouts.angular-js')
-    @include('layouts.js-lists')
+    @include('layouts.list-js')
 @stop

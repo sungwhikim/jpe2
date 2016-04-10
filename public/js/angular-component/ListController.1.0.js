@@ -32,6 +32,7 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
     if( typeof userGroupData != "undefined" ) { ListController.user_groups = userGroupData; }
     if( typeof companyData != "undefined" ) { ListController.companies = companyData; }
     if( typeof productTypeData != "undefined" ) { ListController.product_types = productTypeData; }
+    if( typeof defaultUomData != "undefined" ) { ListController.default_uom_list = defaultUomData; }
 
     /* ----- SET DATA FOR CHECKBOX SERVICE. THE MASTER LIST OF ITEMS FOR CHECK ALL FUNCTION ---- */
     /* This needs to be set to allow Angular to have access to it in the checkbox service */
@@ -49,6 +50,7 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
         mainController.newItem.taxable = 'true';
         mainController.newItem.warehouses = [];
         mainController.newItem.clients = [];
+        mainController.newItem.default_uom = ( typeof defaultUomData != "undefined" ) ? ListController.default_uom_list[0] : '';
     };
 
     /* INIT DATA */
