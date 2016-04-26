@@ -3,7 +3,7 @@
     <label class="col-lg-3 control-label">Note</label>
     <div class="col-lg-12 no-float">
         <textarea class="form-control" id="tx-note" name="note" placeholder="Note"
-               ng-model="txItem.note" ng-maxlength="500"
+               ng-model="txCtrl.txData.note" ng-maxlength="500"
                ng-model-options="{ updateOn: 'blur' }">
         </textarea>
         <!-- ngMessages goes here -->

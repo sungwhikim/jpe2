@@ -27,6 +27,9 @@
     @yield('nav')
 </nav>
 
+<!-- angular ajax spinner container -->
+<span us-spinner="{radius:30, width:8, length: 16}"></span>
+
 <!-- main body content -->
 @yield('body')
 

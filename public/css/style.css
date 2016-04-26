@@ -43,6 +43,13 @@ body {
 .dropdown:hover .dropdown-menu {
     display: block;
 }
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
+    color: #fff;
+    background-color: #00585A;
+}
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {
+    background-color: #adadad;
+}
 .dropdown.warehouse-client-ul {
     min-width: 250px;
     text-align: right;
@@ -248,6 +255,7 @@ body {
 .tag-default {
     color: #fff;
     background-color: #777;
+    white-space: nowrap;
 }
 
 /* PRODUCT DROPDWN */
@@ -342,12 +350,21 @@ body {
     padding-right: 0 !important;
     margin-right: 10px;
 }
+.tx-container .dropdown-menu {
+    min-width: 110px;
+}
 .tx-container .dropdown-select-col-2 {
     left: -90px;
     right: auto;
 }
+.tx-wc-header {
+    font-size: 24px;
+}
+.btn-cancel-tx {
+    margin-left: 55px;
+}
 
-    /* TABLE SORTING - SMART TABLE COMPONENT */
+/* TABLE SORTING - SMART TABLE COMPONENT */
 .st-sort-ascent {
     color: #1a6ecc;
 }
@@ -363,6 +380,11 @@ body {
 
 /* FOR ANGULAR-UI COMPONENTS */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+/* FOR MODAL MESSAGE DIALOG BOX */
+.modal-message {
+    margin: 5px;
+}
 
 /* FOR FORM VALIDATION */
 .ng-messages {

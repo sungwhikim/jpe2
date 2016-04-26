@@ -154,40 +154,25 @@ class ProductController extends Controller
         Product::find($id)->delete();
     }
 
-    public function getTxDetail($product_id)
+    public function getTxDetail($product_id, $get_inventory = false)
     {
         //get the uom list data first
-        $data['uoms'] = $this->getUomList($product_id);
+        $data = $this->getUomList($product_id);
 
         //now get the inventory with variants
         $data['variants'] = $this->getTxVariant($product_id);
+
+        //get inventory
+        if( $get_inventory === true  )
+        {
+
+        }
 
         return $data;
     }
 
     public function getTxVariant($product_id)
     {
-        /*
-        $variants = Product::select('variant1.name AS variant1_name', 'variant1.value AS variant1_value',
-                                    'variant2.name AS variant2_name', 'variant2.value AS variant2_value',
-                                    'variant3.name AS variant3_name', 'variant3.value AS variant3_value',
-                                    'variant4.name AS variant4_name', 'variant4.value AS variant4_value')
-                             ->leftJoin('variant1', 'product.id', '=', 'variant1.product_id')
-                             ->leftJoin('variant2', 'product.id', '=', 'variant2.product_id')
-                             ->leftJoin('variant3', 'product.id', '=', 'variant3.product_id')
-                             ->leftJoin('variant4', 'product.id', '=', 'variant4.product_id')
-                             ->where('product.id', '=', $product_id)
-                             ->groupBy('variant1.value')
-                             ->groupBy('variant2.value')
-                             ->groupBy('variant3.value')
-                             ->groupBy('variant4.value')
-                             ->groupBy('variant1.name')
-                             ->groupBy('variant2.name')
-                             ->groupBy('variant3.name')
-                             ->groupBy('variant4.name')
-                             ->get()->toArray();
-        */
-
         /* RETURN VARIANTS IN 4 DIFFERENT QUERIES FOR NOW.  IT IS SLOW AND WE NEED TO OPTIMIZE IT LATER */
         $result = Product::select('product_type.*')
                            ->join('product_type', 'product.product_type_id', '=', 'product_type.id')
@@ -217,8 +202,6 @@ class ProductController extends Controller
 
         }
 
-
-debugbar()->info($data);
         /* SET TOTAL INVENTORY AS PLACEHOLDER FOR NOW */
         $data['total_quantity'] = 0;
 
@@ -250,12 +233,14 @@ debugbar()->info($data);
 
         /* now pivot the data so we get a list of UOM with the mulitplication to get to the base uom */
         //initialize variables
-        $multiplier = 1;
+        $multiplier_total = 1;
         $uom_data = $uom[0];
 
         //set first UOM as we always know what it is
-        $data[0] = ['name' => $uom_data['uom1_name'],
-                    'multiplier' => $multiplier];
+        $data[0] = ['key' => 'uom1',
+                    'name' => $uom_data['uom1_name'],
+                    'multiplier' => 1,
+                    'multiplier_total' => 1];
 
         //now set the reset based on if it is active or not
         for( $i = 2; $i <= 8; $i++ )
@@ -266,11 +251,21 @@ debugbar()->info($data);
             //add UOM if active
             if( $uom_data[$key . '_active'] === true )
             {
-                $data[] = ['name' => $uom_data[$key . '_name'],
-                           'multiplier' => $uom_data[$key]];
+                //set multipliers
+                $multiplier = $uom_data[$key];
+                $multiplier_total = $multiplier_total * $multiplier;
+
+                $data[] = ['key' => $key,
+                           'name' => $uom_data[$key . '_name'],
+                           'multiplier' => $multiplier,
+                           'multiplier_total' => $multiplier_total];
             }
         }
 
-        return $data;
+        //build final data
+        $return['uoms'] = $data;
+        $return['selectedUom'] = $uom[0]['default_uom'];
+
+        return $return;
     }
 }

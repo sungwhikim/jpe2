@@ -37,6 +37,12 @@ class InventoryController extends Controller
         return view('pages.inventory', $params);
     }
 
+    public function getProductList()
+    {
+        $product = new Product();
+        return $product->getUserProductList();
+    }
+
     public function getProductInventory($product_id)
     {
         //first grab the bins and the rollup total in each and the product type data to get the variants

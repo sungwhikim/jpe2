@@ -4,7 +4,7 @@
     <div class="col-lg-12 no-float">
         <div ng-class="{ 'has-error': (txForm.tx_date.$touched || txForm.$submitted) && txForm.tx_date.$invalid }">
             <div class="input-group">
-                <input type="text" class="form-control" name="tx_date" ng-model="txItem.tx_date"
+                <input type="text" class="form-control" name="tx_date" ng-model="txCtrl.txData.tx_date"
                        uib-datepicker-popup="@{{ txCtrl.datePicker.dateFormat }}"
                        is-open="txCtrl.datePicker.popupOpened"
                        datepicker-options="txCtrl.datePicker.dateOptions"

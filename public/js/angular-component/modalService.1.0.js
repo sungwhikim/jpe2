@@ -20,6 +20,9 @@
 
                 var self = this;
 
+                //set global message variable
+                self.modalMessage = '';
+
                 //  Returns a promise which gets the template, either
                 //  from the template parameter or via a request to the
                 //  template url parameter.

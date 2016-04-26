@@ -2,15 +2,19 @@
 
 @section('transaction-input')
     <div class="container main-content home-page tx-container" ng-cloak ng-controller="TransactionController as txCtrl">
-        <form class="form-horizontal tx-form" id="txForm" name="txForm" ng-submit="txForm.$valid && txCtrl.save(txForm)" novalidate>
+        <form class="form-horizontal tx-form" id="txForm" name="txForm" novalidate>
 
             <div class="row col-lg-10 col-md-12 center-block no-float">
-                <h1>{{ $tx_type_name }}</h1>
+                <h1>ASN - Receiving</h1>
                 <div class="panel panel-default panel-nav box-shadow--2dp">
                     <div class="panel-heading">
-                        <button type="button" class="btn btn-success">Save & New</button>
-                        <button type="button" class="btn btn-success">Save & Close</button>
-                        <button type="button" class="btn btn-default" style="margin-left: 50px;">Cancel</button>
+                        <button type="button" class="btn btn-success" ng-click="txCtrl.newTransaction(true, txForm)">Save & New</button>
+                        <button type="button" class="btn btn-success" ng-click="txCtrl.newTransaction(false, txForm)">Save</button>
+                        <button type="reset" class="btn btn-default btn-cancel-tx" >Clear</button>
+                        <div class="pull-right tx-wc-header">
+                                <span ng-bind="txCtrl.selectedWarehouseClient.warehouse_name"></span> /
+                                <span ng-bind="txCtrl.selectedWarehouseClient.client_short_name"></span>
+                        </div>
                     </div>
                     <div class="panel-body tx-panel">
                         <div class="row">
@@ -41,7 +45,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr ng-repeat="item in txCtrl.items ">
+                                <tr ng-repeat="item in txCtrl.txData.items">
                                     <td ng-bind="item.product.sku"></td>
                                     <td ng-bind="item.product.name"></td>
                                     <td>@include('forms.tx-product-variant-list')</td>
@@ -67,9 +71,13 @@
 
 @section('tx-inline-javascript')
     <script>
-        var myName = '{{ $my_name }}';
         var appUrl = '{{ $url }}';
+        var txMode = {'new': true,
+                      'edit': true}; //This sets the status of controller behavior and is important to set correctly for each tx type.
+        var txDirection = '{{ $tx_direction }}';
+        var txType = '{{ $tx_type }}';
         var appData = {!! $main_data !!};
         var productData = {!! $product_data !!};
+        var carrierData = {!! $carrier_data !!};
     </script>
 @endsection

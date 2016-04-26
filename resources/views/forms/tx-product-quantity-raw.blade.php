@@ -4,10 +4,12 @@
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-left">
-            <li ng-repeat="uom in {{ $model_object }}.uoms">
+            <li ng-repeat="uom in {{ $model_object }}.uoms"
+                ng-class="{active: uom.key == {{ $model_object }}.selectedUom}">
                 <a ng-click="{{ $controller }}.selectUom({{ $model_object }}, uom)">@{{ uom.name }}</a>
             </li>
         </ul>
     </div>
-    <input type="number" class="form-control" placeholder="Quantity" ng-model="{{ $model_object }}.quantity">
+    <input type="number" class="form-control" placeholder="Quantity" style="width: 100px;"
+           ng-model="{{ $model_object }}.quantity" min="1">
 </div>

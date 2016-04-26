@@ -62,7 +62,6 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
     /* ASSIGN DATE PICKER SERVICE AND DO ANY OVERLOADING HERE */
     InventoryController.datePicker = datePickerService;
-    console.log(datePickerService);
 
     /* OVERLOAD REFRESH DATA FUNCTION IN WAREHOUSE CLIENT SELECTOR */
     warehouseClientSelectService.refreshData = updateProductList;

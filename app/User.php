@@ -60,6 +60,7 @@ class User extends Model implements AuthenticatableContract,
                                  ->join('user_warehouse', 'warehouse.id', '=', 'user_warehouse.warehouse_id')
                                  ->where('user_warehouse.user_id', '=', $this->id)
                                  ->where('active', '=', true)
+                                 ->orderBy('name')
                                  ->get();
 
         //add clients the user has access to
@@ -70,7 +71,9 @@ class User extends Model implements AuthenticatableContract,
                                   ->join('user_client', 'client_warehouse.client_id', '=', 'user_client.client_id')
                                   ->where('active', '=', true)
                                   ->where('client_warehouse.warehouse_id', '=', $warehouse->id)
-                                  ->where('user_client.user_id', '=', $this->id)->get()->toArray();
+                                  ->where('user_client.user_id', '=', $this->id)
+                                  ->orderBy('short_name')
+                                  ->get()->toArray();
         }
 
         return $warehouses;

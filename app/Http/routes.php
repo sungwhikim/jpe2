@@ -74,6 +74,7 @@ Route::controller('/client', 'ClientController');
 Route::get('/clients', 'ClientController@getListView');
 
 /* CARRIER */
+Route::get('/carrier/list-by-wc/{type}', 'CarrierController@getListByUserClientWarehouse');
 Route::controller('/carrier', 'CarrierController');
 Route::get('/carriers', 'CarrierController@getListView');
 
@@ -95,6 +96,7 @@ Route::controller('/inventory', 'InventoryController');
 
 /* COMMON TO ALL TRANSACTIONS */
 Route::get('/transaction/product-list', 'TransactionController@getUserProductList');
+Route::post('/transaction/check-po-number/{transaction_type}', 'TransactionController@checkPoNumber');
 
 /* ASN - RECEIVE */
 Route::controller('/transaction/asn/receive', 'AsnReceiveController');

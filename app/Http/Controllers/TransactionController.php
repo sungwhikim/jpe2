@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -20,5 +21,18 @@ class TransactionController extends Controller
     {
         $product = new Product();
         return $product->getUserProductList();
+    }
+
+    /**
+     * This is meant to be used for ajax calls to check if the po number is a duplicate
+     *
+     * @return JSON - True if not a duplicate
+     */
+    public function checkPoNumber($transaction_type, Request $request)
+    {
+        $transaction = new Transaction();
+        $result['valid_po_number'] = $transaction->checkPoNumber($transaction_type, $request->json('warehouse_id'), $request->json('client_id'), $request->json('po_number'));
+
+        return $result;
     }
 }

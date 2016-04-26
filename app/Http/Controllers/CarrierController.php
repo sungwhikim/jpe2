@@ -54,6 +54,12 @@ class CarrierController extends Controller
                                       'client_data' => $client_data]);
     }
 
+    public function getListByUserClientWarehouse($type)
+    {
+        $carrier = new Carrier();
+        return $carrier->getUserCarrierList('receive');
+    }
+
     public function getCheckDuplicate($name)
     {
         $carriers = Carrier::where('name', 'ILIKE', $name)->get();
