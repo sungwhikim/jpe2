@@ -7,14 +7,15 @@
       <schema-pattern>postgres.pg_catalog postgres.public</schema-pattern>
       <default-schemas>postgres.public</default-schemas>
     </data-source>
-    <data-source name="SQL Server - JpentDEV" uuid="c65f5a35-fb5f-4ecf-9731-d017076331d9">
-      <secret-storage>master_key</secret-storage>
-      <user-name>larkin</user-name>
-    </data-source>
     <data-source name="SQL Server - New Windows Server JpentDEV" uuid="c5da5adb-ca4b-4803-b0d2-35dc3de0ef0a">
       <secret-storage>master_key</secret-storage>
-      <first-sync>true</first-sync>
       <user-name>larkin</user-name>
+      <schema-pattern>jpentDEV.*</schema-pattern>
+      <default-schemas>jpentDEV.*</default-schemas>
+    </data-source>
+    <data-source name="PostgreSQL - Linux Dev server" uuid="bfeb48e6-023d-41db-a613-95baad7f935b">
+      <secret-storage>master_key</secret-storage>
+      <user-name>jpent_admin</user-name>
     </data-source>
   </component>
 </project>

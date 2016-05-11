@@ -1,0 +1,122 @@
+<div class="modal fade">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="cancel()" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Set Bin
+                    <div class="pull-right" style="margin-right: 15px;">
+                        <button class="btn btn-warning" ng-click="newBinSection = !newBinSection">New Bin</button>
+
+                    </div>
+                </h4>
+            </div>
+            <div class="modal-body bin-container">
+                <div uib-collapse="!newBinSection" id="new-bin" style="height: 34px;">
+                    <form class="form-horizontal new-bin-form" id="formNew" name="formNew" ng-submit="formNew.$valid && addBin(formNew)" novalidate>
+                        <div class="new-bin-container">
+                            <div class="row col-lg-1 col-md-1 col-sm-1 bin-item-container"
+                                 ng-class="{ 'has-error': (formNew.aisle.$touched || formNew.$submitted) && formNew.aisle.$invalid }">
+                                <label class="control-label text-nowrap">Aisle</label>
+                                <div class="bin-item">
+                                    <input type="text" class="form-control text-uppercase" name="aisle"
+                                           placeholder="" ng-model="newItem.aisle" maxlength="2"
+                                           ng-minlength="2" ng-maxlength="2" required>
+                                    <!-- ngMessages goes here -->
+                                    <div class="help-block ng-messages" ng-messages="formNew.aisle.$error" ng-if="formNew.$submitted || formNew.aisle.$touched">
+                                        <p ng-message="required">This field is required</p>
+                                        <p ng-message="minlength">This field is too short</p>
+                                        <p ng-message="maxlength">This field is too long</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-lg-1 col-md-1 col-sm-1 bin-item-container"
+                                 ng-class="{ 'has-error': (formNew.section.$touched || formNew.$submitted) && formNew.section.$invalid }">
+                                <label class="control-label text-nowrap">Section</label>
+                                <div class="bin-item">
+                                    <input type="text" class="form-control" name="section"
+                                           placeholder="" ng-model="newItem.section" maxlength="2" size="2"
+                                           ng-maxlength="2" required>
+                                    <!-- ngMessages goes here -->
+                                    <div class="help-block ng-messages" ng-messages="formNew.section.$error" ng-if="formNew.$submitted || formNew.section.$touched">
+                                        <p ng-message="required">This field is required</p>
+                                        <p ng-message="minlength">This field is too short</p>
+                                        <p ng-message="maxlength">This field is too long</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-lg-1 col-md-1 col-sm-1 bin-item-container"
+                                 ng-class="{ 'has-error': (formNew.tier.$touched || formNew.$submitted) && formNew.tier.$invalid }">
+                                <label class="control-label text-nowrap">Tier</label>
+                                <div class="bin-item">
+                                    <input type="text" class="form-control" name="tier"
+                                           placeholder="" ng-model="newItem.tier" maxlength="2" size="2"
+                                           ng-maxlength="2" required>
+                                    <!-- ngMessages goes here -->
+                                    <div class="help-block ng-messages" ng-messages="formNew.tier.$error" ng-if="formNew.$submitted || formNew.tier.$touched">
+                                        <p ng-message="required">This field is required</p>
+                                        <p ng-message="minlength">This field is too short</p>
+                                        <p ng-message="maxlength">This field is too long</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-lg-1 col-md-1 col-sm-1 bin-item-container"
+                                 ng-class="{ 'has-error': (formNew.position.$touched || formNew.$submitted) && formNew.position.$invalid }">
+                                <label class="control-label text-nowrap">Position</label>
+                                <div class="bin-item">
+                                    <input type="text" class="form-control" name="position"
+                                           placeholder="" ng-model="newItem.position" maxlength="2" size="2"
+                                           ng-maxlength="2" required>
+                                    <!-- ngMessages goes here -->
+                                    <div class="help-block ng-messages" ng-messages="formNew.position.$error" ng-if="formNew.$submitted || formNew.position.$touched">
+                                        <p ng-message="required">This field is required</p>
+                                        <p ng-message="minlength">This field is too short</p>
+                                        <p ng-message="maxlength">This field is too long</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-lg-3 col-md-3 col-sm-3" style="left: 15px;"
+                                 ng-class="{ 'has-error': (formNew.quantity.$touched || formNew.$submitted) && formNew.quantity.$invalid }">
+                                <label class="control-label text-nowrap">Quantity</label>
+                                <div>
+                                    <input type="number" class="form-control" name="quantity"
+                                           placeholder="" ng-model="newItem.quantity" ng-keyup="calculateQuantityNewBin()" required>
+                                    <!-- ngMessages goes here -->
+                                    <div class="help-block ng-messages" ng-messages="formNew.quantity.$error" ng-if="formNew.$submitted || formNew.quantity.$touched">
+                                        <p ng-message="required">This field is required</p>
+                                        <p ng-message="minlength">This field is too short</p>
+                                        <p ng-message="maxlength">This field is too long</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-warning add-bin-button" type="submit">Add</button>
+                        </div>
+                    </form>
+                </div>
+                <table class="table table-striped table-form" style="margin-bottom: 5px;">
+                    <thead>
+                        <tr>
+                            <th>Bin</th>
+                            <th>Inventory</th>
+                            <th style="width: 75px;">Quantity</th>
+                            <th class="bin-quantity-header">
+                                <!--<span class="label label-default bin-total-pill"><span ng-bind="item.quantity"></span></span>-->
+                                <div class="label label-success bin-total-pill">Remaining  <span class="badge" ng-bind="remainingQuantity"></span></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="bin in bins">
+                            <td class="text-nowrap">{{ bin.aisle }} {{ bin.section | numberFixedLen:2 }} {{ bin.tier | numberFixedLen:2 }} {{ bin.position | numberFixedLen:2 }}</td>
+                            <td>{{ bin.inventory / item.selectedUomMultiplierTotal }}</td>
+                            <td colspan="2"><input type="number" class="form-control" ng-model="bin.quantity" ng-keyup="calculateQuantity()"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ng-click="close()" class="btn btn-default" data-dismiss="modal" ng-disabled="remainingQuantity != 0">Save</button>
+                <button type="button" ng-click="cancel()" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="2446531689">
+  <component name="DataSourceManagerImpl" format="xml" hash="382601770">
     <data-source source="LOCAL" name="PostgreSQL - jpent@localhost" uuid="c984734c-0137-4d65-b000-a7b6ff77c5c4">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5432/jpent</jdbc-url>
     </data-source>
-    <data-source source="LOCAL" name="SQL Server - JpentDEV" uuid="c65f5a35-fb5f-4ecf-9731-d017076331d9">
-      <driver-ref>sqlserver.ms</driver-ref>
-      <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
-      <jdbc-url>jdbc:sqlserver://65.36.240.154:1433;databaseName=jpentdev</jdbc-url>
-    </data-source>
     <data-source source="LOCAL" name="SQL Server - New Windows Server JpentDEV" uuid="c5da5adb-ca4b-4803-b0d2-35dc3de0ef0a">
       <driver-ref>sqlserver.ms</driver-ref>
       <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
       <jdbc-url>jdbc:sqlserver://204.12.49.155:1433;databaseName=jpentdev</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="PostgreSQL - Linux Dev server" uuid="bfeb48e6-023d-41db-a613-95baad7f935b">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://204.12.49.244:5432/jpent_master</jdbc-url>
     </data-source>
   </component>
 </project>

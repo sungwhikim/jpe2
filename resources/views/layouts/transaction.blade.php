@@ -1,5 +1,8 @@
 @extends('main')
 
+@section('css-head')
+@stop
+
 @section('nav')
     @include('layouts.nav')
 @stop

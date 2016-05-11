@@ -10,13 +10,18 @@ use App\Models\ProductVariant1;
 use App\Models\ProductVariant2;
 use App\Models\ProductVariant3;
 use App\Models\ProductVariant4;
+use Exception;
 
 class Transaction extends Model
 {
 
-    public function createNewAsn($request)
+    public function newAsnTx($request)
     {
-        return $this->saveAsn($request);
+        //set objects
+        $classes['transaction'] = 'App\Models\AsnReceive';
+        $classes['transaction_detail'] = 'App\Models\AsnReceiveDetail';
+
+        return $this->saveTx($request, $classes, 'asn_receive');
     }
 
     public function updateAsn($request)
@@ -24,46 +29,50 @@ class Transaction extends Model
 
     }
 
-    private function saveAsn($request)
+    public function newReceiveTx($request)
     {
-        debugbar()->info($request);
-        /* DO DATA VALIDATION */
-        /* save the data */
+        //set objects
+        $classes['transaction'] = 'App\Models\Receive';
+        $classes['transaction_detail'] = 'App\Models\ReceiveDetail';
+        $classes['transaction_bin'] = 'App\Models\ReceiveBin';
+
+        return $this->saveTx($request, $classes, 'receive');
+    }
+
+    private function saveTx($request, $classes, $tx_type)
+    {
+        //data validation
+        $result = $this->basicDataValidation($request);
+        if( $result !== true ) { return response()->json($result); }
+
         //wrap the entire process in a transaction
         DB::beginTransaction();
         try
         {
             /* update main tx table */
-            $transaction = new AsnReceive();
-            $transaction->tx_status_id = TxStatus::active;
-            $transaction->tx_date = $request->json('tx_date');
-            $transaction->po_number = $request->json('po_number');
-            $transaction->carrier_id = $request->json('carrier_id', null);
-            $transaction->client_id = auth()->user()->current_client_id;
-            $transaction->warehouse_id = auth()->user()->current_warehouse_id;
-            $transaction->tracking_number = $request->json('tracking_number', null);
-            $transaction->note = $request->json('note', null);
+            $transaction = new $classes['transaction'];
+            $this->setTransactionProperty($transaction, $request, TxStatus::active);
             $transaction->save();
 
-            //do and error check to fail if no line items were sent in
-            $line_items = $request->json('items');
-            if( count($line_items) == 0 )
-            {
-                throw new Exception('No line items were entered.');
-            }
-
             /* update line items */
-            foreach( $line_items as $item )
+            foreach( $request->json('items') as $item )
             {
+
                 //set line item object
-                $transaction_detail = new AsnReceiveDetail();
-                $transaction_detail->asn_receive_id = $transaction->id;
+                $transaction_detail = new $classes['transaction_detail'];
+                $transaction_detail->{$tx_type . '_id'} = $transaction->id;
 
                 //set the detail
-                $this->setLineItemBasic($transaction_detail, $item);
+                $this->setLineItem($transaction_detail, $item);
 
                 //save
                 $transaction_detail->save();
+
+                //set bins
+                if( isset($classes['transaction_bin']) )
+                {
+                    $this->setBin($item, $classes['transaction_bin'], $transaction_detail->id);
+                }
             }
         }
         catch(\Exception $e)
@@ -86,7 +95,73 @@ class Transaction extends Model
         //if we got here, then everything worked!
         DB::commit();
 
-        return ['id' => $transaction->id];
+        return ['tx_id' => $transaction->id];
+    }
+
+    /**
+     * Check the po number for duplicate
+     *
+     * @return: boolean - True if duplicate does not exist
+     */
+    public function checkPoNumber($table, $warehouse_id, $client_id, $po_number)
+    {
+        $result = DB::table($table)
+                    ->where('warehouse_id', '=', $warehouse_id)
+                    ->where('client_id', '=', $client_id)
+                    ->where('po_number', '=', $po_number)
+                    ->take(1)->get();
+
+        return ( count($result) == 0) ? true : false;
+    }
+
+    private function basicDataValidation($request)
+    {
+        //local variables
+        $tx_type = $request->json('txType');
+        $warehouse_id = $request->json('warehouse_id');
+        $client_id = $request->json('client_id');
+        $po_number = $request->json('po_number');
+
+        /* this is a weird condition that may exist due to JS issues and so we will do an explicit check here */
+        if( is_numeric($warehouse_id) === false || is_numeric($client_id) === false || strlen($tx_type) == 0 )
+        {
+            return array('errorMsg' => 'A JavaScript data error occurred. Please refresh the page and try again.');
+        }
+
+        /* check for duplicate po number */
+        $result = $this->checkPoNumber($tx_type, $warehouse_id, $client_id, $po_number);
+        if( $result !== true )
+        {
+            return array('errorMsg' => 'The PO Number is a duplicate.');
+        }
+
+        /* do and error check to fail if no line items were sent in */
+        $line_items = $request->json('items');
+        if( count($line_items) == 0 )
+        {
+            return array('errorMsg' => 'No line items were entered.');
+        }
+
+        //send back true since all error checks passed
+        return true;
+    }
+
+    /**
+     * @param $transaction
+     * @param $request
+     *
+     * returns the item object with the basic properties set
+     */
+    private function setTransactionProperty(&$transaction, $request, $status)
+    {
+        $transaction->tx_status_id = $status;
+        $transaction->tx_date = $request->json('tx_date');
+        $transaction->po_number = $request->json('po_number');
+        $transaction->carrier_id = $request->json('carrier_id', null);
+        $transaction->client_id = $request->json('client_id');
+        $transaction->warehouse_id = $request->json('warehouse_id');
+        $transaction->tracking_number = $request->json('tracking_number', null);
+        $transaction->note = $request->json('note', null);
     }
 
     /**
@@ -95,11 +170,11 @@ class Transaction extends Model
      *
      * returns the item object with the variants already set for the insert/update into the database
      */
-    public function setLineItemBasic(&$item_object, $item)
+    public function setLineItem(&$item_object, $item)
     {
         //set variables
         $product_id = $item['product_id'];
-        $quantity = $item{'quantity'};
+        $quantity = $item['quantity'];
         $uom = $item['selectedUom'];
 
         //find multiplier
@@ -108,7 +183,13 @@ class Transaction extends Model
             if( $uom_item['key'] == $uom ) { $uom_multiplier = $uom_item['multiplier_total']; }
         }
 
-        //validate product_id and quantity
+        /* If we did not find a multiplier, then raise an error since we can't be sure of the quantity */
+        if( isset($uom_multiplier) ===  false )
+        {
+            throw new Exception('Product quantity UOM multiplier not found for product: ' . $item['product_id']);
+        }
+
+        /* validate product_id and quantity */
         if( is_numeric($product_id) === false || is_numeric($quantity) === false || strpos($quantity, ',') !== false )
         {
             throw new Exception('Product and/or quantity is missing.');
@@ -138,27 +219,62 @@ class Transaction extends Model
             //find or create the variant
             $variant = ProductVariant1::firstOrCreate(['product_id' => $product_id,
                                                        'name' => $item['variants']['variant1_name'],
-                                                       'value' => $item['variant1_value']]);
+                                                       'value' => $item['variant1_value'],
+                                                       'active' => true]);
 
             //set the id
             $item_object->variant1_id = $variant->id;
         }
+
+        /* Process variant 2 */
+        if( isset($item['variant2_value']) && strlen($item['variant2_value']) > 0 && $item['variants']['variant2_active'] === true )
+        {
+            //find or create the variant
+            $variant = ProductVariant2::firstOrCreate(['product_id' => $product_id,
+                                                       'name' => $item['variants']['variant2_name'],
+                                                       'value' => $item['variant2_value'],
+                                                       'active' => true]);
+
+            //set the id
+            $item_object->variant2_id = $variant->id;
+        }
+
+        /* Process variant 3 */
+        if( isset($item['variant3_value']) && strlen($item['variant3_value']) > 0 && $item['variants']['variant3_active'] === true )
+        {
+            //find or create the variant
+            $variant = ProductVariant3::firstOrCreate(['product_id' => $product_id,
+                                                       'name' => $item['variants']['variant3_name'],
+                                                       'value' => $item['variant3_value'],
+                                                       'active' => true]);
+
+            //set the id
+            $item_object->variant3_id = $variant->id;
+        }
+
+        /* Process variant 4 */
+        if( isset($item['variant4_value']) && strlen($item['variant4_value']) > 0 && $item['variants']['variant4_active'] === true )
+        {
+            //find or create the variant
+            $variant = ProductVariant4::firstOrCreate(['product_id' => $product_id,
+                                                       'name' => $item['variants']['variant4_name'],
+                                                       'value' => $item['variant4_value'],
+                                                       'active' => true]);
+
+            //set the id
+            $item_object->variant4_id = $variant->id;
+        }
     }
 
     /**
-     * Check the po number for duplicate
+     * @param $item
+     * @param $class
+     * @param $transaction_detail_id
      *
-     * @return: boolean - True if duplicate does not exist
+     * returns the item object with the variants already set for the insert/update into the database
      */
-    public function checkPoNumber($table, $warehouse_id, $client_id, $po_number)
+    public function setBin($item, $class, $transaction_detail_id)
     {
-        $result = DB::table($table)
-                      ->where('warehouse_id', '=', $warehouse_id)
-                      ->where('client_id', '=', $client_id)
-                      ->where('po_number', '=', $po_number)
-                      ->take(1)->get();
 
-        return ( count($result) == 0) ? true : false;
     }
-
 }

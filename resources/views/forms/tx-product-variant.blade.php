@@ -9,7 +9,7 @@
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-select-col-2">
+                <ul class="dropdown-menu dropdown-select-col-2" ng-show="txCtrl.newItem.variants.variant1_variants.length > 0">
                     <li ng-repeat="variant in txCtrl.newItem.variants.variant1_variants">
                         <a ng-click="txCtrl.newItem.variant1_value = variant.value">@{{ variant.value }}</a>
                     </li>
@@ -30,7 +30,7 @@
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-select-col-2">
+                <ul class="dropdown-menu dropdown-select-col-2" ng-show="txCtrl.newItem.variants.variant2_variants.length > 0">
                     <li ng-repeat="variant in txCtrl.newItem.variants.variant2_variants">
                         <a ng-click="txCtrl.newItem.variant2_value = variant.value">@{{ variant.value }}</a>
                     </li>
@@ -51,7 +51,7 @@
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-select-col-2">
+                <ul class="dropdown-menu dropdown-select-col-2" ng-show="txCtrl.newItem.variants.variant3_variants.length > 0">
                     <li ng-repeat="variant in txCtrl.newItem.variants.variant3_variants">
                         <a ng-click="txCtrl.newItem.variant3_value = variant.value">@{{ variant.value }}</a>
                     </li>
@@ -72,7 +72,7 @@
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-select-col-2">
+                <ul class="dropdown-menu dropdown-select-col-2" ng-show="txCtrl.newItem.variants.variant4_variants.length > 0">
                     <li ng-repeat="variant in txCtrl.newItem.variants.variant4_variants">
                         <a ng-click="txCtrl.newItem.variant4_value = variant.value">@{{ variant.value }}</a>
                     </li>

@@ -34,7 +34,7 @@
                        ng-show="mainList.items.length > 0" ng-cloak>
                     <thead>
                     <tr>
-                        <th class="td-button"></th>
+                        <th class="button-header"></th>
                         <th class="sort-header">Bin</th>
                         <th class="sort-header">Inventory</th>
                         <th class="sort-header">Active</th>
@@ -68,7 +68,7 @@
                     <tbody dir-paginate="item in mainList.displayItems | itemsPerPage: 10" class="tbody-form">
                     <tr>
                         <td>
-                            <div>
+                            <div class="text-nowrap">
                                 <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#item-@{{ item.id }}">Edit</button>
                                 <a ng-click="mainList.deleteConfirmBin($index, mainList.displayItems)"
                                    class="btn glyphicon glyphicon-trash" style="font-size: 18px;"

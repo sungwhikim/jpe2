@@ -10,5 +10,6 @@
     <file url="file://$PROJECT_DIR$/database/migrate-data/user.sql" dialect="TSQL" />
     <file url="file://$PROJECT_DIR$/database/migrate-data/variants.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/database/migrate-data/warehouse.sql" dialect="PostgreSQL" />
+    <file url="file://$USER_HOME$/Documents/Tech Work/Projects/JPE/sql scripts/delete receiving transaction.sql" dialect="TSQL" />
   </component>
 </project>

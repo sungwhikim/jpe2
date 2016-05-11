@@ -10,7 +10,7 @@
                     <div class="panel-heading">
                         <button type="button" class="btn btn-success" ng-click="txCtrl.newTransaction(true, txForm)">Save & New</button>
                         <button type="button" class="btn btn-success" ng-click="txCtrl.newTransaction(false, txForm)">Save</button>
-                        <button type="reset" class="btn btn-default btn-cancel-tx" >Clear</button>
+                        <button type="reset" class="btn btn-default btn-cancel-tx" ng-click="txCtrl.resetTx(txForm);">Clear</button>
                         <div class="pull-right tx-wc-header">
                                 <span ng-bind="txCtrl.selectedWarehouseClient.warehouse_name"></span> /
                                 <span ng-bind="txCtrl.selectedWarehouseClient.client_short_name"></span>
@@ -27,7 +27,7 @@
                             @include('forms.tx-note')
                         </div>
                         <div class="row" id="tx-product-input-container">
-                                @include('forms.tx-product', ['controller' => 'txCtrl'])
+                                @include('forms.tx-product-search-select')
                                 @include('forms.tx-product-quantity', ['controller' => 'txCtrl'])
                                 @include('forms.tx-product-variant', ['controller' => 'txCtrl'])
 
@@ -72,10 +72,7 @@
 @section('tx-inline-javascript')
     <script>
         var appUrl = '{{ $url }}';
-        var txMode = {'new': true,
-                      'edit': true}; //This sets the status of controller behavior and is important to set correctly for each tx type.
-        var txDirection = '{{ $tx_direction }}';
-        var txType = '{{ $tx_type }}';
+        var txSetting = {!! $tx_setting !!};
         var appData = {!! $main_data !!};
         var productData = {!! $product_data !!};
         var carrierData = {!! $carrier_data !!};

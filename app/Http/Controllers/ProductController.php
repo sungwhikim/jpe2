@@ -7,6 +7,7 @@ use App\Models\ProductVariant2;
 use App\Models\ProductVariant3;
 use App\Models\ProductVariant4;
 use App\Models\ProductType;
+use App\Models\Bin;
 
 use DB;
 
@@ -163,20 +164,20 @@ class ProductController extends Controller
         $data['variants'] = $this->getTxVariant($product_id);
 
         //get inventory
-        if( $get_inventory === true  )
+        if( $get_inventory == 'true'  )
         {
-
+            $data['bins'] = $this->getInventoryBin($product_id);
         }
 
         return $data;
     }
 
-    public function getTxVariant($product_id)
+    public function getTxVariant($product_id, $get_inventory = false)
     {
         /* RETURN VARIANTS IN 4 DIFFERENT QUERIES FOR NOW.  IT IS SLOW AND WE NEED TO OPTIMIZE IT LATER */
         $result = Product::select('product_type.*')
-                           ->join('product_type', 'product.product_type_id', '=', 'product_type.id')
-                           ->where('product.id', '=', $product_id)->get()->toArray();
+                         ->join('product_type', 'product.product_type_id', '=', 'product_type.id')
+                         ->where('product.id', '=', $product_id)->get()->toArray();
 
         //this is kind of a weird loop, but it is better than using a block of 4 case statements.
         //it is to build the variant list.
@@ -201,9 +202,6 @@ class ProductController extends Controller
             }
 
         }
-
-        /* SET TOTAL INVENTORY AS PLACEHOLDER FOR NOW */
-        $data['total_quantity'] = 0;
 
         return $data;
     }
@@ -262,10 +260,29 @@ class ProductController extends Controller
             }
         }
 
+        //find selected uom total multiplier
+        foreach( $data as $item )
+        {
+            if( $item['key'] == $uom[0]['default_uom'] ) { $default_uom = $item; }
+        }
+
         //build final data
         $return['uoms'] = $data;
-        $return['selectedUom'] = $uom[0]['default_uom'];
+        $return['selectedUom'] = $default_uom['key'];
+        $return['selectedUomMultiplierTotal'] = $default_uom['multiplier_total'];
 
         return $return;
+    }
+
+    public function getInventoryBin($product_id)
+    {
+        $bins = Bin::select('bin.id', 'bin.aisle', 'bin.section', 'bin.tier', 'bin.position', DB::raw('SUM(inventory.quantity) as inventory'))
+                   ->leftJoin('inventory', 'inventory.bin_id', '=', 'bin.id')
+                   ->where('bin.product_id', '=', $product_id)
+                   ->groupBy('bin.id')->groupBy('bin.aisle')->groupBy('bin.section')->groupBy('bin.tier')->groupBy('bin.position')
+                   ->orderBy('bin.aisle')->orderBy('bin.section')->orderBy('bin.tier')->orderBy('bin.position')
+                   ->get();
+
+        return $bins;
     }
 }

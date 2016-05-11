@@ -1,40 +1,38 @@
 /* THERE ARE THREE EXTERNAL DEPENDENT VARIABLES THAT MUST BE SET FOR THIS CONTROLLER TO WORK
     1.  appUrl = The path to the server to make the AJAX calls to
-    2.  txType = The type of the transaction - one of the 4 main types
-    3.  txDirection = receive/ship - the direction of movement of goods
-    4.  txMode = Whether it is a new transaction or not and whether it is editable
+    2.  txSetting = The transaction settings like type and direction and mode
  */
 
 /* app is instantiated in the myApp.js file */
-
-app.controller('TransactionController', function($http, ListService, alertService, checkBoxService, modalMessageService,
-                                               warehouseClientSelectService, modalService, datePickerService) {
+app.controller('TransactionController', function($http, checkBoxService, modalMessageService,
+                                               warehouseClientSelectService, modalService, datePickerService, searchSelectService) {
     //set object to variable to prevent self reference collisions
     var TransactionController = this;
 
-    //set reference back to the service so the model variable scope can get passed back
-    //for some strange reason, the variable gets disconnected by reference assignment.
-    ListService.mainCtl = TransactionController;
-
     /* SET PASS THROUGH PROPERTIES */
-    ListService.myName = txType;
-    ListService.baseUrl = baseUrl;
-    ListService.appUrl = appUrl;
 
     /* SET DATA PROPERTIES */
-    TransactionController.txMode = txMode;
-    TransactionController.txType = txType;
-    TransactionController.txDirection = txDirection;
+    TransactionController.baseUrl = baseUrl;
+    TransactionController.appUrl = appUrl;
+    TransactionController.txSetting = txSetting;
+    TransactionController.newItem = {};
     TransactionController.txData = appData;
+    TransactionController.txData.txType = txSetting.type; //we need to do this to verify po number again upon save
     TransactionController.products = productData;
     TransactionController.selectedWarehouseClient = warehouseClientSelectService.selectedData;
+    TransactionController.currentBinData = {};
+
+    /* SET SEARCH SELECT PROPERTIES */
+    TransactionController.SearchSelectProduct = searchSelectService;
+    TransactionController.SearchSelectProduct.items = productData;
+    TransactionController.SearchSelectProduct.displayItems = angular.copy(TransactionController.SearchSelectProduct.items);
+    TransactionController.SearchSelectProduct.selectCallBack = selectProduct;
+    TransactionController.SearchSelectProduct.clear = searchSelectService.clear;
+    TransactionController.SearchSelectProduct.searchTerm = searchSelectService.searchTerm;
 
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { TransactionController.warehouse_client = warehouseClientData; }
     if( typeof carrierData != "undefined" ) { TransactionController.carriers = carrierData; }
-
-    /* INIT DATA */
-    ListService.resetModel();
 
     /* SET MEMBER METHODS */
     TransactionController.newTransaction = newTransaction;
@@ -44,16 +42,11 @@ app.controller('TransactionController', function($http, ListService, alertServic
     TransactionController.addItem = addItem;
     TransactionController.checkPoNumber = checkPoNumber;
     TransactionController.selectUom = selectUom;
+    TransactionController.resetTx = resetTx;
+    TransactionController.clearProductInput = clearProductInput;
+    TransactionController.showBin = showBin;
 
     /* CREATE PASS THROUGH FUNCTIONS */
-    TransactionController.add = ListService.add;
-    TransactionController.save = ListService.save;
-    TransactionController.deleteConfirm = ListService.deleteConfirm;
-    TransactionController.resetData = ListService.resetData;
-    TransactionController.closeAlert = ListService.closeAlert;
-    TransactionController.toggleCheckBox = checkBoxService.toggleCheckBox;
-    TransactionController.allCheckBoxes = checkBoxService.allCheckBoxes;
-    TransactionController.noneCheckBoxes = checkBoxService.noneCheckBoxes;
 
     /* ASSIGN SERVICES TO ALLOW DIRECT ACCESS FROM TEMPLATE TO SERVICE */
     TransactionController.modalService = modalService;
@@ -68,10 +61,10 @@ app.controller('TransactionController', function($http, ListService, alertServic
     /* Clears the form and loads the product list */
     function changeClientWarehouse() {
         /* only allow changes the data if it is in new mode */
-        if( TransactionController.txMode.new === true ) {
+        if( TransactionController.txSetting.new === true ) {
             //update product and carrier lists
             updateProductList();
-            updateCarrierList(TransactionController.txDirection);
+            updateCarrierList(TransactionController.txSetting.type);
 
             //update warehouse id and client id in txData
             setWarehouseClientTxData();
@@ -83,11 +76,15 @@ app.controller('TransactionController', function($http, ListService, alertServic
         //make ajax call to get new data
         $http({
             method: 'GET',
-            url: ListService.baseUrl + '/transaction/product-list'
+            url: TransactionController.baseUrl + '/transaction/product-list'
         }).then(function successCallback(response) {
             //replace data
             TransactionController.products = 0;
             TransactionController.products = response.data;
+            TransactionController.SearchSelectProduct.items = response.data;
+            TransactionController.SearchSelectProduct.displayItems = angular.copy(response.data);
+            TransactionController.SearchSelectProduct.clear();
+
             //clear out the products already added and reset new item model
             TransactionController.newItem = {};
             TransactionController.txData.items.length = 0;
@@ -103,7 +100,7 @@ app.controller('TransactionController', function($http, ListService, alertServic
         //make ajax call to get new data
         $http({
             method: 'GET',
-            url: ListService.baseUrl + '/carrier/list-by-wc/' + type
+            url: TransactionController.baseUrl + '/carrier/list-by-wc/' + type
         }).then(function successCallback(response) {
             //replace data
             TransactionController.carriers = 0;
@@ -132,19 +129,20 @@ app.controller('TransactionController', function($http, ListService, alertServic
         //make ajax call
         $http({
             method: 'POST',
-            url: ListService.baseUrl + '/transaction/check-po-number/' + TransactionController.txType,
+            url: TransactionController.baseUrl + '/transaction/check-po-number/' + TransactionController.txSetting.type,
             data: sendData
         }).then(function successCallback(response) {
             //Captured error in processing
             if( response.data.errorMsg ) {
                 modalMessageService.showModalMessage('danger', response.data.errorMsg);
+                return false;
             }
             //success
             else {
                 var isValidPoNumber = response.data.valid_po_number;
 
                 if( isValidPoNumber !== true ) {
-                    modalMessageService.showModalMessage('danger', 'You entered a duplicate PO number.');
+                    modalMessageService.showModalMessage('danger', 'The PO Number is a duplicate.');
                 }
 
                 return isValidPoNumber;
@@ -152,21 +150,27 @@ app.controller('TransactionController', function($http, ListService, alertServic
         }, function errorCallback(response) {
             //set alert
             modalMessageService.showModalMessage('danger', 'The following error occurred in checking the PO Number: ' + response.statusText);
+            return false;
         });
     }
 
     /* Get the current inventory for the product and update the model */
     function selectProduct(product) {
+        //update the input box
+        TransactionController.SearchSelectProduct.searchTerm = product.sku;
+
+        //set get inventory flag
+        var txType = TransactionController.txSetting.type;
+        var getInventory = (txType == 'receive' || txType == 'ship') ? '/true' : '';
+
         //go get the product inventory and other data
         $http({
             method: 'GET',
-            url: ListService.baseUrl + '/product/tx-detail/' + product
+            url: TransactionController.baseUrl + '/product/tx-detail/' + product.id + getInventory
         }).then(function successCallback(response) {
-            //replace data
-            TransactionController.newItem.uoms = response.data.uoms;
-            TransactionController.newItem.variants = response.data.variants;
-            TransactionController.newItem.selectedUom = response.data.selectedUom;
-            TransactionController.newItem.product = getObjectById(TransactionController.products, product);
+            TransactionController.newItem = response.data;
+            TransactionController.newItem.product_id = product.id;
+            TransactionController.newItem.product = product;
 
             //clear out the variant data
             clearVariants(TransactionController.newItem);
@@ -189,13 +193,23 @@ app.controller('TransactionController', function($http, ListService, alertServic
         //add to model
         TransactionController.txData.items.push(TransactionController.newItem);
 
-        //clear out the new item object
+        //reset
         TransactionController.newItem = {};
+        TransactionController.SearchSelectProduct.clear();
     }
 
     /* Delete a line item */
     function deleteItem(index) {
         TransactionController.txData.items.splice(index, 1);
+    }
+
+    /* Clear the product input */
+    function clearProductInput() {
+        //reset the model
+        TransactionController.newItem = {};
+
+        //reset the search service
+        TransactionController.SearchSelectProduct.clear();
     }
 
     /* Save the transaction data */
@@ -211,7 +225,7 @@ app.controller('TransactionController', function($http, ListService, alertServic
         //run ajax save
         $http({
             method: 'POST',
-            url: ListService.appUrl + '/new',
+            url: TransactionController.appUrl + '/new',
             data: TransactionController.txData
         }).then(function successCallback(response) {
             if( response.data.errorMsg ) {
@@ -221,11 +235,8 @@ app.controller('TransactionController', function($http, ListService, alertServic
                 //set success message
                 modalMessageService.showModalMessage('info', 'The transaction has been saved');
 
-                //reset form submit status
-                form.$submitted = false;
-
                 //reset transaction
-                if( reset === true ) resetTx();
+                if( reset === true ) resetTx(form);
             }
         }, function errorCallback(response) {
             //set alert
@@ -250,10 +261,48 @@ app.controller('TransactionController', function($http, ListService, alertServic
     }
 
     /* Reset the transaction */
-    function resetTx() {
+    function resetTx(form) {
+        //reset form
+        form.$submitted = false;
+        form.$setPristine();
+        form.$setUntouched();
+
+        //reset properties/data
         TransactionController.txData = {};
         TransactionController.txData.items = [];
         TransactionController.newItem = {};
+        TransactionController.SearchSelectProduct.clear(); //clear out product select box
+        TransactionController.txData.txType = txSetting.type;
+        setWarehouseClientTxData(); //add back warehouse_id and client_id
+    }
+
+    /* Brings up the bin popup */
+    function showBin(item) {
+        //don't allow bin dialog if they haven't selected a product yet
+        if( !item.product_id ) {
+            modalMessageService.showModalMessage('danger', 'Please select a product first.');
+            return;
+        }
+
+        //don't allow bin dialog if the quantity is not set
+        if( !item.quantity || isNaN(item.quantity) === true ) {
+            modalMessageService.showModalMessage('danger', 'Please enter a quantity first.');
+            return;
+        }
+
+        //show bin dialog box
+        modalService.showModal({
+            templateUrl: "/js/angular-component/modalService-bin.html",
+            controller: "BinController",
+            inputs: {
+                item: item
+            }
+        }).then(function(modal) {
+            modal.element.modal();
+            modal.close.then(function(result) {
+                console.log(result);
+            });
+        });
     }
 
     /* Selects the unit of measure(uom) */
@@ -271,7 +320,7 @@ app.controller('TransactionController', function($http, ListService, alertServic
         if( validateDataBasic() !== true ) { return false; }
 
         //check additional items by tx type
-        switch( TransactionController.txType) {
+        switch( TransactionController.txSetting.type) {
             //asn shipping
             case 'asn_ship':
                 break;
@@ -302,9 +351,7 @@ app.controller('TransactionController', function($http, ListService, alertServic
         }
 
         /* validate PO number */
-        if( checkPoNumber() !== true ) {
-            return false;
-        }
+        /* MOVED TO THE BACKEND AS CHECKING IT HERE WILL REQUIRE A CALL BACK AND HAVE TO REDO SOME OF THE LOGIC FLOW */
 
         //make sure at least one line item was added
         if( TransactionController.txData.items.length == 0 ) {
@@ -342,7 +389,7 @@ app.controller('TransactionController', function($http, ListService, alertServic
 
     function setWarehouseClientTxData() {
         //only set if this is a new transaction
-        if( TransactionController.txMode.new === true ) {
+        if( TransactionController.txSetting.new === true ) {
             TransactionController.txData.warehouse_id = TransactionController.selectedWarehouseClient.warehouse_id;
             TransactionController.txData.client_id = TransactionController.selectedWarehouseClient.client_id;
         }

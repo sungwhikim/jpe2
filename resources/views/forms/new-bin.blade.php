@@ -1,5 +1,5 @@
 <div class="row uom-container col-lg-12">
-    <div class="row col-lg-1 form-group bin-item-container"
+    <div class="row col-lg-1 col-md-1 col-sm-1 bin-item-container"
          ng-class="{ 'has-error': (formNew.aisle.$touched || formNew.$submitted) && formNew.aisle.$invalid }">
         <label class="control-label text-nowrap">Aisle</label>
         <div class="bin-item aisle">
@@ -12,7 +12,7 @@
             </div>
         </div>
     </div>
-    <div class="row col-lg-1 form-group bin-item-container"
+    <div class="row col-lg-1 col-md-1 col-sm-1 bin-item-container"
          ng-class="{ 'has-error': (formNew.section.$touched || formNew.$submitted) && formNew.section.$invalid }">
         <label class="control-label text-nowrap">Section</label>
         <div class="bin-item aisle">
@@ -25,7 +25,7 @@
             </div>
         </div>
     </div>
-    <div class="row col-lg-1 form-group bin-item-container"
+    <div class="row col-lg-1 col-md-1 col-sm-1 bin-item-container"
          ng-class="{ 'has-error': (formNew.tier.$touched || formNew.$submitted) && formNew.tier.$invalid }">
         <label class="control-label text-nowrap">Tier</label>
         <div class="bin-item aisle">
@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-    <div class="row col-lg-1 form-group bin-item-container"
+    <div class="row col-lg-1 col-md-1 col-sm-1 bin-item-container"
          ng-class="{ 'has-error': (formNew.position.$touched || formNew.$submitted) && formNew.position.$invalid }">
         <label class="control-label text-nowrap">Position</label>
         <div class="bin-item aisle">

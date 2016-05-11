@@ -44,15 +44,20 @@ class AsnReceiveController extends Controller
 
     public function getNew()
     {
-        //get product data initially here, rather than making an ajax call on init
+        //get list data initially here, rather than making an ajax call on init
         $list_data = $this->getListData();
+
+        //set tx settings
+        $txSetting = ['new' => true,
+                      'edit' => true,
+                      'direction' => $this->tx_direction,
+                      'type' => $this->tx_type];
 
         return response()->view('pages.asn-receive', ['main_data' => collect(['items' => []]),
                                                       'url' => $this->url,
                                                       'product_data' => $list_data['product_data'],
                                                       'carrier_data' => $list_data['carrier_data'],
-                                                      'tx_direction' => $this->tx_direction,
-                                                      'tx_type' => $this->tx_type]);
+                                                      'tx_setting' => collect($txSetting)]);
     }
 
     protected function getListData()
@@ -68,7 +73,7 @@ class AsnReceiveController extends Controller
 
     public function postNew(Request $request)
     {
-        $result = $this->transaction->createNewAsn($request);
+        $result = $this->transaction->newAsnTx($request);
         return $result;
     }
 

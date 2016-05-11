@@ -80,7 +80,7 @@ Route::get('/carriers', 'CarrierController@getListView');
 
 /* PRODUCT */
 Route::get('/products', 'ProductController@getListView');
-Route::get('/product/tx-detail/{product_id}', 'ProductController@getTxDetail');
+Route::get('/product/tx-detail/{product_id}/{get_inventory}', 'ProductController@getTxDetail');
 Route::controller('/product', 'ProductController');
 
 /* PRODUCT TYPE */
@@ -100,3 +100,12 @@ Route::post('/transaction/check-po-number/{transaction_type}', 'TransactionContr
 
 /* ASN - RECEIVE */
 Route::controller('/transaction/asn/receive', 'AsnReceiveController');
+
+/* ASN - SHIP */
+//Route::controller('/transaction/asn/ship', 'AsnShipController');
+
+/* RECEIVE */
+Route::controller('/transaction/receive', 'ReceiveController');
+
+/* SHIP */
+//Route::controller('/transaction/ship', 'ShipController');
