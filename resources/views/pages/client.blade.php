@@ -67,6 +67,10 @@
                                         @include('forms.new-email')
                                         @include('forms.new-phone')
                                         @include('forms.new-fax')
+                                        @include('forms.new-toggle-button', ['title' => 'Show client barcode in receiving screen',
+                                                                             'name' => 'show_barcode_client',
+                                                                             'required' => false,
+                                                                             'default' => 'false'])
 
                                         @include('forms.divider', ['title' => 'Billing'])
                                         @include('forms.new-text', ['title' => 'Contact',
@@ -128,6 +132,10 @@
                                         @include('forms.email')
                                         @include('forms.phone')
                                         @include('forms.fax')
+                                        @include('forms.toggle-button', ['title' => 'Show client barcode in receiving screen',
+                                                                         'name' => 'show_barcode_client',
+                                                                         'required' => false,
+                                                                         'default' => 'false'])
 
                                         @include('forms.divider', ['title' => 'Billing'])
                                         @include('forms.text', ['title' => 'Contact',

@@ -51,5 +51,6 @@ angular.module('searchSelectService', [])
         function clear() {
             service.selectedItem = {};
             service.searchTerm = '';
+            //service.displayItems = angular.copy(service.items);
         }
     });

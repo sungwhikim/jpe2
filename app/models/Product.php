@@ -10,7 +10,7 @@ class Product extends Model
 
     public function getUserProductList()
     {
-        return Product::select('product.id', 'product.sku', 'product.name', 'product.active')
+        return Product::select('product.id', 'product.sku', 'product.name', 'product.barcode', 'product.barcode_client', 'product.active')
                         ->where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
                         ->where('product.client_id', '=', auth()->user()->current_client_id)
                         ->where('product.active', '=', true)

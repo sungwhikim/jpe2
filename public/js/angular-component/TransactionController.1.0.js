@@ -45,6 +45,13 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     TransactionController.resetTx = resetTx;
     TransactionController.clearProductInput = clearProductInput;
     TransactionController.showBin = showBin;
+    TransactionController.checkBarcodeClient = checkBarcodeClient;
+
+    TransactionController.testMethod = testMethod;
+    function testMethod() {
+        console.log('test method');
+        console.log(TransactionController.txData.newItem.barcode_client);
+    }
 
     /* CREATE PASS THROUGH FUNCTIONS */
 
@@ -171,6 +178,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
             TransactionController.newItem = response.data;
             TransactionController.newItem.product_id = product.id;
             TransactionController.newItem.product = product;
+            TransactionController.newItem.barcode_client = product.barcode_client;
 
             //clear out the variant data
             clearVariants(TransactionController.newItem);
@@ -393,6 +401,32 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
             TransactionController.txData.warehouse_id = TransactionController.selectedWarehouseClient.warehouse_id;
             TransactionController.txData.client_id = TransactionController.selectedWarehouseClient.client_id;
         }
+    }
+
+    function checkBarcodeClient() {
+        var barcode = Number(TransactionController.newItem.barcode_client);
+
+        //if nothing is selected, then just clear out the selected item and return
+        if( isNaN(barcode) === true ) {
+            TransactionController.txData.selectedProduct = {};
+            return false;
+        }
+
+        //find the entered bar code
+        var data = TransactionController.products;
+
+        for( var counter = 0; counter < data.length; counter++ ) {
+            var product = data[counter];
+            if( barcode === Number(product.barcode_client) ) {
+                TransactionController.txData.selectedProduct = product;
+                TransactionController.selectProduct(product);
+                return true;
+            }
+        }
+
+        //show an error dialog since if we got here, then the barcode was not found
+        TransactionController.SearchSelectProduct.clear();
+        modalMessageService.showModalMessage('danger', 'The client barcode was not found.');
     }
 
     /* Helper function to get object by id value */

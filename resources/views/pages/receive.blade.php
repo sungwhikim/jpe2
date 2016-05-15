@@ -27,6 +27,7 @@
                             @include('forms.tx-note')
                         </div>
                         <div class="row" id="tx-product-input-container">
+                                @include('forms.tx-barcode')
                                 @include('forms.tx-product-search-select')
                                 @include('forms.tx-product-quantity-bin', ['model_object' => 'txCtrl.newItem'])
                                 @include('forms.tx-product-variant', ['controller' => 'txCtrl'])
@@ -37,6 +38,7 @@
                             <table class="table table-form">
                                 <thead>
                                 <tr>
+                                    <th ng-show="txCtrl.selectedWarehouseClient.show_barcode_client">Client Barcode</th>
                                     <th class="col-lg-3 col-md-3">SKU</th>
                                     <th>Name</th>
                                     <th class="col-lg-2 col-md-2">Variants</th>
@@ -46,6 +48,7 @@
                                 </thead>
                                 <tbody>
                                 <tr ng-repeat="item in txCtrl.txData.items">
+                                    <td ng-show="txCtrl.selectedWarehouseClient.show_barcode_client" ng-bind="item.barcode_client"></td>
                                     <td ng-bind="item.product.sku"></td>
                                     <td ng-bind="item.product.name"></td>
                                     <td>@include('forms.tx-product-variant-list')</td>

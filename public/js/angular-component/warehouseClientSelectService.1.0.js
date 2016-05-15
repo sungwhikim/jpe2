@@ -24,11 +24,12 @@ angular.module('warehouseClientSelectService', [])
         function updateName() {
             //update warehouse
             var warehouseObj = getValueById(this.listData, this.selectedData.warehouse_id);
-            this.selectedData.warehouse_name = warehouseObj ? warehouseObj.name : '' ;
+            this.selectedData.warehouse_name = warehouseObj ? warehouseObj.name : '';
 
             //update client
             var clientObj = getValueById(warehouseObj.clients, this.selectedData.client_id);
-            this.selectedData.client_short_name = clientObj ? clientObj.short_name : '' ;
+            this.selectedData.client_short_name = clientObj ? clientObj.short_name : '';
+            this.selectedData.show_barcode_client = clientObj ? clientObj.show_barcode_client : '';
         }
 
         /* Updates the data on the database of the currently selected warehouse/client */
@@ -55,6 +56,7 @@ angular.module('warehouseClientSelectService', [])
             }, function errorCallback(response) {
                 //set alert
                 //sendAlert('danger', getAlertMsg(curItem.name, 'updated', response.statusText));
+                alert('Changing warehouse and client failed');
                 console.log(response);
             });
         }

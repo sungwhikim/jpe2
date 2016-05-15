@@ -18,9 +18,9 @@
 
 /* HOME PAGE AND ROUTE TO LOGIN/LOGOUT PAGES */
 Route::get('/', 'Auth\AuthController@getIndex');
+Route::get('/login', 'Auth\AuthController@getIndex');
 Route::get('/home', 'UserController@getDashboard');
 Route::get('/dashboard', 'UserController@getDashboard');
-Route::get('/login', 'Auth\AuthController@getIndex');
 Route::post('/login', 'Auth\AuthController@postLogin');
 Route::get('/logout', 'Auth\AuthController@getLogout');
 

@@ -4,7 +4,7 @@
         <div class="input-group">
             <input type="text" class="form-control" id="search-select-product" ng-value="txCtrl.SearchSelectProduct.selectedItem.sku"
                    ng-model="txCtrl.SearchSelectProduct.searchTerm" ng-keyup="txCtrl.SearchSelectProduct.search()" placeholder="-- select a product --"
-                   onkeyup="document.getElementById('search-select-container').className += ' open';">
+                   onkeyup="document.getElementById('search-select-container').className += ' open';" ng-focus="txCtrl.SearchSelectProduct.search();">
             <div class="input-group-btn search-select-container" id="search-select-container">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>

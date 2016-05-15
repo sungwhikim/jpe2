@@ -66,7 +66,7 @@ class User extends Model implements AuthenticatableContract,
         //add clients the user has access to
         foreach( $warehouses as $warehouse )
         {
-            $warehouse->clients = Client::select('client.id', 'client.short_name', 'client.name', 'client.active')
+            $warehouse->clients = Client::select('client.id', 'client.short_name', 'client.name', 'client.active', 'client.show_barcode_client')
                                   ->join('client_warehouse', 'client.id', '=', 'client_warehouse.client_id')
                                   ->join('user_client', 'client_warehouse.client_id', '=', 'user_client.client_id')
                                   ->where('active', '=', true)
@@ -105,7 +105,8 @@ class User extends Model implements AuthenticatableContract,
         return ['warehouse_id' => null,
                 'warehouse_name' => null,
                 'client_id' => null,
-                'client_short_name' => null];
+                'client_short_name' => null,
+                'show_barcode_client' => null];
     }
 
     /**
@@ -117,7 +118,8 @@ class User extends Model implements AuthenticatableContract,
         return ['warehouse_id' => $this->current_warehouse_id,
                 'warehouse_name' => Warehouse::where('id', '=', $this->current_warehouse_id)->pluck('name'),
                 'client_id' => $this->current_client_id,
-                'client_short_name' => Client::where('id', '=', $this->current_client_id)->pluck('short_name')];
+                'client_short_name' => Client::where('id', '=', $this->current_client_id)->pluck('short_name'),
+                'show_barcode_client' => Client::where('id', '=', $this->current_client_id)->pluck('show_barcode_client')];
     }
 
     /**

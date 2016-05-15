@@ -1,4 +1,4 @@
-<div class="row uom-container col-lg-12">
+<div class="row uom-container col-lg-12 col-md-12 col-sm-12">
     @foreach( $uom as $key => $name)
         <div class="row col-lg-2 col-md-2 col-sm-2 col-xs-2 form-group" ng-show="item.product_type.{{ $name }}_active == true"
              ng-class="{ 'has-error': (dataForm.{{ $name }}.$touched || dataForm.$submitted) && dataForm.{{ $name }}.$invalid }">

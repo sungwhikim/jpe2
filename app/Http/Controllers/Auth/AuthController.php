@@ -34,7 +34,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest', ['except' => 'getLogout']);
+        //$this->middleware('guest', ['except' => 'getLogout']);
     }
 
     /**
@@ -74,9 +74,14 @@ class AuthController extends Controller
             //--Authentication failed--
             //log failure
 
-            //set flash message and send back to login page
+            //set flash message
             session()->flash('alert-type', 'danger');
             session()->flash('alert-message', 'Username and/or password invalid.');
+
+            //logout user
+            auth()->logout();
+
+            //send back to login page
             return redirect('/login');
         }
     }
@@ -96,7 +101,7 @@ class AuthController extends Controller
         auth()->logout();
 
         //send back to home page
-        return redirect('/');
+        return redirect('/login');
     }
 
     /**

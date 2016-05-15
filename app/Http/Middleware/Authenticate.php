@@ -36,11 +36,12 @@ class Authenticate
     {
         if ($this->auth->guest()) {
             if ($request->ajax()) {
-                return response('Unauthorized.', 401);
+                return response('Unauthorized.', 500);
             } else {
                 session()->flash('alert-type', 'danger');
                 session()->flash('alert-message', 'You do not have access to this page. Please login and try again.');
-                return redirect()->guest('/login');
+
+                return redirect('/login');
             }
         }
 

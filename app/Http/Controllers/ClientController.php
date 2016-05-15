@@ -111,6 +111,8 @@ class ClientController extends Controller
         $client->billing_country_id = request()->json('billing_country_id');
         $client->taxable         = ( request()->json('taxable') == 'true' ) ? true : false;
         $client->active          = ( !empty(request()->json('active')) ) ? true : false;
+        $client->show_barcode_client    = ( request()->json('show_barcode_client') == 'true' ) ? true : false;
+        $client->product_type_id = request()->json('product_type_id');
         $client->invoice_attachment_type = request()->json('invoice_attachment_type');
         $client->save();
         $client_id = $client->id;
