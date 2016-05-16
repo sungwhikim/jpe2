@@ -47,12 +47,6 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     TransactionController.showBin = showBin;
     TransactionController.checkBarcodeClient = checkBarcodeClient;
 
-    TransactionController.testMethod = testMethod;
-    function testMethod() {
-        console.log('test method');
-        console.log(TransactionController.txData.newItem.barcode_client);
-    }
-
     /* CREATE PASS THROUGH FUNCTIONS */
 
     /* ASSIGN SERVICES TO ALLOW DIRECT ACCESS FROM TEMPLATE TO SERVICE */
@@ -308,7 +302,6 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
         }).then(function(modal) {
             modal.element.modal();
             modal.close.then(function(result) {
-                console.log(result);
             });
         });
     }
@@ -428,13 +421,4 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
         TransactionController.SearchSelectProduct.clear();
         modalMessageService.showModalMessage('danger', 'The client barcode was not found.');
     }
-
-    /* Helper function to get object by id value */
-    function getObjectById(data, id) {
-        for( var i = 0; i < data.length; i++ ) {
-            if( data[i].id == id ) { return data[i]; }
-        }
-        return {};
-    }
-
 });

@@ -41,7 +41,7 @@ class Authenticate
                 session()->flash('alert-type', 'danger');
                 session()->flash('alert-message', 'You do not have access to this page. Please login and try again.');
 
-                return redirect('/login');
+                return redirect()->guest('/login');
             }
         }
 

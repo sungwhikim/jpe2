@@ -25,6 +25,28 @@ class ReceiveController extends Controller
         $this->url = url('/transaction/receive');
     }
 
+    public function getIndex($id)
+    {
+        //get data
+        $data = $this->transaction->getTransaction('receive', $id);
+
+
+        //get list data initially here, rather than making an ajax call on init
+        $list_data = $this->getListData();
+
+        //set tx settings
+        $txSetting = ['new' => false,
+                      'edit' => true,
+                      'direction' => $this->tx_direction,
+                      'type' => $this->tx_type];
+
+        return response()->view('pages.receive', ['main_data' => $data,
+                                                  'url' => $this->url,
+                                                  'product_data' => $list_data['product_data'],
+                                                  'carrier_data' => $list_data['carrier_data'],
+                                                  'tx_setting' => collect($txSetting)]);
+    }
+
     public function getNew()
     {
         //get list data initially here, rather than making an ajax call on init

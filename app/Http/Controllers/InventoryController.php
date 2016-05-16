@@ -46,7 +46,7 @@ class InventoryController extends Controller
     public function getProductInventory($product_id)
     {
         //first grab the bins and the rollup total in each and the product type data to get the variants
-        $bins = Inventory::select('bin.id', 'bin.aisle', 'bin.section', 'bin.tier', 'bin.position', 'bin.active',
+        $bins = Inventory::select('bin.id', 'bin.aisle', 'bin.section', 'bin.tier', 'bin.position', 'bin.active', 'bin.default',
                                   DB::raw('SUM(inventory.quantity) as total'),
                                   'product_type.variant1', 'product_type.variant2', 'product_type.variant3', 'product_type.variant4')
                            ->rightJoin('bin', 'inventory.bin_id', '=', 'bin.id')

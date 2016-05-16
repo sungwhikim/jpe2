@@ -14,12 +14,39 @@ use Exception;
 
 class Transaction extends Model
 {
+    private function getClasses($tx_type)
+    {
+        switch( $tx_type )
+        {
+            case 'asn_receive':
+                $classes['transaction'] = 'App\Models\AsnReceive';
+                $classes['transaction_detail'] = 'App\Models\AsnReceiveDetail';
+                break;
+            case 'receive';
+                $classes['transaction'] = 'App\Models\Receive';
+                $classes['transaction_detail'] = 'App\Models\ReceiveDetail';
+                $classes['transaction_bin'] = 'App\Models\ReceiveBin';
+                break;
+            case 'asn_ship';
+                break;
+            case 'ship';
+                break;
+        }
+
+        return $classes;
+    }
+
+    public function getTransaction($tx_type, $tx_id)
+    {
+        $classes = $this->getClasses($tx_type);
+
+
+    }
 
     public function newAsnTx($request)
     {
-        //set objects
-        $classes['transaction'] = 'App\Models\AsnReceive';
-        $classes['transaction_detail'] = 'App\Models\AsnReceiveDetail';
+        //set classes
+        $classes = $this->getClasses('asn_receive');
 
         return $this->saveTx($request, $classes, 'asn_receive');
     }
@@ -31,10 +58,8 @@ class Transaction extends Model
 
     public function newReceiveTx($request)
     {
-        //set objects
-        $classes['transaction'] = 'App\Models\Receive';
-        $classes['transaction_detail'] = 'App\Models\ReceiveDetail';
-        $classes['transaction_bin'] = 'App\Models\ReceiveBin';
+        //set classes
+        $classes = $this->getClasses('receive');
 
         return $this->saveTx($request, $classes, 'receive');
     }
@@ -68,10 +93,10 @@ class Transaction extends Model
                 //save
                 $transaction_detail->save();
 
-                //set bins
+                //save bins
                 if( isset($classes['transaction_bin']) )
                 {
-                    $this->setBin($item, $classes['transaction_bin'], $transaction_detail->id);
+                    $this->saveBin($item, $classes['transaction_bin'], $transaction_detail->id);
                 }
             }
         }
@@ -273,7 +298,7 @@ class Transaction extends Model
      *
      * returns the item object with the variants already set for the insert/update into the database
      */
-    public function setBin($item, $class, $transaction_detail_id)
+    public function saveBin($item, $class, $transaction_detail_id)
     {
 
     }

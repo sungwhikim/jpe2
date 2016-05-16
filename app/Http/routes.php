@@ -98,6 +98,10 @@ Route::controller('/inventory', 'InventoryController');
 Route::get('/transaction/product-list', 'TransactionController@getUserProductList');
 Route::post('/transaction/check-po-number/{transaction_type}', 'TransactionController@checkPoNumber');
 
+/* TRANSACTION FINDER */
+Route::get('/transaction-finder', 'TransactionController@getTransactionFinder');
+Route::get('/transaction/find-type/{tx_type}', 'TransactionController@getTxFinderData');
+
 /* ASN - RECEIVE */
 Route::controller('/transaction/asn/receive', 'AsnReceiveController');
 
