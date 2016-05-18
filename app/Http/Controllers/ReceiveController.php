@@ -28,19 +28,24 @@ class ReceiveController extends Controller
     public function getIndex($id)
     {
         //get data
-        $data = $this->transaction->getTransaction('receive', $id);
-
+        $tx_data = $this->transaction->getTransaction('receive', $id);
 
         //get list data initially here, rather than making an ajax call on init
         $list_data = $this->getListData();
 
+        //set edit mode
+        $edit_mode = ( $tx_data->tx_status_id === 1 ) ? true : false;
+
+        /* SET TO FALSE FOR NOW FOR UAT */
+        $edit_mode = false;
+
         //set tx settings
         $txSetting = ['new' => false,
-                      'edit' => true,
+                      'edit' => $edit_mode,
                       'direction' => $this->tx_direction,
                       'type' => $this->tx_type];
 
-        return response()->view('pages.receive', ['main_data' => $data,
+        return response()->view('pages.receive', ['main_data' => $tx_data,
                                                   'url' => $this->url,
                                                   'product_data' => $list_data['product_data'],
                                                   'carrier_data' => $list_data['carrier_data'],

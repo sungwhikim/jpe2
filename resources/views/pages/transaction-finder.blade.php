@@ -42,7 +42,7 @@
                     <tbody dir-paginate="item in mainList.displayItems | itemsPerPage: 10" class="tbody-form">
                         <tr>
                             <td>
-                                <a class="btn btn-primary btn-sm" href="{{ $url }}/@{{ item.tx_type }}/@{{ item.id }}">View / Edit</a>
+                                <a class="btn btn-primary btn-sm" href="{{ $url }}/@{{ item.tx_type | UnderScoreToForwardSlash }}/@{{ item.id }}">View / Edit</a>
                             </td>
                             {{--<td ng-bind="item.tx_type"></td>--}}
                             <td ng-bind="item.tx_date"></td>

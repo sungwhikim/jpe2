@@ -194,7 +194,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
 
         //add to model
         TransactionController.txData.items.push(TransactionController.newItem);
-
+console.log(TransactionController.txData);
         //reset
         TransactionController.newItem = {};
         TransactionController.SearchSelectProduct.clear();

@@ -4,6 +4,12 @@
     3.  appUrl  = The path to the server to make the AJAX calls to
  */
 
+app.filter('UnderScoreToForwardSlash', function () {
+    return function (input) {
+        return input.replace(/_/g, '/');
+    };
+});
+
 /* app is instantiated in the myApp.js file */
 
 app.controller('TxFinderController', function($http, ListService, alertService, modalMessageService,

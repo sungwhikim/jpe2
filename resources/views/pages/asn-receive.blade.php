@@ -8,9 +8,16 @@
                 <h1>ASN - Receiving</h1>
                 <div class="panel panel-default panel-nav box-shadow--2dp">
                     <div class="panel-heading">
-                        <button type="button" class="btn btn-success" ng-click="txCtrl.newTransaction(true, txForm)">Save & New</button>
-                        <button type="button" class="btn btn-success" ng-click="txCtrl.newTransaction(false, txForm)">Save</button>
-                        <button type="reset" class="btn btn-default btn-cancel-tx" ng-click="txCtrl.resetTx(txForm);">Clear</button>
+                        <button type="button" class="btn btn-success" ng-show="txCtrl.txSetting.new == true"
+                                ng-click="txCtrl.newTransaction(true, txForm)">Save & New</button>
+                        <button type="button" class="btn btn-success" ng-disabled="txCtrl.txSetting.edit == false"
+                                ng-click="txCtrl.newTransaction(false, txForm)">Save</button>
+                        <button type="reset" class="btn btn-default btn-cancel-tx" ng-show="txCtrl.txSetting.new == true"
+                                ng-click="txCtrl.resetTx(txForm);">Clear</button>
+                        <button type="reset" class="btn btn-info"
+                                ng-show="txCtrl.txSetting.new == false && txCtrl.txSetting.edit == false"
+                                ng-disabled="txCtrl.txSetting.edit == false"
+                                ng-click="txCtrl.resetTx(txForm);">Convert</button>
                         <div class="pull-right tx-wc-header">
                                 <span ng-bind="txCtrl.selectedWarehouseClient.warehouse_name"></span> /
                                 <span ng-bind="txCtrl.selectedWarehouseClient.client_short_name"></span>
@@ -26,7 +33,7 @@
                             </div>
                             @include('forms.tx-note')
                         </div>
-                        <div class="row" id="tx-product-input-container">
+                        <div class="row" id="tx-product-input-container" ng-show="txCtrl.txSetting.edit == true">
                                 @include('forms.tx-product-search-select')
                                 @include('forms.tx-product-quantity', ['controller' => 'txCtrl'])
                                 @include('forms.tx-product-variant', ['controller' => 'txCtrl'])

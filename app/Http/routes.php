@@ -103,12 +103,16 @@ Route::get('/transaction-finder', 'TransactionController@getTransactionFinder');
 Route::get('/transaction/find-type/{tx_type}', 'TransactionController@getTxFinderData');
 
 /* ASN - RECEIVE */
+Route::get('/transaction/asn/receive/new', 'AsnReceiveController@getNew');
+Route::get('/transaction/asn/receive/{tx_id}', 'AsnReceiveController@getIndex');
 Route::controller('/transaction/asn/receive', 'AsnReceiveController');
 
 /* ASN - SHIP */
 //Route::controller('/transaction/asn/ship', 'AsnShipController');
 
 /* RECEIVE */
+Route::get('/transaction/receive/new', 'ReceiveController@getNew');
+Route::get('/transaction/receive/{tx_id}', 'ReceiveController@getIndex');
 Route::controller('/transaction/receive', 'ReceiveController');
 
 /* SHIP */

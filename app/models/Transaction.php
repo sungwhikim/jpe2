@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use DB;
 use Log;
 use App\Enum\TxStatus;
+use App\Models\Product;
 use App\Models\ProductVariant1;
 use App\Models\ProductVariant2;
 use App\Models\ProductVariant3;
@@ -14,33 +15,61 @@ use Exception;
 
 class Transaction extends Model
 {
-    private function getClasses($tx_type)
-    {
-        switch( $tx_type )
-        {
-            case 'asn_receive':
-                $classes['transaction'] = 'App\Models\AsnReceive';
-                $classes['transaction_detail'] = 'App\Models\AsnReceiveDetail';
-                break;
-            case 'receive';
-                $classes['transaction'] = 'App\Models\Receive';
-                $classes['transaction_detail'] = 'App\Models\ReceiveDetail';
-                $classes['transaction_bin'] = 'App\Models\ReceiveBin';
-                break;
-            case 'asn_ship';
-                break;
-            case 'ship';
-                break;
-        }
-
-        return $classes;
-    }
-
     public function getTransaction($tx_type, $tx_id)
     {
+        //get classes
         $classes = $this->getClasses($tx_type);
+        $product_model = new Product();
 
+        //get main transaction
+        $tx = new $classes['transaction'];
+        $transaction = $tx->find($tx_id);
 
+        //add line items
+        $tx_detail = new $classes['transaction_detail'];
+        $table_detail = $tx_type . '_detail';
+
+        //get detail line item
+        $transaction_detail = $tx_detail::select($table_detail . '.id',
+                                                 $table_detail . '.' . $tx_type . '_id',
+                                                 $table_detail . '.product_id',
+                                                 $table_detail . '.quantity',
+                                                 $table_detail . '.uom AS selectedUom',
+                                                 $table_detail . '.uom_multiplier AS selectedUomMultiplierTotal',
+                                                 'variant1.value AS variant1_value',
+                                                 'variant1.value AS variant2_value',
+                                                 'variant1.value AS variant3_value',
+                                                 'variant1.value AS variant4_value')
+                                        ->leftJoin('variant1', $table_detail . '.variant1_id', '=', 'variant1.id')
+                                        ->leftJoin('variant2', $table_detail . '.variant1_id', '=', 'variant2.id')
+                                        ->leftJoin('variant3', $table_detail . '.variant1_id', '=', 'variant3.id')
+                                        ->leftJoin('variant4', $table_detail . '.variant1_id', '=', 'variant4.id')
+                                        ->where($tx_type . '_id', '=', $transaction->id)->get();
+
+        //loop and add product object and variants and detail to each line item
+        foreach( $transaction_detail as $line_item)
+        {
+            $product_id = $line_item->product_id;
+
+            //update quantity
+            $line_item->quantity = $line_item->quantity / $line_item->selectedUomMultiplierTotal;
+
+            //get details and data
+            $line_item['uoms'] = $product_model->getUomList($product_id, false)['uoms'];
+            $line_item['product'] = Product::find($product_id);
+            $line_item['variants'] = $product_model->getTxVariant($product_id);
+
+            //get bins
+            if( isset($classes['transaction_bin']) )
+            {
+
+            }
+        }
+
+        //add detail list to transaction
+        $transaction['items'] = $transaction_detail;
+
+        return $transaction;
     }
 
     public function newAsnTx($request)
@@ -198,7 +227,7 @@ class Transaction extends Model
     public function setLineItem(&$item_object, $item)
     {
         //set variables
-        $product_id = $item['product_id'];
+        $product_id = $item['product']['id'];
         $quantity = $item['quantity'];
         $uom = $item['selectedUom'];
 
@@ -301,5 +330,39 @@ class Transaction extends Model
     public function saveBin($item, $class, $transaction_detail_id)
     {
 
+    }
+
+    /**
+     * This sets up the transaction model classes
+     *
+     * @param $tx_type
+     *
+     * @return mixed
+     */
+    private function getClasses($tx_type)
+    {
+        switch( $tx_type )
+        {
+            case 'asn_receive':
+                $classes['transaction'] = 'App\Models\AsnReceive';
+                $classes['transaction_detail'] = 'App\Models\AsnReceiveDetail';
+                break;
+            case 'receive';
+                $classes['transaction'] = 'App\Models\Receive';
+                $classes['transaction_detail'] = 'App\Models\ReceiveDetail';
+                $classes['transaction_bin'] = 'App\Models\ReceiveBin';
+                break;
+            case 'asn_ship';
+                $classes['transaction'] = 'App\Models\AsnShip';
+                $classes['transaction_detail'] = 'App\Models\AsnShipDetail';
+                break;
+            case 'ship';
+                $classes['transaction'] = 'App\Models\Ship';
+                $classes['transaction_detail'] = 'App\Models\ShipDetail';
+                $classes['transaction_bin'] = 'App\Models\ShipBin';
+                break;
+        }
+
+        return $classes;
     }
 }

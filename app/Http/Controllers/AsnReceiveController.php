@@ -25,22 +25,33 @@ class AsnReceiveController extends Controller
 
         $this->url = url('/transaction/asn/receive');
     }
-/*
+
     public function getIndex($asn_receive_id)
     {
-        //place holder until data needs to be set
-        $data = collect([]);
+        //get transaction data
+        $tx_data = $this->transaction->getTransaction('asn_receive', $asn_receive_id);
 
-        //get product data initially here, rather than making another ajax call on init
+        //get list data initially here, rather than making an ajax call on init
         $list_data = $this->getListData();
 
-        return response()->view('pages.asn-receive-edit', ['main_data' => $data,
-                                                           'url' => $this->url,
-                                                           'my_name' => $this->my_name,
-                                                           'product_data' => $list_data['product_data'],
-                                                           'carrier_data' => $list_data['carrier_data'],
-                                                           'tx_type' => $this->tx_type]);
-    }*/
+        //set edit mode
+        $edit_mode = ( $tx_data->tx_status_id === 1 ) ? true : false;
+
+    /* SET TO FALSE FOR NOW FOR UAT */
+        $edit_mode = false;
+
+        //set tx settings
+        $txSetting = ['new' => false,
+                      'edit' => $edit_mode,
+                      'direction' => $this->tx_direction,
+                      'type' => $this->tx_type];
+
+        return response()->view('pages.asn-receive', ['main_data' => $tx_data,
+                                                      'url' => $this->url,
+                                                      'product_data' => $list_data['product_data'],
+                                                      'carrier_data' => $list_data['carrier_data'],
+                                                      'tx_setting' => collect($txSetting)]);
+    }
 
     public function getNew()
     {
@@ -58,6 +69,11 @@ class AsnReceiveController extends Controller
                                                       'product_data' => $list_data['product_data'],
                                                       'carrier_data' => $list_data['carrier_data'],
                                                       'tx_setting' => collect($txSetting)]);
+    }
+
+    private function setViewData($new, $tx_id)
+    {
+
     }
 
     protected function getListData()
