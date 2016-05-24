@@ -90,18 +90,18 @@ class BinController extends Controller
         $bin->section     = request()->json('section');
         $bin->tier        = request()->json('tier');
         $bin->position    = request()->json('position');
-        $bin->default_bin = false;
+        $bin->default     = false;
         $bin->active      = ( !empty(request()->json('active')) ) ? true : false;
         $bin->save();
 
         //set default bin
-        if( !empty(request()->json('default_bin')) )
+        if( !empty(request()->json('default')) && request()->json('default') === true )
         {
             //update all to not be default first
-            Bin::where('product_id', '=', request()->json('product_id'))->update('default_bin', false);
+            Bin::where('product_id', '=', request()->json('product_id'))->update(['default' => false]);
 
             //set current one to be the default
-            $bin->default_bin = true;
+            $bin->default = true;
             $bin->save();
         }
 

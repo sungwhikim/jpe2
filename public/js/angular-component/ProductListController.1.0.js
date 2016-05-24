@@ -9,6 +9,7 @@
 app.controller('ProductListController', function($http, ListService, alertService, checkBoxService, warehouseClientSelectService) {
     //set object to variable to prevent self reference collisions
     var ProductListController = this;
+    var mainController = ProductListController;
 
     //set reference back to the service so the model variable scope can get passed back
     //for some strange reason, the variable gets disconnected by reference assignment.
@@ -25,6 +26,11 @@ app.controller('ProductListController', function($http, ListService, alertServic
     ProductListController.newItem = {};
     ProductListController.alerts = ListService.alerts;
 
+    /* SET MEMBER METHODS */
+    ProductListController.setProductType = setProductType;
+    ProductListController.updateMainData = updateMainData;
+    ProductListController.setNewBinDefault = setNewBinDefault;
+
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { ProductListController.warehouse_client = warehouseClientData; }
     if( typeof productTypeData != "undefined" ) { ProductListController.product_types = productTypeData; }
@@ -37,14 +43,11 @@ app.controller('ProductListController', function($http, ListService, alertServic
         mainController.newItem.product_type = {};
         mainController.newItem.uom1 = 1;
         mainController.newItem.oversized_pallet = false;
+        mainController.setNewBinDefault();
     };
 
     /* INIT DATA */
     ListService.resetModel();
-
-    /* SET MEMBER METHODS */
-    ProductListController.setProductType = setProductType;
-    ProductListController.updateMainData = updateMainData;
 
     /* CREATE PASS THROUGH FUNCTIONS */
     ProductListController.add = ListService.add;
@@ -95,6 +98,13 @@ app.controller('ProductListController', function($http, ListService, alertServic
             //set alert
             alertService.add('danger', 'The following error occurred in loading the data: ' + response.statusText);
         });
+    }
+
+    function setNewBinDefault() {
+        mainController.newItem.aisle = 'AA';
+        mainController.newItem.section = 1;
+        mainController.newItem.tier = 1;
+        mainController.newItem.position = 1;
     }
 
     /* Helper function to get object by id value */

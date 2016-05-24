@@ -36,14 +36,14 @@ class Transaction extends Model
                                                  $table_detail . '.quantity',
                                                  $table_detail . '.uom AS selectedUom',
                                                  $table_detail . '.uom_multiplier AS selectedUomMultiplierTotal',
-                                                 'variant1.value AS variant1_value',
-                                                 'variant1.value AS variant2_value',
-                                                 'variant1.value AS variant3_value',
-                                                 'variant1.value AS variant4_value')
-                                        ->leftJoin('variant1', $table_detail . '.variant1_id', '=', 'variant1.id')
-                                        ->leftJoin('variant2', $table_detail . '.variant1_id', '=', 'variant2.id')
-                                        ->leftJoin('variant3', $table_detail . '.variant1_id', '=', 'variant3.id')
-                                        ->leftJoin('variant4', $table_detail . '.variant1_id', '=', 'variant4.id')
+                                                 'product_variant1.value AS variant1_value',
+                                                 'product_variant2.value AS variant2_value',
+                                                 'product_variant3.value AS variant3_value',
+                                                 'product_variant4.value AS variant4_value')
+                                        ->leftJoin('product_variant1', $table_detail . '.variant1_id', '=', 'product_variant1.id')
+                                        ->leftJoin('product_variant2', $table_detail . '.variant2_id', '=', 'product_variant2.id')
+                                        ->leftJoin('product_variant3', $table_detail . '.variant3_id', '=', 'product_variant3.id')
+                                        ->leftJoin('product_variant4', $table_detail . '.variant4_id', '=', 'product_variant4.id')
                                         ->where($tx_type . '_id', '=', $transaction->id)->get();
 
         //loop and add product object and variants and detail to each line item

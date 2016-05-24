@@ -37,6 +37,7 @@
                         <th class="button-header"></th>
                         <th class="sort-header">Bin</th>
                         <th class="sort-header">Inventory</th>
+                        <th class="sort-header">Default</th>
                         <th class="sort-header">Active</th>
                     </tr>
                     <tr>
@@ -51,10 +52,17 @@
                                                 <button class="btn btn-default" type="reset" data-toggle="collapse" data-target="#new-item">Cancel</button>
                                                 <button type="submit" class="btn btn-success">Add</button>
                                             </div>
-                                            <div class="col-lg-3 col-md-4 col-sm-5 col-xs-4">
+                                            <div class="col-lg-4 col-md-4 col-sm-5 col-xs-4">
                                                 <div class="checkbox checkbox-slider--b checkbox-slider-md">
                                                     <label>
                                                         <input type="checkbox" name="active" value="true" ng-model="mainList.newItem.active"><span>Active</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-2 col-sm-3 col-xs-2">
+                                                <div class="checkbox checkbox-slider--b checkbox-slider-md">
+                                                    <label>
+                                                        <input type="checkbox" name="default" value="false" ng-model="mainList.newItem.default"><span>Default</span>
                                                     </label>
                                                 </div>
                                             </div>
@@ -80,7 +88,15 @@
                         <td>
                             <div class="checkbox checkbox-slider--b checkbox-slider-md">
                                 <label>
-                                    <input type="checkbox" name="active" value="true" ng-model="item.active">
+                                    <input type="checkbox" name="default" ng-model="item.default">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="checkbox checkbox-slider--b checkbox-slider-md">
+                                <label>
+                                    <input type="checkbox" name="active" ng-model="item.active">
                                     <span></span>
                                 </label>
                             </div>

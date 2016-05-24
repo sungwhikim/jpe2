@@ -291,10 +291,11 @@ body {
 
 /* BIN INPUT */
 .uom-container .bin-item-container {
-    margin-right: -5px !important;
+    margin-right: 5px !important;
+    width: 75px;
 }
 .uom-container .bin-item-container:first-of-type {
-    margin-right: 10px !important;
+    margin-right: 15px !important;
 }
 .bin-item-container label {
     text-align: center !important;

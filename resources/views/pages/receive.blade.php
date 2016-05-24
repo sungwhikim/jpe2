@@ -51,7 +51,7 @@
                                 </thead>
                                 <tbody>
                                 <tr ng-repeat="item in txCtrl.txData.items">
-                                    <td ng-show="txCtrl.selectedWarehouseClient.show_barcode_client" ng-bind="item.barcode_client"></td>
+                                    <td ng-show="txCtrl.selectedWarehouseClient.show_barcode_client" ng-bind="item.product.barcode_client"></td>
                                     <td ng-bind="item.product.sku" class="text-nowrap"></td>
                                     <td ng-bind="item.product.name"></td>
                                     <td>@include('forms.tx-product-variant-list')</td>

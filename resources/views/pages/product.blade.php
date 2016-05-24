@@ -72,6 +72,9 @@
                                         @include('forms.divider', ['title' => 'Unit Of Measure'])
                                         @include('forms.new-uom-product')
 
+                                        @include('forms.divider', ['title' => 'Default Bin'])
+                                        @include('forms.new-bin')
+
                                         @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>

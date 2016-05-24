@@ -10,6 +10,7 @@ use App\Models\ProductType;
 use App\Models\Bin;
 
 use DB;
+use Log;
 
 class ProductController extends Controller
 {
@@ -99,35 +100,87 @@ class ProductController extends Controller
 
     private function saveItem()
     {
-        $product = !empty(request()->json('id')) ? Product::find(request()->json('id')) : new Product();
-        $product->client_id       = auth()->user()->current_client_id;
-        $product->warehouse_id    = auth()->user()->current_warehouse_id;
-        $product->sku             = request()->json('sku');
-        $product->sku_client      = request()->json('sku_client', null);
-        $product->name            = request()->json('name');
-        $product->barcode         = request()->json('barcode', null);
-        $product->barcode_client  = request()->json('barcode_client', null);
-        $product->rfid            = request()->json('rfid', null);
-        $product->product_type_id = request()->json('product_type_id');
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            $product = !empty(request()->json('id')) ? Product::find(request()->json('id')) : new Product();
+            $product->client_id = auth()->user()->current_client_id;
+            $product->warehouse_id = auth()->user()->current_warehouse_id;
+            $product->sku = request()->json('sku');
+            $product->sku_client = request()->json('sku_client', null);
+            $product->name = request()->json('name');
+            $product->barcode = request()->json('barcode', null);
+            $product->barcode_client = request()->json('barcode_client', null);
+            $product->rfid = request()->json('rfid', null);
+            $product->product_type_id = request()->json('product_type_id');
 
-     /* HARDCODE IT TO BE THE DEFAULT FOR THE PRODUCT TYPE FOR NOW.  CHANGE IT TO BE PER PRODUCT LATER */
-        $product->default_uom     = request()->json('product_type')['default_uom'];
+            /* HARDCODE IT TO BE THE DEFAULT FOR THE PRODUCT TYPE FOR NOW.  CHANGE IT TO BE PER PRODUCT LATER */
+            $product->default_uom = request()->json('product_type')['default_uom'];
 
-        $product->uom1            = request()->json('uom1');
-        $product->uom2            = request()->json('uom2', null);
-        $product->uom3            = request()->json('uom3', null);
-        $product->uom4            = request()->json('uom4', null);
-        $product->uom5            = request()->json('uom5', null);
-        $product->uom6            = request()->json('uom6', null);
-        $product->uom7            = request()->json('uom7', null);
-        $product->uom8            = request()->json('uom8', null);
-        $product->oversized_pallet= ( !empty(request()->json('oversized_pallet')) ) ? true : false;
-        $product->active          = ( !empty(request()->json('active')) ) ? true : false;
+            $product->uom1 = request()->json('uom1');
+            $product->uom2 = request()->json('uom2', null);
+            $product->uom3 = request()->json('uom3', null);
+            $product->uom4 = request()->json('uom4', null);
+            $product->uom5 = request()->json('uom5', null);
+            $product->uom6 = request()->json('uom6', null);
+            $product->uom7 = request()->json('uom7', null);
+            $product->uom8 = request()->json('uom8', null);
+            $product->oversized_pallet = (!empty(request()->json('oversized_pallet'))) ? true : false;
+            $product->active = (!empty(request()->json('active'))) ? true : false;
 
-        $product->save();
-        $product_id = $product->id;
+            $product->save();
 
-        return $product_id;
+            //check for default bin and add it
+            if( empty(request()->json('id')) )
+            {
+                $aisle = request()->json('aisle');
+                $section = request()->json('section');
+                $tier = request()->json('tier');
+                $position = request()->json('position');
+
+                //part of default bin data is missing
+                if( empty($aisle) || empty($section) || empty($tier) || empty($position) )
+                {
+                    throw new Exception('Default bin data is missing');
+                }
+
+                //add the bin
+                else
+                {
+                    $bin = new Bin();
+                    $bin->product_id = $product->id;
+                    $bin->default = true;
+                    $bin->active = true;
+                    $bin->aisle = $aisle;
+                    $bin->section = $section;
+                    $bin->tier = $tier;
+                    $bin->position = $position;
+                    $bin->save();
+                }
+            }
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The product was not saved. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
+
+        return $product->id;
     }
 
     private function checkUsage($id)

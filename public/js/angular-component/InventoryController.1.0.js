@@ -167,15 +167,34 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
     /* Save the inventory data */
     function saveInventory() {
+        //sends "processing" message to user
+        ListService.setProcessingAlert();
 
         //make sure product id was set.  Just in case we are in a weird state
         if( !InventoryController.selectedProduct.id ) {
-            alertService.add('danger', 'A valid product was not selected.  Please select a product and try again.');
+            alertService.add('danger', 'A valid product was not selected.  Please select a product and try again.', true);
             return false;
         }
 
-        //sends "processing" message to user
-        ListService.setProcessingAlert();
+        //make sure only one default bin is selected
+        var defaultCount = 0;
+        for( var counter = 0; counter < InventoryController.items.length; counter++ ) {
+            if( InventoryController.items[counter].default === true ) {
+                defaultCount++;
+
+                //if more than one default item is selected, show error
+                if( defaultCount > 1 ) {
+                    alertService.add('danger', 'Only one default bin can be set', true);
+                    return false;
+                }
+            }
+        }
+
+        //since a default bin was not found, show error
+        if( defaultCount == 0 ) {
+            alertService.add('danger', 'Please select a default bin.', true);
+            return false;
+        }
 
         //validate the data
 
@@ -254,6 +273,9 @@ app.controller('InventoryController', function($http, ListService, alertService,
                     response.data.variant3 = InventoryController.selectedProduct.variant3;
                     response.data.variant4 = InventoryController.selectedProduct.variant4;
 
+                    //if it is a new default bin, change all other bins to not be the default
+                    if( newData.default === true ) resetDefaultBin(response.data);
+
                     //add to model
                     ListService.mainCtl.items.unshift(response.data);
 
@@ -329,6 +351,25 @@ app.controller('InventoryController', function($http, ListService, alertService,
             //set alert
             ListService.sendAlert('danger', ListService.getAlertMsg('Bin', 'deleted', response.statusText));
         });
+    }
+
+    /* RESETS THE DEFAULT BIN */
+    function resetDefaultBin(defaultItem) {
+        //main list
+        for( var counter = 0; counter < InventoryController.items.length; counter++ ) {
+            //don't change the selected default bin
+            if( InventoryController.items[counter].id !== defaultItem.id ) {
+                InventoryController.items[counter].default = false;
+            }
+        }
+
+        //display list
+        for( counter = 0; counter < InventoryController.displayItems.length; counter++ ) {
+            //don't change the selected default bin
+            if( InventoryController.displayItems[counter].id !== defaultItem.id ) {
+                InventoryController.displayItems[counter].default = false;
+            }
+        }
     }
 
     /* Helper function to get object by id value */

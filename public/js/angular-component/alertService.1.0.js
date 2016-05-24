@@ -10,7 +10,10 @@ angular.module('alertService', [])
 
         return service;
 
-        function add(type, msg) {
+        function add(type, msg, clear) {
+            //clear other alerts
+            if( clear === true ) service.clear();
+
             return alerts.push({
                 type: type,
                 msg: msg,

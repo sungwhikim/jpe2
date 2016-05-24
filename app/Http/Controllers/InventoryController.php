@@ -61,23 +61,24 @@ class InventoryController extends Controller
         //now add the variants and items from each receive date
         foreach( $bins as $bin )
         {
-            $bin_data = Inventory::select('inventory.*',
-                                          'variant1.value as variant1_value',
-                                          'variant2.value as variant2_value',
-                                          'variant3.value as variant3_value',
-                                          'variant4.value as variant4_value')
-                                   ->leftJoin('variant1', 'inventory.variant1_id', '=', 'variant1.id')
-                                   ->leftJoin('variant2', 'inventory.variant2_id', '=', 'variant2.id')
-                                   ->leftJoin('variant3', 'inventory.variant3_id', '=', 'variant3.id')
-                                   ->leftJoin('variant4', 'inventory.variant4_id', '=', 'variant4.id')
-                                   ->where('inventory.bin_id', '=', $bin->id)
-                                   ->orderBy('variant1.value')
-                                   ->orderBy('variant2.value')
-                                   ->orderBy('variant3.value')
-                                   ->orderBy('variant4.value')
-                                   ->orderBy('inventory.receive_date')
-                                   ->orderBy('inventory.quantity')
-                                   ->get();
+            $bin_data = Inventory::select('inventory.*', 'bin.default',
+                                          'product_variant1.value as variant1_value',
+                                          'product_variant2.value as variant2_value',
+                                          'product_variant3.value as variant3_value',
+                                          'product_variant4.value as variant4_value')
+                                 ->join('bin', 'inventory.bin_id', '=', 'bin.id')
+                                 ->leftJoin('product_variant1', 'inventory.variant1_id', '=', 'product_variant1.id')
+                                 ->leftJoin('product_variant2', 'inventory.variant2_id', '=', 'product_variant2.id')
+                                 ->leftJoin('product_variant3', 'inventory.variant3_id', '=', 'product_variant3.id')
+                                 ->leftJoin('product_variant4', 'inventory.variant4_id', '=', 'product_variant4.id')
+                                 ->where('inventory.bin_id', '=', $bin->id)
+                                 ->orderBy('product_variant1.value')
+                                 ->orderBy('product_variant2.value')
+                                 ->orderBy('product_variant3.value')
+                                 ->orderBy('product_variant4.value')
+                                 ->orderBy('inventory.receive_date')
+                                 ->orderBy('inventory.quantity')
+                                 ->get();
 
             //$bin_data_sorted = $bin_data->sortBy('receive_date');
             $bin->bin_items = $bin_data;
@@ -98,6 +99,7 @@ class InventoryController extends Controller
                 //update active flag.
                 $bin_model = Bin::find($bin['id']);
                 $bin_model->active = $bin['active'];
+                $bin_model->default = $bin['default'];
                 $bin_model->save();
 
                 //go through each bin item if set
