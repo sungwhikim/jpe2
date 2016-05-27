@@ -5,16 +5,18 @@ use App\Models\AsnReceive;
 use App\Models\AsnReceiveDetail;
 use App\Models\Product;
 use App\Models\Carrier;
+use App\Models\Receive;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Enum\TxStatus;
 
 //use App\Models\Services\TransactionService;
 
-class AsnReceiveController extends Controller
+class AsnReceiveController extends TransactionController
 {
     protected $tx_direction = 'receive';
     protected $tx_type = 'asn_receive';
+    protected $tx_title = 'ASN - Receiving';
     protected $transaction = null;
     protected $url;
 
@@ -37,9 +39,6 @@ class AsnReceiveController extends Controller
         //set edit mode
         $edit_mode = ( $tx_data->tx_status_id === 1 ) ? true : false;
 
-    /* SET TO FALSE FOR NOW FOR UAT */
-        $edit_mode = false;
-
         //set tx settings
         $txSetting = ['new' => false,
                       'edit' => $edit_mode,
@@ -48,6 +47,7 @@ class AsnReceiveController extends Controller
 
         return response()->view('pages.asn-receive', ['main_data' => $tx_data,
                                                       'url' => $this->url,
+                                                      'tx_title' => $this->tx_title,
                                                       'product_data' => $list_data['product_data'],
                                                       'carrier_data' => $list_data['carrier_data'],
                                                       'tx_setting' => collect($txSetting)]);
@@ -66,6 +66,7 @@ class AsnReceiveController extends Controller
 
         return response()->view('pages.asn-receive', ['main_data' => collect(['items' => []]),
                                                       'url' => $this->url,
+                                                      'tx_title' => $this->tx_title,
                                                       'product_data' => $list_data['product_data'],
                                                       'carrier_data' => $list_data['carrier_data'],
                                                       'tx_setting' => collect($txSetting)]);
@@ -89,13 +90,13 @@ class AsnReceiveController extends Controller
 
     public function postNew(Request $request)
     {
-        $result = $this->transaction->newAsnTx($request);
+        $result = $this->transaction->saveTx($request, $this->tx_type);
         return $result;
     }
 
     public function postUpdate(Request $request)
     {
-        return $this->transaction->updateAsn($request);
+
     }
 
     public function putCancel($id)

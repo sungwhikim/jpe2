@@ -72,32 +72,14 @@ class Transaction extends Model
         return $transaction;
     }
 
-    public function newAsnTx($request)
-    {
-        //set classes
-        $classes = $this->getClasses('asn_receive');
-
-        return $this->saveTx($request, $classes, 'asn_receive');
-    }
-
-    public function updateAsn($request)
-    {
-
-    }
-
-    public function newReceiveTx($request)
-    {
-        //set classes
-        $classes = $this->getClasses('receive');
-
-        return $this->saveTx($request, $classes, 'receive');
-    }
-
-    private function saveTx($request, $classes, $tx_type)
+    public function saveTx($request, $tx_type)
     {
         //data validation
         $result = $this->basicDataValidation($request);
         if( $result !== true ) { return response()->json($result); }
+
+        //get classes
+        $classes = $this->getClasses($tx_type);
 
         //wrap the entire process in a transaction
         DB::beginTransaction();
@@ -324,8 +306,6 @@ class Transaction extends Model
      * @param $item
      * @param $class
      * @param $transaction_detail_id
-     *
-     * returns the item object with the variants already set for the insert/update into the database
      */
     public function saveBin($item, $class, $transaction_detail_id)
     {

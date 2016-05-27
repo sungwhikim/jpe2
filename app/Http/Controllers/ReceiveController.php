@@ -14,6 +14,7 @@ class ReceiveController extends Controller
 {
     protected $tx_direction = 'receive';
     protected $tx_type = 'receive';
+    protected $tx_title = 'Receiving';
     protected $transaction = null;
     protected $url;
 
@@ -36,9 +37,6 @@ class ReceiveController extends Controller
         //set edit mode
         $edit_mode = ( $tx_data->tx_status_id === 1 ) ? true : false;
 
-        /* SET TO FALSE FOR NOW FOR UAT */
-        $edit_mode = false;
-
         //set tx settings
         $txSetting = ['new' => false,
                       'edit' => $edit_mode,
@@ -47,6 +45,7 @@ class ReceiveController extends Controller
 
         return response()->view('pages.receive', ['main_data' => $tx_data,
                                                   'url' => $this->url,
+                                                  'tx_title' => $this->tx_title,
                                                   'product_data' => $list_data['product_data'],
                                                   'carrier_data' => $list_data['carrier_data'],
                                                   'tx_setting' => collect($txSetting)]);
@@ -65,6 +64,7 @@ class ReceiveController extends Controller
 
         return response()->view('pages.receive', ['main_data' => collect(['items' => []]),
                                                   'url' => $this->url,
+                                                  'tx_title' => $this->tx_title,
                                                   'product_data' => $list_data['product_data'],
                                                   'carrier_data' => $list_data['carrier_data'],
                                                   'tx_setting' => collect($txSetting)]);

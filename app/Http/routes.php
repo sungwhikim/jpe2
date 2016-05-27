@@ -99,8 +99,8 @@ Route::get('/transaction/product-list', 'TransactionController@getUserProductLis
 Route::post('/transaction/check-po-number/{transaction_type}', 'TransactionController@checkPoNumber');
 
 /* TRANSACTION FINDER */
-Route::get('/transaction-finder', 'TransactionController@getTransactionFinder');
-Route::get('/transaction/find-type/{tx_type}', 'TransactionController@getTxFinderData');
+Route::get('/transaction-finder', 'TransactionFinderController@getTransactionFinder');
+Route::get('/transaction/find-type/{tx_type}', 'TransactionFinderController@getTxFinderData');
 
 /* ASN - RECEIVE */
 Route::get('/transaction/asn/receive/new', 'AsnReceiveController@getNew');

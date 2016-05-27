@@ -4,12 +4,13 @@
  */
 
 /* app is instantiated in the myApp.js file */
-app.controller('TransactionController', function($http, checkBoxService, modalMessageService,
-                                               warehouseClientSelectService, modalService, datePickerService, searchSelectService) {
+app.controller('TransactionController', function($http, checkBoxService, modalMessageService, warehouseClientSelectService,
+                                                 modalService, datePickerService, searchSelectService) {
     //set object to variable to prevent self reference collisions
     var TransactionController = this;
 
     /* SET PASS THROUGH PROPERTIES */
+    /* CREATE PASS THROUGH FUNCTIONS */
 
     /* SET DATA PROPERTIES */
     TransactionController.baseUrl = baseUrl;
@@ -18,6 +19,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     TransactionController.newItem = {};
     TransactionController.txData = appData;
     TransactionController.txData.txType = txSetting.type; //we need to do this to verify po number again upon save
+    TransactionController.txData.txSetting = txSetting; //this is so we can tell what the state of the tx is when saving
     TransactionController.products = productData;
     TransactionController.selectedWarehouseClient = warehouseClientSelectService.selectedData;
     TransactionController.currentBinData = {};
@@ -35,19 +37,19 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     if( typeof carrierData != "undefined" ) { TransactionController.carriers = carrierData; }
 
     /* SET MEMBER METHODS */
-    TransactionController.newTransaction = newTransaction;
     TransactionController.saveTransaction = saveTransaction;
+    TransactionController.convertTransaction = convertTransaction;
+    TransactionController.voidTransaction = voidTransaction;
+    TransactionController.voidTransactionCallback = voidTransactionCallback;
     TransactionController.selectProduct = selectProduct;
     TransactionController.deleteItem = deleteItem;
     TransactionController.addItem = addItem;
     TransactionController.checkPoNumber = checkPoNumber;
     TransactionController.selectUom = selectUom;
-    TransactionController.resetTx = resetTx;
+    TransactionController.resetTransaction = resetTransaction;
     TransactionController.clearProductInput = clearProductInput;
     TransactionController.showBin = showBin;
     TransactionController.checkBarcodeClient = checkBarcodeClient;
-
-    /* CREATE PASS THROUGH FUNCTIONS */
 
     /* ASSIGN SERVICES TO ALLOW DIRECT ACCESS FROM TEMPLATE TO SERVICE */
     TransactionController.modalService = modalService;
@@ -215,8 +217,7 @@ console.log(TransactionController.txData);
     }
 
     /* Save the transaction data */
-    function saveTransaction() {}
-    function newTransaction(reset, form) {
+    function saveTransaction(reset, form) {
         //set form submitted to true here since we are not using form submission to process saving of data
         //as we require different parameters to be passed in by different buttons.
         form.$submitted = true;
@@ -224,10 +225,13 @@ console.log(TransactionController.txData);
         //validate data manually again to prevent bad data being sent to the back end.(although another check will be done in the back end)
         if( validateData() !== true ) { return false; }
 
+        //set route for new or update
+        var route = ( TransactionController.txSetting.new === true ) ? 'new' : 'update';
+
         //run ajax save
         $http({
             method: 'POST',
-            url: TransactionController.appUrl + '/new',
+            url: TransactionController.appUrl + '/' + route,
             data: TransactionController.txData
         }).then(function successCallback(response) {
             if( response.data.errorMsg ) {
@@ -238,12 +242,27 @@ console.log(TransactionController.txData);
                 modalMessageService.showModalMessage('info', 'The transaction has been saved');
 
                 //reset transaction
-                if( reset === true ) resetTx(form);
+                if( reset === true ) resetTransaction(form);
             }
         }, function errorCallback(response) {
             //set alert
             modalMessageService.showModalMessage('danger', 'The following error occurred in saving the data: ' + response.statusText);
         });
+    }
+
+    /* Convert the ASN Transaction */
+    function convertTransaction() {
+
+    }
+
+    /* Void transaction dialog box */
+    function voidTransaction() {
+
+    }
+
+    /* Void transaction callback */
+    function voidTransactionCallback() {
+
     }
 
     /* Clear out the variant data when switching products */
@@ -263,7 +282,7 @@ console.log(TransactionController.txData);
     }
 
     /* Reset the transaction */
-    function resetTx(form) {
+    function resetTransaction(form) {
         //reset form
         form.$submitted = false;
         form.$setPristine();

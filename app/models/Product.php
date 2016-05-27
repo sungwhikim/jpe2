@@ -135,7 +135,8 @@ class Product extends Model
 
     public function getInventoryBin($product_id)
     {
-        $bins = Bin::select('bin.id', 'bin.aisle', 'bin.section', 'bin.tier', 'bin.position', DB::raw('SUM(inventory.quantity) as inventory'))
+        $bins = Bin::select('bin.id', 'bin.aisle', 'bin.section', 'bin.tier', 'bin.position',
+                            DB::raw('SUM(inventory.quantity) as inventory'), DB::raw('0 AS quantity'))
                    ->leftJoin('inventory', 'inventory.bin_id', '=', 'bin.id')
                    ->where('bin.product_id', '=', $product_id)
                    ->groupBy('bin.id')->groupBy('bin.aisle')->groupBy('bin.section')->groupBy('bin.tier')->groupBy('bin.position')

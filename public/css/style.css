@@ -260,6 +260,10 @@ body {
     background-color: #777;
     white-space: nowrap;
 }
+.tags .tag-variant {
+    padding: 7px 10px;
+    margin: 5px 10px 5px 0;
+}
 
 /* PRODUCT DROPDOWN */
 .product-dropdown {
@@ -387,6 +391,9 @@ body {
     margin-top: 15px;
     min-height: 175px;
 }
+.tx-container .panel-heading-tx {
+    height: 55px;
+}
 .tx-container .no-padding {
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -400,6 +407,13 @@ body {
     padding-left: 0 !important;
     padding-right: 0 !important;
     margin: 0 50px 0 0;
+}
+.tx-container .new-variant-container {
+    white-space: nowrap;
+    margin-left: 5px;
+    position: relative;
+    left: 10px;
+    width: 100%;
 }
 .tx-container .variant-container {
     padding-left: 0 !important;
@@ -418,7 +432,7 @@ body {
 .tx-wc-header {
     font-size: 24px;
 }
-.btn-cancel-tx {
+.btn-cancel-tx, .btn-void-tx {
     margin-left: 55px;
 }
 
