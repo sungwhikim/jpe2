@@ -108,7 +108,9 @@ Route::get('/transaction/asn/receive/{tx_id}', 'AsnReceiveController@getIndex');
 Route::controller('/transaction/asn/receive', 'AsnReceiveController');
 
 /* ASN - SHIP */
-//Route::controller('/transaction/asn/ship', 'AsnShipController');
+Route::get('/transaction/asn/ship/new', 'AsnShipController@getNew');
+Route::get('/transaction/asn/ship/{tx_id}', 'AsnShipController@getIndex');
+Route::controller('/transaction/asn/ship', 'AsnShipController');
 
 /* RECEIVE */
 Route::get('/transaction/receive/new', 'ReceiveController@getNew');

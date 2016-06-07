@@ -84,7 +84,7 @@
                             </div>
                         </td>
                         <td>@{{ item.aisle }} @{{ item.section | numberFixedLen:2 }} @{{ item.tier | numberFixedLen:2 }} @{{ item.position | numberFixedLen:2 }}</td>
-                        <td ng-bind="item.total"></td>
+                        <td ng-bind="item.total / mainList.uomMultiplier"></td>
                         <td>
                             <div class="checkbox checkbox-slider--b checkbox-slider-md">
                                 <label>
@@ -155,7 +155,7 @@
                                             <td ng-show="mainList.selectedProduct.variant4_active == true"
                                                 ng-bind="bin_item.variant4_value" ></td>
                                             <td>@{{ bin_item.receive_date | date: "MM-dd-yyyy" }}</td>
-                                            <td><input class="form-control" type="number" ng-model="bin_item.quantity" disabled></td>
+                                            <td><input class="form-control" type="number" ng-value="bin_item.quantity / mainList.uomMultiplier" disabled></td>
                                             <td><input class="form-control" type="number" ng-model="bin_item.quantity_new"></td>
                                             {{--<td><button class="btn btn-primary" ng-click="mainList.moveBinItem">Move</button></td>--}}
                                         </tr>

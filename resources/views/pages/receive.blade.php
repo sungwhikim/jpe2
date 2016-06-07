@@ -1,11 +1,12 @@
 @extends('layouts.transaction')
 
 @section('tx-buttons')
-    <button type="button" class="btn btn-success" ng-show="txCtrl.txSetting.new == true"
+    <button type="button" class="btn btn-success" ng-show="txCtrl.txSetting.new == true && txCtrl.txSetting.convert == false"
             ng-click="txCtrl.saveTransaction(true, txForm)">Save & New</button>
     <button type="button" class="btn btn-success" ng-disabled="txCtrl.txSetting.edit == false"
             ng-click="txCtrl.saveTransaction(false, txForm)">Save</button>
-    <button type="reset" class="btn btn-default btn-cancel-tx" ng-show="txCtrl.txSetting.new == true"
+    <button type="reset" class="btn btn-default btn-cancel-tx"
+            ng-show="txCtrl.txSetting.new == true && txCtrl.txSetting.convert == false"
             ng-click="txCtrl.resetTransaction(txForm);">Clear</button>
 @endsection
 

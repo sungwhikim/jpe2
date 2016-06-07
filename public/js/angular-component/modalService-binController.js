@@ -14,6 +14,7 @@ app.controller('BinController', ['$scope', 'close', 'modalService', 'item', func
     $scope.addBin = function() {
         //set properties to complete object
         $scope.newItem.id = null;
+        $scope.newItem.default = false;
         $scope.newItem.inventory = 0;
         $scope.newItem.aisle = $scope.newItem.aisle.toUpperCase();
 

@@ -50,6 +50,9 @@ body {
 .dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {
     background-color: #adadad;
 }
+.dropdown-menu li {
+    cursor: pointer;
+}
 .dropdown.warehouse-client-ul {
     min-width: 250px;
     text-align: right;
@@ -271,10 +274,12 @@ body {
     min-width: 350px;
 }
 .product-dropdown .product-label {
-    width: 300px;
+    width: 250px;
+    background-color: #fff;
 }
 .product-dropdown ul {
     max-height: 600px;
+    max-width: 600px;
     overflow-y: auto;
 }
 .product-label {

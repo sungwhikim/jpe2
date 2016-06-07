@@ -1,6 +1,5 @@
 /* THERE ARE THREE EXTERNAL DEPENDENT VARIABLES THAT MUST BE SET FOR THIS CONTROLLER TO WORK
-    1.  appUrl = The path to the server to make the AJAX calls to
-    2.  txSetting = The transaction settings like type and direction and mode
+    1.  txSetting = The transaction settings like type and direction and mode
  */
 
 /* app is instantiated in the myApp.js file */
@@ -14,15 +13,14 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
 
     /* SET DATA PROPERTIES */
     TransactionController.baseUrl = baseUrl;
-    TransactionController.appUrl = appUrl;
     TransactionController.txSetting = txSetting;
     TransactionController.newItem = {};
     TransactionController.txData = appData;
-    TransactionController.txData.txType = txSetting.type; //we need to do this to verify po number again upon save
     TransactionController.txData.txSetting = txSetting; //this is so we can tell what the state of the tx is when saving
     TransactionController.products = productData;
     TransactionController.selectedWarehouseClient = warehouseClientSelectService.selectedData;
     TransactionController.currentBinData = {};
+    initTxDate(); //sets up the initial date
 
     /* SET SEARCH SELECT PROPERTIES */
     TransactionController.SearchSelectProduct = searchSelectService;
@@ -226,12 +224,14 @@ console.log(TransactionController.txData);
         if( validateData() !== true ) { return false; }
 
         //set route for new or update
-        var route = ( TransactionController.txSetting.new === true ) ? 'new' : 'update';
+        var route = ( TransactionController.txSetting.new === true ) ? 'new' : 'update/' + TransactionController.txData.id;
+        //build the url.  We need to change the _ to a / in the route to match the type of tx.
+        var url = TransactionController.baseUrl + '/transaction/' + TransactionController.txSetting.type.replace('_', '/') + '/' + route;
 
         //run ajax save
         $http({
             method: 'POST',
-            url: TransactionController.appUrl + '/' + route,
+            url: url,
             data: TransactionController.txData
         }).then(function successCallback(response) {
             if( response.data.errorMsg ) {
@@ -252,7 +252,12 @@ console.log(TransactionController.txData);
 
     /* Convert the ASN Transaction */
     function convertTransaction() {
+        //build the url
+        var url = TransactionController.baseUrl + '/transaction/' + TransactionController.txSetting.direction +
+                '/convert/' + TransactionController.txData.id;
 
+        //reroute
+        window.location = url;
     }
 
     /* Void transaction dialog box */
@@ -293,7 +298,7 @@ console.log(TransactionController.txData);
         TransactionController.txData.items = [];
         TransactionController.newItem = {};
         TransactionController.SearchSelectProduct.clear(); //clear out product select box
-        TransactionController.txData.txType = txSetting.type;
+        TransactionController.txData.txSetting = txSetting;
         setWarehouseClientTxData(); //add back warehouse_id and client_id
     }
 
@@ -439,5 +444,20 @@ console.log(TransactionController.txData);
         //show an error dialog since if we got here, then the barcode was not found
         TransactionController.SearchSelectProduct.clear();
         modalMessageService.showModalMessage('danger', 'The client barcode was not found.');
+    }
+
+    function initTxDate() {
+        var txDate = TransactionController.txData.tx_date;
+
+        /* Set differently whether it is a new transaction or a date is already set */
+        //date not set
+        if( txDate == null ) {
+            TransactionController.txData.tx_date = datePickerService.setInitialDate();
+        }
+
+        //date set so init as date object
+        else {
+            TransactionController.txData.tx_date = new Date(txDate);
+        }
     }
 });

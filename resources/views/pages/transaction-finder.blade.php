@@ -47,7 +47,7 @@
                             {{--<td ng-bind="item.tx_type"></td>--}}
                             <td ng-bind="item.tx_date"></td>
                             <td ng-bind="item.po_number"></td>
-                            <td><span ng-bind="item.tx_status" class="badge"></span></td>
+                            <td><span ng-bind="item.tx_status" class="label label-default" style="font-size: 12px;"></span></td>
                         </tr>
                     </tbody>
                 </table>

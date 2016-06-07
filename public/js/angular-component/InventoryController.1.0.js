@@ -27,6 +27,9 @@ app.controller('InventoryController', function($http, ListService, alertService,
     InventoryController.alerts = ListService.alerts;
     InventoryController.products = productData;
     InventoryController.displayProducts = [].concat(productData);
+    InventoryController.uoms = [];
+    InventoryController.uomMultiplier = 1;
+    InventoryController.selectedUom = null;
 
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { InventoryController.warehouse_client = warehouseClientData; }
@@ -49,6 +52,7 @@ app.controller('InventoryController', function($http, ListService, alertService,
     InventoryController.deleteConfirmBin = deleteConfirmBin;
     InventoryController.deleteBin = deleteBin;
     InventoryController.newBinItem = newBinItem;
+    InventoryController.selectUom = selectUom;
 
     /* CREATE PASS THROUGH FUNCTIONS */
     InventoryController.add = ListService.add;
@@ -108,7 +112,7 @@ app.controller('InventoryController', function($http, ListService, alertService,
             InventoryController.displayProducts = [].concat(InventoryController.items);
 
             //set alert
-            alertService.add('danger', 'The following error occurred in loading the data: ' + response.statusText);
+            alertService.add('danger', 'The following error occurred in loading the data: ' + response.statusText, true);
         });
     }
 
@@ -126,6 +130,7 @@ app.controller('InventoryController', function($http, ListService, alertService,
             url: ListService.appUrl + '/product-inventory/' + product.id
         }).then(function successCallback(response) {
             //replace data
+            console.log(response.data);
             loadMainData(response.data);
 
             //reset original model
@@ -141,15 +146,21 @@ app.controller('InventoryController', function($http, ListService, alertService,
             InventoryController.displayItems = [].concat(InventoryController.items);
 
             //set alert
-            alertService.add('danger', 'The following error occurred in loading the data: ' + response.statusText);
+            alertService.add('danger', 'The following error occurred in loading the data: ' + response.statusText, true);
         });
     }
 
     /* PRIVATE FUNCTION USED TO UPDATE MAIN DATA */
     function loadMainData(data) {
+        //reset main data
         InventoryController.items = 0;
-        InventoryController.items = data;
-        InventoryController.displayItems = [].concat(data);
+        InventoryController.items = data.inventory;
+        InventoryController.displayItems = [].concat(data.inventory);
+
+        //set UOM data
+        InventoryController.uoms = data.uom.uoms;
+        InventoryController.selectedUom = data.uom.selectedUom;
+        InventoryController.uomMultiplier = data.uom.selectedUomMultiplierTotal;
     }
 
     /* SAVE CONFIRMATION DIALOG */
@@ -198,11 +209,16 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
         //validate the data
 
+        //build return data
+        var data = {};
+        data.bins = InventoryController.items;
+        data.uomMultiplier = InventoryController.uomMultiplier;
+
         //run ajax save
         $http({
             method: 'POST',
             url: ListService.appUrl + '/save/' + InventoryController.selectedProduct.id,
-            data: InventoryController.items
+            data: data
         }).then(function successCallback(response) {
             if( response.data.errorMsg ) {
                 //set alert
@@ -222,11 +238,8 @@ app.controller('InventoryController', function($http, ListService, alertService,
                 alertService.add('success', 'The inventory data has been saved');
             }
         }, function errorCallback(response) {
-            //clear alerts
-            alertService.clear();
-
             //set alert
-            alertService.add('danger', 'The following error occurred in saving the data: ' + response.statusText);
+            alertService.add('danger', 'The following error occurred in saving the data: ' + response.statusText, true);
         });
     }
 
@@ -372,11 +385,47 @@ app.controller('InventoryController', function($http, ListService, alertService,
         }
     }
 
+    /* Selects the unit of measure(uom) */
+    function selectUom(uom) {
+        var uomMultiplierOld = InventoryController.uomMultiplier;
+
+        //set selected Uom
+        InventoryController.selectedUom = uom.key;
+        InventoryController.uomMultiplier = uom.multiplier_total;
+
+        //recalculate input amounts
+        for( var i = 0; i < InventoryController.items.length; i++ ) {
+            var bin = InventoryController.items[i];
+
+            //we need to check for bin items first
+            var bin_items = bin.bin_items;
+            if( bin_items ) {
+                for( var k = 0; k < bin_items.length; k++ ) {
+                    var bin_item = bin_items[k];
+
+                    //check to see if new quantity is set and non-zero
+                    if( bin_item.quantity_new && bin_item.quantity_new > 0 ) {
+                        //convert to base
+                        var quantity_base = bin_item.quantity_new * uomMultiplierOld;
+
+                        //convert to current UOM
+                        bin_item.quantity_new = roundNumber(quantity_base / InventoryController.uomMultiplier, 2);
+                    }
+                }
+            }
+        }
+    }
+
     /* Helper function to get object by id value */
     function getObjectById(data, id) {
         for( var i = 0; i < data.length; i++ ) {
             if( data[i].id == id ) { return data[i]; }
         }
         return {};
+    }
+
+    /* Helper function to round decimals properly */
+    function roundNumber(value, decimals) {
+        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
     }
 });

@@ -5,10 +5,8 @@
         <div ng-class="{ 'has-error': (txForm.tx_date.$touched || txForm.$submitted) && txForm.tx_date.$invalid }">
             <div class="input-group">
                 <input type="text" class="form-control" name="tx_date" ng-model="txCtrl.txData.tx_date"
-                       uib-datepicker-popup="@{{ txCtrl.datePicker.dateFormat }}"
-                       is-open="txCtrl.datePicker.popupOpened"
-                       datepicker-options="txCtrl.datePicker.dateOptions"
-                       on-open-focus="false" close-text="Close" required />
+                       uib-datepicker-popup="@{{ txCtrl.datePicker.dateFormat }}" is-open="txCtrl.datePicker.popupOpened"
+                       datepicker-options="txCtrl.datePicker.dateOptions" on-open-focus="false" close-text="Close" required />
                 <span class="input-group-btn">
                 <button type="button" class="btn btn-default" ng-click="txCtrl.datePicker.open()">
                     <i class="glyphicon glyphicon-calendar"></i>

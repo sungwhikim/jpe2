@@ -1,9 +1,20 @@
 <div class="col-lg-9 col-md-12 col-sm-12" st-table="mainList.displayProducts" st-safe-src="mainList.products" ng-cloak>
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="btn-group product-dropdown input-group">
-            <input type="text" class="form-control product-label"
+            <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-left" ng-show="mainList.uoms.length > 0">
+                    <li ng-repeat="uom in mainList.uoms"
+                        ng-class="{active: uom.key == mainList.selectedUom}">
+                        <a ng-click="mainList.selectUom(uom)">@{{ uom.name }}</a>
+                    </li>
+                </ul>
+            </div>
+            <input type="text" class="form-control product-label dropdown-toggle" data-toggle="dropdown"
                    value="@{{ mainList.selectedProduct.sku }} - @{{ mainList.selectedProduct.name }}"
-               ng-init="mainList.selectedProduct.sku = '- select a product'" disabled="disabled">
+               ng-init="mainList.selectedProduct.sku = '- select a product'" readonly>
             <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 &nbsp;<span id="item-total" class="badge" ng-bind="mainList.displayProducts.length"></span>&nbsp;
                 <span class="caret"></span>
@@ -15,7 +26,7 @@
             </ul>
         </div>
     </div>
-    <div class="col-lg-6 col-md-6 col-sm-9 col-xs-9">
+    <div class="col-lg-5 col-md-5 col-sm-6 col-xs-7">
         <form class="">
             <div class="form-group">
                 <label class="control-label"></label>

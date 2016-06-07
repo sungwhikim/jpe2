@@ -16,7 +16,8 @@
                 <div class="panel panel-default panel-nav box-shadow--2dp">
                     <div class="panel-heading panel-heading-tx">
                         @yield('tx-buttons')
-                        <button type="button" class="btn btn-default btn-void-tx" ng-show="txCtrl.txSetting.new == false && txCtrl.txSetting.edit == true"
+                        <button type="button" class="btn btn-default btn-void-tx"
+                                ng-show="txCtrl.txSetting.new == false && txCtrl.txSetting.edit == true"
                                 ng-click="txCtrl.voidTransaction();">Void</button>
                         <div class="pull-right tx-wc-header">
                             <span ng-bind="txCtrl.selectedWarehouseClient.warehouse_name"></span> /
@@ -59,7 +60,6 @@
 
 @section('js-footer')
     <script>
-        var appUrl = '{{ $url }}';
         var txSetting = {!! $tx_setting !!};
         var appData = {!! $main_data !!};
         var productData = {!! $product_data !!};
