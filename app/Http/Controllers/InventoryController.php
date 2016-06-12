@@ -10,6 +10,7 @@ use App\Enum\InventoryActivityType;
 use DB;
 use Log;
 use Illuminate\Http\Exception;
+use Symfony\Component\HttpFoundation\Request;
 
 class InventoryController extends Controller
 {
@@ -200,5 +201,21 @@ class InventoryController extends Controller
                                                    'created_at' => date('Y-m-d G:i:s'),
                                                    'updated_at' => date('Y-m-d G:i:s')]);
         }
+    }
+
+    /**
+     * For used by Ajax call to return the total inventory for the variant(s) chosen
+     *
+     * @param Request $request
+     *
+     * @return mixed
+     */
+    public function getVariantInventoryTotal()
+    {
+        $inventory_model = new Inventory();
+        $data['inventory_total'] = $inventory_model->getVariantInventoryTotal(request()->json('product_id'), request()->json('variant1_id'),
+                                        request()->json('variant2_id'), request()->json('variant3_id'), request()->json('variant4_id'));
+
+        return $data;
     }
 }

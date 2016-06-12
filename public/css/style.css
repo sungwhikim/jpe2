@@ -366,6 +366,7 @@ body {
 /* TRANSACTION SCREENS */
 .tx-panel {
     min-height: 450px;
+    overflow-y: visible !important;
 }
 .tx-panel a {
     cursor: pointer;
@@ -384,6 +385,11 @@ body {
 }
 #tx-note {
     height: 115px;
+}
+.form-group.has-error button {
+    border-top-color: #a94442;
+    border-right-color: #a94442;
+    border-bottom-color: #a94442;
 }
 #tx-product-input-container {
     border-top: 1px solid #ddd;
@@ -408,6 +414,10 @@ body {
     padding-right: 0 !important;
     margin: 0 10px 0 0;
 }
+#quantity-container-ship {
+    position: relative;
+    left: 30px;
+}
 .tx-container .quantity-bin-container {
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -419,6 +429,16 @@ body {
     position: relative;
     left: 10px;
     width: 100%;
+}
+.tx-container .new-variant-container-ship {
+    white-space: nowrap;
+    margin-left: 5px;
+    position: relative;
+    left: 65px;
+    width: 100%;
+}
+.new-variant-container-ship input {
+    background-color: #fff !important;
 }
 .tx-container .variant-container {
     padding-left: 0 !important;
@@ -463,7 +483,42 @@ body {
     content: ' \25BC';
 }
 
-/* FOR ANGULAR-UI COMPONENTS */
+/* INVENTORY QUANTITY BADGE */
+.inventory-quantity-container {
+    display: inline-block;
+    min-width: 75px;
+    padding: 6px 12px 5px 12px;
+    margin-bottom: 0;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: #e7e7e7;
+    border: 1px solid #cccccc;
+    border-left: none;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.inventory-quantity-container .badge-inventory {
+    display: inline-block;
+    min-width: 10px;
+    padding: 4px 7px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    background-color: #000;
+    border-radius: 10px;
+}
+
+    /* FOR ANGULAR-UI COMPONENTS */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
 /* FOR MODAL MESSAGE DIALOG BOX */

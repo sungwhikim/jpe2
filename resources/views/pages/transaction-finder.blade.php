@@ -30,7 +30,9 @@
                             <th class="col-lg-2 col-md-2 col-sm-2">
                                 <select class="form-control" name="tx_type" ng-change="mainList.changeTxType()" ng-model="mainList.txType">
                                     <option value="asn_receive" ng-selected="mainList.txType == 'asn_receive'">ASN - Receiving</option>
+                                    <option value="asn_ship" ng-selected="mainList.txType == 'asn_ship'">ASN - Shipping</option>
                                     <option value="receive" ng-selected="mainList.txType == 'receive'">Receiving</option>
+                                    <option value="ship" ng-selected="mainList.txType == 'ship'">Shipping</option>
                                 </select>
                             </th>
                             {{--<th class="sort-header" st-sort="tx_type">Type</th>--}}

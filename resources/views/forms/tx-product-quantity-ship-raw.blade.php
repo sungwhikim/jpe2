@@ -1,4 +1,4 @@
-<div class="input-group" style="width: 172px;">
+<div class="input-group col-lg-4 col-md-4 col-sm-4 col-xs-3 pull-left">
     <div class="input-group-btn">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
@@ -10,11 +10,12 @@
             </li>
         </ul>
     </div>
-    <input type="number" class="form-control" placeholder="Quantity" style="width: 100px;"
+    <input type="number" class="form-control" placeholder="Qty" style="width: 75px;"
            ng-model="{{ $model_object }}.quantity" min="1">
     <div class="input-group-btn">
-        <button class="btn btn-default" style="min-width: 75px;">
-            &nbsp;<span id="item-total" class="badge" ng-bind="{{ $model_object }}.inventoryTotal"></span>
+        <button class="inventory-quantity-container">
+            <span id="item-total" class="badge-inventory"
+                  ng-bind="({{ $model_object }}.inventoryTotal / {{ $model_object }}.selectedUomMultiplierTotal) - {{ $model_object }}.quantity"></span>
         </button>
     </div>
 </div>

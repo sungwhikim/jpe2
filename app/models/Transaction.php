@@ -17,15 +17,28 @@ class Transaction extends Model
         //get classes
         $classes = $this->getClasses($tx_type);
         $product_model = new Product();
+        $inventory_model = new Inventory();
 
-    /* NEED TO VALIDATE WAREHOUSE CLIENT LIST HERE TO MAKE SURE THE USER HAS PERMISSIONS */
         //get main transaction
+        $user_id = auth()->user()->id;
         $tx = new $classes['transaction'];
-        $transaction = $tx->find($tx_id);
+        $transaction = $tx::select($tx_type . '.*', 'warehouse.name AS warehouse_name', 'client.short_name AS client_short_name')
+                          ->join('warehouse', $tx_type . '.warehouse_id', '=', 'warehouse.id')
+                          ->join('client', $tx_type . '.client_id', '=', 'client.id')
+                          ->join('user_warehouse', $tx_type . '.warehouse_id', '=', 'user_warehouse.warehouse_id')
+                          ->join('user_client', $tx_type . '.client_id', '=', 'user_client.client_id')
+                          ->where('user_warehouse.user_id', '=', $user_id)
+                          ->where('user_client.user_id', '=', $user_id)
+                          ->where($tx_type . '.id', '=', $tx_id)->take(1)->get()[0];
+
+        //verify that the transaction was found accounting for the user's warehouse and client permission list
+        if( count($transaction) == 0 )
+        { throw new Exception('Invalid transaction ID or you do not have permissions to view this transaction'); }
 
         //if we are converting it, we need to double check it isn't being done twice.  This should not happen as
         //the button should not exist, but we need to make sure some weird js state allows it.
-        if( $tx->tx_status_id == TxStatus::converted ) { throw new Exception('This transaction was already converted.'); }
+        if( $tx->tx_status_id == TxStatus::converted )
+        { throw new Exception('This transaction was already converted.'); }
 
         //add line items
         $tx_detail = new $classes['transaction_detail'];
@@ -38,6 +51,10 @@ class Transaction extends Model
                                                  $table_detail . '.quantity',
                                                  $table_detail . '.uom AS selectedUom',
                                                  $table_detail . '.uom_multiplier AS selectedUomMultiplierTotal',
+                                                 $table_detail . '.variant1_id',
+                                                 $table_detail . '.variant2_id',
+                                                 $table_detail . '.variant3_id',
+                                                 $table_detail . '.variant4_id',
                                                  'product_variant1.value AS variant1_value',
                                                  'product_variant2.value AS variant2_value',
                                                  'product_variant3.value AS variant3_value',
@@ -46,7 +63,8 @@ class Transaction extends Model
                                         ->leftJoin('product_variant2', $table_detail . '.variant2_id', '=', 'product_variant2.id')
                                         ->leftJoin('product_variant3', $table_detail . '.variant3_id', '=', 'product_variant3.id')
                                         ->leftJoin('product_variant4', $table_detail . '.variant4_id', '=', 'product_variant4.id')
-                                        ->where($tx_type . '_id', '=', $transaction->id)->get();
+                                        ->where($tx_type . '_id', '=', $transaction->id)
+                                        ->orderBy($table_detail . '.id')->get();
 
         //loop and add product object and variants and detail to each line item
         foreach( $transaction_detail as $line_item)
@@ -62,14 +80,22 @@ class Transaction extends Model
             $line_item['product'] = Product::find($product_id);
             $line_item['variants'] = $product_model->getTxVariant($product_id);
 
-            //get bins
-            if( isset($classes['transaction_bin']) )
+            //get bins for receiving transactions
+            if( $tx_type == 'receive' )
             {
                 $line_item['bins'] = $this->getTransactionBin($tx_type, $uom_multiplier, $product_id, $line_item->id);
             }
 
             //get bin list if the transaction is being converted because there are not bins set yet
             if( $convert === true) { $line_item['bins'] = $product_model->getInventoryBin($product_id); }
+
+            //for shipping transactions, add the inventory total and uom multiplier
+            if( $tx_type == 'asn_ship' || $tx_type == 'ship' )
+            {
+                $line_item['inventoryTotal'] = $inventory_model->getVariantInventoryTotal($line_item->product_id, $line_item->variant1_id,
+                                                    $line_item->variant2_id, $line_item->variant3_id, $line_item->variant4_id);
+                $line_item['selectedUomMultiplierTotal'] = $uom_multiplier;
+            }
         }
 
         //add detail list to transaction
@@ -293,17 +319,21 @@ class Transaction extends Model
         }
 
         /* check for duplicate po number */
-        $result = $this->checkPoNumber($tx_type, $warehouse_id, $client_id, $po_number, $tx_id);
-        if( $result !== true )
+        if( $this->checkPoNumber($tx_type, $warehouse_id, $client_id, $po_number, $tx_id) !== true )
         {
             return array('errorMsg' => 'The PO Number is a duplicate.');
         }
 
         /* do and error check to fail if no line items were sent in */
-        $line_items = $request->json('items');
-        if( count($line_items) == 0 )
+        if( count($request->json('items')) == 0 )
         {
             return array('errorMsg' => 'No line items were entered.');
+        }
+
+        /* check for customer id in shipping transactions */
+        if( ($tx_type == 'asn_ship' || $tx_type == 'ship') && is_numeric($request->json('customer_id')) === false )
+        {
+            return array('errorMsg' => 'Please select a customer.');
         }
 
         //send back true since all error checks passed
@@ -326,6 +356,9 @@ class Transaction extends Model
         $transaction->warehouse_id = $request->json('warehouse_id');
         $transaction->tracking_number = $request->json('tracking_number', null);
         $transaction->note = $request->json('note', null);
+
+        //add customer id for shipping transactions
+        if( !empty($request->json('customer_id')) ) { $transaction->customer_id = $request->json('customer_id'); }
     }
 
     /**
@@ -347,29 +380,17 @@ class Transaction extends Model
             throw new Exception('Product and/or quantity is missing.');
         }
 
-        //find uom multiplier
-        foreach( $item['uoms'] as $uom_item )
-        {
-            if( $uom_item['key'] == $uom ) { $uom_multiplier = $uom_item['multiplier_total']; }
-        }
+        //get uom multiplier
+        $uom_multiplier = $item['selectedUomMultiplierTotal'];
 
         /* If we did not find a multiplier, then raise an error since we can't be sure of the quantity */
-        if( isset($uom_multiplier) ===  false )
+        if( is_numeric($uom_multiplier) ===  false )
         {
             throw new Exception('Product quantity UOM multiplier not found for product: ' . $item['product_id']);
         }
 
         /* calculate quantity to the base uom quantity as this is how the quantities are stored in the system */
-        //if uom is set to first one, then it is already the base quantity
-        if( $uom == 'uom1' )
-        {
-            $base_quantity = $quantity;
-        }
-        //set to correct multiplier
-        else
-        {
-            $base_quantity = $quantity * $uom_multiplier;
-        }
+        $base_quantity = $quantity * $uom_multiplier;
 
         //set main properties
         $item_object->product_id = $product_id;
@@ -378,7 +399,8 @@ class Transaction extends Model
         $item_object->uom_multiplier = $uom_multiplier;
 
         /* Process variant 1 */
-        if( isset($item['variant1_value']) && strlen($item['variant1_value']) > 0 && $item['variants']['variant1_active'] === true )
+        if( isset($item['variant1_value']) && strlen($item['variant1_value']) > 0
+                && $item['variants']['variant1_active'] === true && $item['variant1_value'] != '[none]' )
         {
             //find or create the variant
             $variant = ProductVariant1::firstOrCreate(['product_id' => $product_id,
@@ -393,7 +415,8 @@ class Transaction extends Model
         else { $item_object->variant1_id = null; }
 
         /* Process variant 2 */
-        if( isset($item['variant2_value']) && strlen($item['variant2_value']) > 0 && $item['variants']['variant2_active'] === true )
+        if( isset($item['variant2_value']) && strlen($item['variant2_value']) > 0
+            && $item['variants']['variant2_active'] === true && $item['variant2_value'] != '[none]' )
         {
             //find or create the variant
             $variant = ProductVariant2::firstOrCreate(['product_id' => $product_id,
@@ -408,7 +431,8 @@ class Transaction extends Model
         else { $item_object->variant2_id = null; }
 
         /* Process variant 3 */
-        if( isset($item['variant3_value']) && strlen($item['variant3_value']) > 0 && $item['variants']['variant3_active'] === true )
+        if( isset($item['variant3_value']) && strlen($item['variant3_value']) > 0
+            && $item['variants']['variant3_active'] === true && $item['variant3_value'] != '[none]' )
         {
             //find or create the variant
             $variant = ProductVariant3::firstOrCreate(['product_id' => $product_id,
@@ -423,7 +447,8 @@ class Transaction extends Model
         else { $item_object->variant3_id = null; }
 
         /* Process variant 4 */
-        if( isset($item['variant4_value']) && strlen($item['variant4_value']) > 0 && $item['variants']['variant4_active'] === true )
+        if( isset($item['variant4_value']) && strlen($item['variant4_value']) > 0
+            && $item['variants']['variant4_active'] === true && $item['variant4_value'] != '[none]' )
         {
             //find or create the variant
             $variant = ProductVariant4::firstOrCreate(['product_id' => $product_id,

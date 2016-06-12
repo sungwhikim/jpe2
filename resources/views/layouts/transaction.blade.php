@@ -15,13 +15,19 @@
                 <h1>{{ $tx_title }}</h1>
                 <div class="panel panel-default panel-nav box-shadow--2dp">
                     <div class="panel-heading panel-heading-tx">
-                        @yield('tx-buttons')
+                        <button type="button" class="btn btn-success" ng-show="txCtrl.txSetting.new == true"
+                                ng-click="txCtrl.saveTransaction(true, txForm)">Save & New</button>
+                        <button type="button" class="btn btn-success" ng-show="txCtrl.txSetting.edit == true"
+                                ng-click="txCtrl.saveTransaction(false, txForm)">Save</button>
+                        <button type="reset" class="btn btn-default btn-cancel-tx" ng-show="txCtrl.txSetting.new == true"
+                                ng-click="txCtrl.resetTransaction(txForm);">Clear</button>
                         <button type="button" class="btn btn-default btn-void-tx"
                                 ng-show="txCtrl.txSetting.new == false && txCtrl.txSetting.edit == true"
                                 ng-click="txCtrl.voidTransaction();">Void</button>
+                        @yield('tx-buttons')
                         <div class="pull-right tx-wc-header">
-                            <span ng-bind="txCtrl.selectedWarehouseClient.warehouse_name"></span> /
-                            <span ng-bind="txCtrl.selectedWarehouseClient.client_short_name"></span>
+                            <span ng-bind="txCtrl.txData.warehouse_name"></span> /
+                            <span ng-bind="txCtrl.txData.client_short_name"></span>
                         </div>
                     </div>
                     <div class="panel-body tx-panel">

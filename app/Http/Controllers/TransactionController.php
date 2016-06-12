@@ -123,8 +123,8 @@ class TransactionController extends Controller
         //if it is a shipping transaction, we need to also grab the customer list
         if( $direction = 'ship' )
         {
-//            $customer = new customer();
-//            $data['customer_data'] = $customer->getUserCustomerList();
+            $customer = new customer();
+            $data['customer_data'] = $customer->getUserCustomerList();
         }
 
         return $data;

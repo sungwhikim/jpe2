@@ -8,6 +8,7 @@ use App\Models\ProductVariant3;
 use App\Models\ProductVariant4;
 use App\Models\ProductType;
 use App\Models\Bin;
+use App\Models\Inventory;
 
 use DB;
 use Log;
@@ -209,7 +210,7 @@ class ProductController extends Controller
         Product::find($id)->delete();
     }
 
-    public function getTxDetail($product_id, $get_inventory = false)
+    public function getTxDetail($product_id, $tx_type)
     {
         //create model
         $product_model = new Product();
@@ -217,13 +218,20 @@ class ProductController extends Controller
         //get the uom list data first
         $data = $product_model->getUomList($product_id, true);
 
-        //now get the inventory with variants
+        //now get the variants
         $data['variants'] = $product_model->getTxVariant($product_id);
 
-        //get inventory
-        if( $get_inventory == 'true'  )
+        //get bins
+        if( $tx_type == 'receive' )
         {
             $data['bins'] = $product_model->getInventoryBin($product_id);
+        }
+
+        //get total inventory only for shipping transactions
+        if( $tx_type == 'asn_ship' || $tx_type == 'ship' )
+        {
+            $inventory_model = new Inventory();
+            $data['inventoryTotal'] = $inventory_model->getProductInventoryTotal($product_id);
         }
 
         return $data;

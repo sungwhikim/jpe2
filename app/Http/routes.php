@@ -50,8 +50,9 @@ Route::controller('/user-function-category', 'UserFunctionCategoryController');
 Route::get('/user-function-categories', 'UserFunctionCategoryController@getListView');
 
 /* CUSTOMER */
-Route::controller('/customer', 'CustomerController');
+Route::get('/customer/list-by-wc', 'CustomerController@getListByWarehouseClient');
 Route::get('/customers', 'CustomerController@getListView');
+Route::controller('/customer', 'CustomerController');
 
 /* WAREHOUSE */
 Route::controller('/warehouse', 'WarehouseController');
@@ -92,6 +93,7 @@ Route::get('/inventory/product-list', 'InventoryController@getProductList');
 Route::get('/inventory/product-inventory/{product_id}', 'InventoryController@getProductInventory');
 Route::post('/inventory/new-bin', 'BinController@postNew');
 Route::put('/inventory/bin/delete/{id}', 'BinController@putDelete');
+Route::post('/inventory/variant-total', 'InventoryController@getVariantInventoryTotal');
 Route::controller('/inventory', 'InventoryController');
 
 /* COMMON TO ALL TRANSACTIONS */
@@ -117,5 +119,7 @@ Route::get('/transaction/receive/new', 'ReceiveController@getNew');
 Route::get('/transaction/receive/{tx_id}', 'ReceiveController@getIndex');
 Route::controller('/transaction/receive', 'ReceiveController');
 
-/* SHIP */
-//Route::controller('/transaction/ship', 'ShipController');
+/* ASN - SHIP */
+Route::get('/transaction/ship/new', 'ShipController@getNew');
+Route::get('/transaction/ship/{tx_id}', 'ShipController@getIndex');
+Route::controller('/transaction/ship', 'ShipController');

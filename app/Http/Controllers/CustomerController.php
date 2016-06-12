@@ -107,4 +107,10 @@ class CustomerController extends Controller
     {
         Customer::find($id)->delete();
     }
+
+    public function getListByWarehouseClient()
+    {
+        $customer_model = new Customer();
+        return $customer_model->getUserCustomerList();
+    }
 }

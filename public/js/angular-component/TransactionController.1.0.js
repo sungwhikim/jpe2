@@ -1,5 +1,9 @@
 /* THERE ARE THREE EXTERNAL DEPENDENT VARIABLES THAT MUST BE SET FOR THIS CONTROLLER TO WORK
     1.  txSetting = The transaction settings like type and direction and mode
+    2.  appData = The tx data
+    3.  productData = The product select list
+    4.  carrierData = The carrier select list
+    5.  warehouseClientData = The warehouse/client list - usually loaded in the header for the top warehouse/client select list
  */
 
 /* app is instantiated in the myApp.js file */
@@ -14,13 +18,15 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     /* SET DATA PROPERTIES */
     TransactionController.baseUrl = baseUrl;
     TransactionController.txSetting = txSetting;
-    TransactionController.newItem = {};
     TransactionController.txData = appData;
     TransactionController.txData.txSetting = txSetting; //this is so we can tell what the state of the tx is when saving
     TransactionController.products = productData;
+    TransactionController.carriers = carrierData;
     TransactionController.selectedWarehouseClient = warehouseClientSelectService.selectedData;
     TransactionController.currentBinData = {};
+    TransactionController.variantNone = { value:"[none]", id:null }; //this is used to bring back inventory of items without variant selected
     initTxDate(); //sets up the initial date
+    resetNewItem(); //sets the initial newItem model object properties
 
     /* SET SEARCH SELECT PROPERTIES */
     TransactionController.SearchSelectProduct = searchSelectService;
@@ -32,7 +38,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
 
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { TransactionController.warehouse_client = warehouseClientData; }
-    if( typeof carrierData != "undefined" ) { TransactionController.carriers = carrierData; }
+    if( typeof customerData != "undefined" ) { TransactionController.customers = customerData; }
 
     /* SET MEMBER METHODS */
     TransactionController.saveTransaction = saveTransaction;
@@ -48,6 +54,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     TransactionController.clearProductInput = clearProductInput;
     TransactionController.showBin = showBin;
     TransactionController.checkBarcodeClient = checkBarcodeClient;
+    TransactionController.selectVariantShip = selectVariantShip;
 
     /* ASSIGN SERVICES TO ALLOW DIRECT ACCESS FROM TEMPLATE TO SERVICE */
     TransactionController.modalService = modalService;
@@ -66,9 +73,15 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
             //update product and carrier lists
             updateProductList();
             updateCarrierList(TransactionController.txSetting.type);
+            updateCustomerList();
 
             //update warehouse id and client id in txData
             setWarehouseClientTxData();
+        }
+
+        //if the user has tried to change it when in edit mode, throw an error
+        else {
+            modalMessageService.showModalMessage('danger', 'Please do not change the warehouse/client when editing an existing transaction.');
         }
     }
 
@@ -87,7 +100,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
             TransactionController.SearchSelectProduct.clear();
 
             //clear out the products already added and reset new item model
-            TransactionController.newItem = {};
+            resetNewItem();
             TransactionController.txData.items.length = 0;
             TransactionController.txData.items = [];
         }, function errorCallback(response) {
@@ -106,6 +119,22 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
             //replace data
             TransactionController.carriers = 0;
             TransactionController.carriers = response.data;
+        }, function errorCallback(response) {
+            //set alert
+            modalMessageService.showModalMessage('danger', 'The following error occurred in loading the data: ' + response.statusText);
+        });
+    }
+
+    /* Updates the customer list when warehouse/client is changed */
+    function updateCustomerList() {
+        //make ajax call to get new data
+        $http({
+            method: 'GET',
+            url: TransactionController.baseUrl + '/customer/list-by-wc'
+        }).then(function successCallback(response) {
+            //replace data
+            TransactionController.customers = 0;
+            TransactionController.customers = response.data;
         }, function errorCallback(response) {
             //set alert
             modalMessageService.showModalMessage('danger', 'The following error occurred in loading the data: ' + response.statusText);
@@ -161,18 +190,21 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
         TransactionController.SearchSelectProduct.searchTerm = product.sku;
 
         //set get inventory flag
+        /* Send txType now.  This is because the return data varies more by type than anything else
         var txType = TransactionController.txSetting.type;
         var getInventory = (txType == 'receive' || txType == 'ship') ? '/true' : '';
+        */
 
         //go get the product inventory and other data
         $http({
             method: 'GET',
-            url: TransactionController.baseUrl + '/product/tx-detail/' + product.id + getInventory
+            url: TransactionController.baseUrl + '/product/tx-detail/' + product.id + '/' + TransactionController.txSetting.type
         }).then(function successCallback(response) {
             TransactionController.newItem = response.data;
             TransactionController.newItem.product_id = product.id;
             TransactionController.newItem.product = product;
             TransactionController.newItem.barcode_client = product.barcode_client;
+       console.log(TransactionController.newItem);
 
             //clear out the variant data
             clearVariants(TransactionController.newItem);
@@ -184,10 +216,14 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
 
     /* Add a line item */
     function addItem() {
+        //do data validation for shipping transaction item. Don't do for ASN Ship as we can request more than
+        //what we have in stock at the moment.
+        if( TransactionController.txSetting.type == 'ship' && validateNewItemShip() === false ) { return; }
+
         var newItem = TransactionController.newItem;
 
-        //don't add if product and quantity was not selected
-        if( isNaN(newItem.product_id) === true || isNaN(newItem.quantity) === true ) {
+        //don't add if product and quantity was not selected or less than 0
+        if( isNaN(newItem.product_id) === true || isNaN(newItem.quantity) === true || newItem.quantity < 1 ) {
             modalMessageService.showModalMessage('info', 'Please select a product and enter a valid quantity');
             return;
         }
@@ -196,7 +232,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
         TransactionController.txData.items.push(TransactionController.newItem);
 console.log(TransactionController.txData);
         //reset
-        TransactionController.newItem = {};
+        resetNewItem();
         TransactionController.SearchSelectProduct.clear();
     }
 
@@ -208,7 +244,7 @@ console.log(TransactionController.txData);
     /* Clear the product input */
     function clearProductInput() {
         //reset the model
-        TransactionController.newItem = {};
+        resetNewItem();
 
         //reset the search service
         TransactionController.SearchSelectProduct.clear();
@@ -286,6 +322,16 @@ console.log(TransactionController.txData);
         }
     }
 
+    /* Reset the newItem model values */
+    function resetNewItem() {
+        //we are adding in the two properties on creation for usage in shipping transactions so the initial
+        //inventory quantity is set to zero
+        TransactionController.newItem = {
+            inventoryTotal: 0,
+            selectedUomMultiplierTotal: 1
+        };
+    }
+
     /* Reset the transaction */
     function resetTransaction(form) {
         //reset form
@@ -296,10 +342,10 @@ console.log(TransactionController.txData);
         //reset properties/data
         TransactionController.txData = {};
         TransactionController.txData.items = [];
-        TransactionController.newItem = {};
         TransactionController.SearchSelectProduct.clear(); //clear out product select box
         TransactionController.txData.txSetting = txSetting;
         setWarehouseClientTxData(); //add back warehouse_id and client_id
+        resetNewItem();
     }
 
     /* Brings up the bin popup */
@@ -337,6 +383,7 @@ console.log(TransactionController.txData);
 
         //set selected Uom
         model.selectedUom = uom.key;
+        model.selectedUomMultiplierTotal = uom.multiplier_total;
     }
 
     /* Main data validation function.  Case switch for different transaction types */
@@ -388,6 +435,43 @@ console.log(TransactionController.txData);
         return true;
     }
 
+    /* Verify new shipping line item */
+    function validateNewItemShip() {
+        var newItem = TransactionController.newItem;
+
+        //check for inventory quantity
+        if( newItem.quantity > newItem.inventoryTotal / newItem.selectedUomMultiplierTotal ) {
+            modalMessageService.showModalMessage('danger', 'You entered a quantity greater than is available in the inventory');
+            return false;
+        }
+
+        //check for variants
+        for( i = 1; i < 5; i++ ) {
+            //set name
+            var baseName = 'variant' + i;
+            var active = baseName + '_active';
+            var value = baseName + '_value';
+            var name = baseName + '_name';
+            var error = baseName + '_error';
+
+            //reset error flag
+            newItem[error] = false;
+
+            //check each item
+            if( newItem.variants[active] === true && !newItem[value] ) {
+                //set error flag
+                newItem[error] = true;
+
+                //send back error message
+                modalMessageService.showModalMessage('danger', 'Please select a value for ' + newItem.variants[name]);
+                return false;
+            }
+        }
+
+        //if we got here, it passed all validations so return true
+        return true;
+    }
+
     /* Verify the line items */
     function validateLineItems() {
         //go through each item
@@ -396,6 +480,13 @@ console.log(TransactionController.txData);
             //check for valid quantity
             if( items[i].quantity == '' || isNaN(items[i].quantity) === true ) {
                 modalMessageService.showModalMessage('danger', 'Please verify that all items have a valid quantity.');
+                return false;
+            }
+
+            //if it is shipping transaction, also check the inventory level
+            if( TransactionController.txSetting.type == 'ship' &&
+                    items[i].quantity > items[i].inventoryTotal / items[i].selectedUomMultiplierTotal ) {
+                modalMessageService.showModalMessage('danger', 'You entered a quantity greater than is available in the inventory.');
                 return false;
             }
         }
@@ -417,6 +508,8 @@ console.log(TransactionController.txData);
         if( TransactionController.txSetting.new === true ) {
             TransactionController.txData.warehouse_id = TransactionController.selectedWarehouseClient.warehouse_id;
             TransactionController.txData.client_id = TransactionController.selectedWarehouseClient.client_id;
+            TransactionController.txData.warehouse_name = TransactionController.selectedWarehouseClient.warehouse_name;
+            TransactionController.txData.client_short_name = TransactionController.selectedWarehouseClient.client_short_name;
         }
     }
 
@@ -459,5 +552,49 @@ console.log(TransactionController.txData);
         else {
             TransactionController.txData.tx_date = new Date(txDate);
         }
+    }
+
+    /* Process selection of variant for shipping transactions.  This is different than from receiving as the
+       inventory needs to be dynamically found.
+     */
+    function selectVariantShip(model, variantNumber ,variant) {
+        //clear any errors
+        model[variantNumber + '_error'] = false;
+
+        //add selected variant value and id
+        model[variantNumber + '_value'] = variant.value;
+        model[variantNumber + '_id'] = variant.id;
+
+        //need to account for undefined to null
+        var variant1_id = ( model.variant1_id ) ? model.variant1_id : null;
+        var variant2_id = ( model.variant2_id ) ? model.variant2_id : null;
+        var variant3_id = ( model.variant3_id ) ? model.variant3_id : null;
+        var variant4_id = ( model.variant4_id ) ? model.variant4_id : null;
+
+        //build json data to get inventory data
+        var data = {product_id : model.product_id,
+                    variant1_id : variant1_id,
+                    variant2_id : variant2_id,
+                    variant3_id : variant3_id,
+                    variant4_id : variant4_id};
+
+        //run ajax query to get inventory data
+        $http({
+            method: 'POST',
+            url: TransactionController.baseUrl + '/inventory/variant-total',
+            data: data
+        }).then(function successCallback(response) {
+            if( response.data.errorMsg ) {
+                //set alert
+                modalMessageService.showModalMessage('danger', response.data.errorMsg);
+            } else {
+console.log(response.data);
+                //set data
+                model.inventoryTotal = response.data.inventory_total;
+            }
+        }, function errorCallback(response) {
+            //set alert
+            modalMessageService.showModalMessage('danger', 'The following error occurred in getting the variant inventory: ' + response.statusText);
+        });
     }
 });

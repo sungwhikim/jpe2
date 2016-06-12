@@ -1,4 +1,4 @@
-<div class="row col-lg-5 col-md-5 col-sm-5 col-xs-5 form-group">
+<div class="row col-lg-{{ $size }} col-md-{{ $size }} col-sm-{{ $size }} col-xs-{{ $size }} form-group">
     <label class="col-lg-3 control-label">Carrier</label>
     <div class="col-lg-12 no-float">
         <select class="form-control" name="carrier_id" ng-model="txCtrl.txData.carrier_id"
