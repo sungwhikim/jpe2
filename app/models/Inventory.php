@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Exceptions;
+use Exception;
 
 use DB;
 
@@ -21,6 +21,7 @@ class Inventory extends Model
 
         //first check the current inventory total to make sure we can't add a negative value
         $current_total = $this->getBinItemQuantity($bin_id, $receive_date, $variant1_id, $variant2_id, $variant3_id, $variant4_id);
+
         if( $current_total + $quantity < 0 ) { throw new Exception('The inventory would be negative if this record is added.'); }
 
         //add entry to inventory table

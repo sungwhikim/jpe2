@@ -56,8 +56,12 @@
                                         @include('forms.new-province-state')
                                         @include('forms.new-company')
                                         @include('forms.new-product-type', ['default' => 'Default'])
-
-                                        @include('forms.divider')
+                                        @include('forms.new-filo-lifo')
+                                        @include('forms.new-toggle-button', ['title' => 'Show client barcode in receiving screen',
+                                                                             'name' => 'show_barcode_client',
+                                                                             'required' => false,
+                                                                             'default' => 'false'])
+                                        @include('forms.divider', ['style' => 'margin-top:30px;'])
                                         @include('forms.new-checkbox-list', ['title' => 'Warehouses',
                                                                              'name' => 'warehouses',
                                                                              'container_class' => 'checkbox-list-left',
@@ -67,10 +71,6 @@
                                         @include('forms.new-email')
                                         @include('forms.new-phone')
                                         @include('forms.new-fax')
-                                        @include('forms.new-toggle-button', ['title' => 'Show client barcode in receiving screen',
-                                                                             'name' => 'show_barcode_client',
-                                                                             'required' => false,
-                                                                             'default' => 'false'])
 
                                         @include('forms.divider', ['title' => 'Billing'])
                                         @include('forms.new-text', ['title' => 'Contact',
@@ -121,8 +121,13 @@
                                         @include('forms.province-country')
                                         @include('forms.company')
                                         @include('forms.product-type', ['default' => 'Default'])
+                                        @include('forms.filo-lifo')
+                                        @include('forms.toggle-button', ['title' => 'Show client barcode in receiving screen',
+                                                                         'name' => 'show_barcode_client',
+                                                                         'required' => false,
+                                                                         'default' => 'false'])
 
-                                        @include('forms.divider')
+                                        @include('forms.divider', ['style' => 'margin-top:30px;'])
                                         @include('forms.checkbox-list', ['title' => 'Warehouses',
                                                                          'name' => 'warehouses',
                                                                          'container_class' => 'checkbox-list-left',
@@ -132,10 +137,6 @@
                                         @include('forms.email')
                                         @include('forms.phone')
                                         @include('forms.fax')
-                                        @include('forms.toggle-button', ['title' => 'Show client barcode in receiving screen',
-                                                                         'name' => 'show_barcode_client',
-                                                                         'required' => false,
-                                                                         'default' => 'false'])
 
                                         @include('forms.divider', ['title' => 'Billing'])
                                         @include('forms.text', ['title' => 'Contact',

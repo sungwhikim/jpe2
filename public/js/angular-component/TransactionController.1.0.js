@@ -24,7 +24,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     TransactionController.carriers = carrierData;
     TransactionController.selectedWarehouseClient = warehouseClientSelectService.selectedData;
     TransactionController.currentBinData = {};
-    TransactionController.variantNone = { value:"[none]", id:null }; //this is used to bring back inventory of items without variant selected
+    TransactionController.variantNone = { value:"-- none --", id:null }; //this is used to bring back inventory of items without variant selected
     initTxDate(); //sets up the initial date
     resetNewItem(); //sets the initial newItem model object properties
 
@@ -261,13 +261,11 @@ console.log(TransactionController.txData);
 
         //set route for new or update
         var route = ( TransactionController.txSetting.new === true ) ? 'new' : 'update/' + TransactionController.txData.id;
-        //build the url.  We need to change the _ to a / in the route to match the type of tx.
-        var url = TransactionController.baseUrl + '/transaction/' + TransactionController.txSetting.type.replace('_', '/') + '/' + route;
 
         //run ajax save
         $http({
             method: 'POST',
-            url: url,
+            url: getTransactionUrl(route),
             data: TransactionController.txData
         }).then(function successCallback(response) {
             if( response.data.errorMsg ) {
@@ -298,12 +296,38 @@ console.log(TransactionController.txData);
 
     /* Void transaction dialog box */
     function voidTransaction() {
-
+        modalService.showModal({
+            templateUrl: "/js/angular-component/modalService-transaction-void.html",
+            controller: "YesNoController"
+        }).then(function(modal) {
+            modal.element.modal();
+            modal.close.then(function(result) {
+                if( result === true ) { voidTransactionCallback(); }
+            });
+        });
     }
 
     /* Void transaction callback */
     function voidTransactionCallback() {
+        //make ajax call to void tx
+        $http({
+            method: 'PUT',
+            url: getTransactionUrl('void/' + TransactionController.txData.id)
+        }).then(function successCallback(response) {
+            if( response.data.errorMsg ) {
+                //set alert
+                modalMessageService.showModalMessage('danger', response.data.errorMsg);
+            } else {
+                //set success message
+                modalMessageService.showModalMessage('info', 'The transaction has been voided');
 
+                //update tx settings
+                TransactionController.txSetting.edit = false;
+            }
+        }, function errorCallback(response) {
+            //set alert
+            modalMessageService.showModalMessage('danger', 'The following error occurred in saving the data: ' + response.statusText);
+        });
     }
 
     /* Clear out the variant data when switching products */
@@ -325,10 +349,11 @@ console.log(TransactionController.txData);
     /* Reset the newItem model values */
     function resetNewItem() {
         //we are adding in the two properties on creation for usage in shipping transactions so the initial
-        //inventory quantity is set to zero
+        //inventory quantity is set to zero.
         TransactionController.newItem = {
             inventoryTotal: 0,
-            selectedUomMultiplierTotal: 1
+            selectedUomMultiplierTotal: 1,
+
         };
     }
 
@@ -596,5 +621,10 @@ console.log(response.data);
             //set alert
             modalMessageService.showModalMessage('danger', 'The following error occurred in getting the variant inventory: ' + response.statusText);
         });
+    }
+
+    /* builds the transaction route */
+    function getTransactionUrl(route) {
+        return TransactionController.baseUrl + '/transaction/' + TransactionController.txSetting.type.replace('_', '/') + '/' + route;
     }
 });

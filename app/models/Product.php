@@ -26,7 +26,7 @@ class Product extends Model
                       ->get();
     }
 
-    public function getTxVariant($product_id, $get_inventory = false)
+    public function getTxVariant($product_id, $only_in_stock = false)
     {
         /* RETURN VARIANTS IN 4 DIFFERENT QUERIES FOR NOW.  IT IS SLOW AND WE NEED TO OPTIMIZE IT LATER */
         $result = Product::select('product_type.*')
@@ -48,11 +48,25 @@ class Product extends Model
             //if it is active, then add the list of variants used
             if( $data[$key . '_active'] === true )
             {
-                $variants = ProductVariant1::select('id', 'name', 'value')
-                                           ->where('product_id', '=', $product_id)
-                                           ->get()->toArray();
+                //init model and table name
+                $model_name = 'App\Models\ProductVariant' . $i;
+                $product_variant_model = new $model_name;
+                $table_name = 'product_variant' . $i;
 
-                $data[$key . '_variants'] = $variants;
+                //get variants
+                $query = $product_variant_model::select($table_name . '.id', $table_name . '.name', $table_name . '.value')
+                                               ->where($table_name . '.product_id', '=', $product_id);
+
+                //if this is a shipping transaction, we need to only get the variants which has stock in inventory
+                if( $only_in_stock === true )
+                {
+                    $query->join('inventory', $table_name . '.id' , '=', 'inventory.' . $key . '_id')
+                          ->groupBy($table_name . '.id', $table_name . '.name', $table_name . '.value')
+                          ->havingRaw('SUM(inventory.quantity) > 0');
+                }
+
+                //return data
+                $data[$key . '_variants'] = $query->get()->toArray();
             }
 
         }

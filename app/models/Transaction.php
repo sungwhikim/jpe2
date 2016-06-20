@@ -33,7 +33,7 @@ class Transaction extends Model
 
         //verify that the transaction was found accounting for the user's warehouse and client permission list
         if( count($transaction) == 0 )
-        { throw new Exception('Invalid transaction ID or you do not have permissions to view this transaction'); }
+        { throw new Exception('Invalid transaction ID or you do not have permission to view this transaction'); }
 
         //if we are converting it, we need to double check it isn't being done twice.  This should not happen as
         //the button should not exist, but we need to make sure some weird js state allows it.
@@ -92,8 +92,15 @@ class Transaction extends Model
             //for shipping transactions, add the inventory total and uom multiplier
             if( $tx_type == 'asn_ship' || $tx_type == 'ship' )
             {
+                //get current inventory total
                 $line_item['inventoryTotal'] = $inventory_model->getVariantInventoryTotal($line_item->product_id, $line_item->variant1_id,
-                                                    $line_item->variant2_id, $line_item->variant3_id, $line_item->variant4_id);
+                        $line_item->variant2_id, $line_item->variant3_id, $line_item->variant4_id);
+
+                //if it is a shipping transaction, add back the quantity to correct the base inventory level.
+                //the front end dynamically calculates the inventory total so we need to add it back to zero out the difference.
+                if( $tx_type == 'ship') { $line_item['inventoryTotal'] += $line_item->quantity * $uom_multiplier; }
+
+                //set UOM multiplier
                 $line_item['selectedUomMultiplierTotal'] = $uom_multiplier;
             }
         }
@@ -150,7 +157,7 @@ class Transaction extends Model
                     //shipping
                     if( $tx_type == 'ship' )
                     {
-
+                        $this->addShippingBin($transaction, $transaction_detail, $classes);
                     }
                 }
             }
@@ -201,8 +208,8 @@ class Transaction extends Model
         try
         {
             //update main tx table
-            $transaction = new $classes['transaction'];
-            $transaction = $transaction->find($tx_id);
+            $tx_model = new $classes['transaction'];
+            $transaction = $tx_model->find($tx_id);
 
             /* Don't allow update if the status is not active */
             if( $transaction->tx_status_id != TxStatus::active )
@@ -214,23 +221,24 @@ class Transaction extends Model
             $this->setTransactionProperty($transaction, $request, TxStatus::active);
             $transaction->save();
 
-            /* update line items */
+            /*
+               We are going to void the previous transaction detail, then add back all the new items.  There is another
+               way to do this, which is to do a differential, but if we do it this way, we have a record of the
+               change of the transaction detail
+            */
+            //get current transaction detail
+            $tx_detail_model = new $classes['transaction_detail'];
+            $tx_detail_old = $tx_detail_model::where($tx_type . '_id', '=', $transaction->id)->get();
+
+            //loop through and back out all the bins
+
+            //soft delete the detail
+
+            /* update & add line items */
             foreach( $request->json('items') as $item )
             {
-                //set status of item of new or edit
-                $update_item = ( empty($item['id']) === false ) ? true : false;
-
                 //create line item object
                 $transaction_detail = new $classes['transaction_detail'];
-
-                //process differently whether it is an existing item or a new item
-                //existing item
-                if( $update_item === true )
-                {
-                    $transaction_detail = $transaction_detail->find($item['id']);
-                }
-
-                //new item
 
                 //set parent id
                 $transaction_detail->{$tx_type . '_id'} = $transaction->id;
@@ -241,22 +249,7 @@ class Transaction extends Model
                 //save
                 $transaction_detail->save();
 
-                //save bins
-                if( isset($classes['transaction_bin']) )
-                {
-                    //receiving
-                    if( $tx_type == 'receive' )
-                    {
-                        $this->addTxBinReceive($transaction_detail, $item['bins'], $classes['transaction_bin'],
-                            $tx_type, $request['tx_date']);
-                    }
-
-                    //shipping
-                    if( $tx_type == 'ship' )
-                    {
-
-                    }
-                }
+                //add bins
             }
         }
         catch(\Exception $e)
@@ -280,9 +273,103 @@ class Transaction extends Model
         DB::commit();
     }
 
+    /**
+     * Voids a transaction and backs out the inventory committed
+     *
+     * @param $tx_type
+     * @param $tx_id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws Exception
+     */
     public function voidTransaction($tx_type, $tx_id)
     {
+        //get classes
+        $classes = $this->getClasses($tx_type);
 
+        //get transaction
+        $tx =  new $classes['transaction'];
+        $transaction = $tx::find($tx_id);
+
+        //make sure it is active.  We cannot void transactions in any other status
+        if( $transaction->tx_status_id != TxStatus::active ) { throw new Exception('Only an active transaction can be voided.'); }
+
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            //update the status
+            $transaction->tx_status_id = TxStatus::voided;
+            $transaction->save();
+
+            //if has transaction bin, reverse the inventory quantities
+            if( isset($classes['transaction_bin']) )
+            {
+                //set table names
+                $table_tx = $tx_type;
+                $table_tx_detail = $tx_type . '_detail';
+                $table_tx_bin = $tx_type . '_bin';
+
+                //get the list of all the bin transactions
+                $tx_bin = new $classes['transaction_bin'];
+                $transaction_bins = $tx_bin::select($table_tx_bin . '.*', $table_tx_detail . '.variant1_id', $table_tx_detail . '.variant2_id',
+                                                    $table_tx_detail . '.variant3_id', $table_tx_detail . '.variant4_id')
+                                           ->join($table_tx_detail, $table_tx . '_detail_id', '=', $table_tx_detail . '.id')
+                                           ->join($table_tx, $table_tx . '_id', '=', $table_tx . '.id')
+                                           ->where($table_tx . '.id', '=', $tx_id)->get();
+
+                //void the inventory
+                $this->voidInventory($tx_type, $transaction_bins);
+            }
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The transaction was not voided. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
+    }
+
+    /**
+     * This loops through the transaction bins and creates an opposing transaction in the inventory table to back out
+     * the inventory added/removed from the transaction
+     *
+     * @param $tx_type
+     * @param $transaction_bins
+     *
+     * @throws Exception
+     */
+    private function voidInventory($tx_type, $transaction_bins)
+    {
+        //get inventory model
+        $inventory_model = new Inventory();
+
+        //set activity type
+        $activity_type = ( $tx_type == 'receive' ) ? InventoryActivityType::RECEIVE : InventoryActivityType::SHIP;
+
+        foreach( $transaction_bins as $transaction_bin )
+        {
+            //set quantity. Receiving needs to subtract while shipping needs to add
+            $quantity = ( $tx_type == 'receive' ) ? $transaction_bin->quantity * -1 : $transaction_bin->quantity;
+
+            //update the inventory
+            $inventory_model->addInventoryItem($quantity, $transaction_bin->bin_id, $transaction_bin->receive_date,
+                $transaction_bin->variant1_id, $transaction_bin->variant2_id, $transaction_bin->variant3_id,
+                $transaction_bin->variant4_id, $activity_type, $tx_type . '_bin', $transaction_bin->id);
+        }
     }
 
     /**
@@ -357,6 +444,9 @@ class Transaction extends Model
         $transaction->tracking_number = $request->json('tracking_number', null);
         $transaction->note = $request->json('note', null);
 
+        //add user id to track transactions
+        $transaction->user_id = auth()->user()->id;
+
         //add customer id for shipping transactions
         if( !empty($request->json('customer_id')) ) { $transaction->customer_id = $request->json('customer_id'); }
     }
@@ -373,6 +463,7 @@ class Transaction extends Model
         $product_id = $item['product']['id'];
         $quantity = $item['quantity'];
         $uom = $item['selectedUom'];
+        $no_variant_set = '-- none --';
 
         /* validate product_id and quantity */
         if( is_numeric($product_id) === false || is_numeric($quantity) === false || strpos($quantity, ',') !== false )
@@ -400,7 +491,7 @@ class Transaction extends Model
 
         /* Process variant 1 */
         if( isset($item['variant1_value']) && strlen($item['variant1_value']) > 0
-                && $item['variants']['variant1_active'] === true && $item['variant1_value'] != '[none]' )
+                && $item['variants']['variant1_active'] === true && $item['variant1_value'] != $no_variant_set )
         {
             //find or create the variant
             $variant = ProductVariant1::firstOrCreate(['product_id' => $product_id,
@@ -416,7 +507,7 @@ class Transaction extends Model
 
         /* Process variant 2 */
         if( isset($item['variant2_value']) && strlen($item['variant2_value']) > 0
-            && $item['variants']['variant2_active'] === true && $item['variant2_value'] != '[none]' )
+            && $item['variants']['variant2_active'] === true && $item['variant2_value'] != $no_variant_set )
         {
             //find or create the variant
             $variant = ProductVariant2::firstOrCreate(['product_id' => $product_id,
@@ -432,7 +523,7 @@ class Transaction extends Model
 
         /* Process variant 3 */
         if( isset($item['variant3_value']) && strlen($item['variant3_value']) > 0
-            && $item['variants']['variant3_active'] === true && $item['variant3_value'] != '[none]' )
+            && $item['variants']['variant3_active'] === true && $item['variant3_value'] != $no_variant_set )
         {
             //find or create the variant
             $variant = ProductVariant3::firstOrCreate(['product_id' => $product_id,
@@ -448,7 +539,7 @@ class Transaction extends Model
 
         /* Process variant 4 */
         if( isset($item['variant4_value']) && strlen($item['variant4_value']) > 0
-            && $item['variants']['variant4_active'] === true && $item['variant4_value'] != '[none]' )
+            && $item['variants']['variant4_active'] === true && $item['variant4_value'] != $no_variant_set )
         {
             //find or create the variant
             $variant = ProductVariant4::firstOrCreate(['product_id' => $product_id,
@@ -515,12 +606,12 @@ class Transaction extends Model
             if( $bin_quantity > 0 )
             {
                 //add to the transaction bin table
-                $tx_bin_id = $this->addTxBin($tx_bin, $tx_type, $tx_detail_id, $bin_id, $bin_quantity);
+                $tx_bin_id = $this->addTxBin($tx_bin, $tx_type, $tx_detail_id, $bin_id, $bin_quantity, $tx_date);
 
                 //update the inventory
                 $inventory_model->addInventoryItem($bin_quantity, $bin_id, $tx_date, $transaction_item->variant1_id,
                     $transaction_item->variant2_id, $transaction_item->variant3_id, $transaction_item->variant4_id,
-                    InventoryActivityType::RECEIVE, $tx_bin, $tx_bin_id);
+                    InventoryActivityType::RECEIVE, $tx_type . '_bin', $tx_bin_id);
             }
 
             //find the default bin to be used later so we don't have to run the loop again
@@ -536,27 +627,85 @@ class Transaction extends Model
             if( isset($default_bin) === false ) { throw new Exception('Default bin was not found for product id: ' . $transaction_item->product_id); }
 
             //add tx bin
-            $tx_bin_id = $this->addTxBin($tx_bin, $tx_type, $tx_detail_id, $default_bin['id'], $remaining_bin_quantity);
+            $tx_bin_id = $this->addTxBin($tx_bin, $tx_type, $tx_detail_id, $default_bin['id'], $remaining_bin_quantity, $tx_date);
 
             //update the inventory
             $inventory_model->addInventoryItem($remaining_bin_quantity, $default_bin['id'], $tx_date, $transaction_item->variant1_id,
                 $transaction_item->variant2_id, $transaction_item->variant3_id, $transaction_item->variant4_id,
-                InventoryActivityType::RECEIVE, $tx_bin, $tx_bin_id);
+                InventoryActivityType::RECEIVE, $tx_type . '_bin', $tx_bin_id);
         }
     }
 
     /**
      * Add a transaction bin item
      */
-    private function addTxBin($tx_bin, $tx_type, $tx_detail_id, $bin_id, $quantity)
+    private function addTxBin($tx_bin, $tx_type, $tx_detail_id, $bin_id, $quantity, $receive_date)
     {
+        //get object and set properties
         $bin_object = new $tx_bin;
         $bin_object->{$tx_type . '_detail_id'} = $tx_detail_id;
         $bin_object->bin_id = $bin_id;
         $bin_object->quantity = $quantity;
+        $bin_object->receive_date = $receive_date;
+
+        //save tx bin
         $bin_object->save();
 
         return $bin_object->id;
+    }
+
+    /**
+     * Add shipping transaction bin data
+     *
+     * @param $transaction
+     * @param $transaction_detail
+     */
+    private function addShippingBin($transaction, $transaction_detail, $classes)
+    {
+        //get the inventory management type and set query order
+        $query_order = ( Client::find($transaction->client_id)->fifo_lifo == 'fifo' ) ? 'ASC' : 'DESC';
+
+        //get all the bins for this product and variant(s)
+        $bins = Bin::select('bin.id', 'inventory.receive_date', DB::raw('SUM(inventory.quantity) AS quantity'))
+                   ->join('inventory', 'bin.id', '=', 'inventory.bin_id')
+                   ->where('bin.product_id', '=', $transaction_detail->product_id)
+                   ->where('inventory.variant1_id', '=', $transaction_detail->variant1_id)
+                   ->where('inventory.variant2_id', '=', $transaction_detail->variant1_id)
+                   ->where('inventory.variant3_id', '=', $transaction_detail->variant1_id)
+                   ->where('inventory.variant4_id', '=', $transaction_detail->variant1_id)
+                   ->groupBy('bin.product_id', 'bin.id', 'inventory.receive_date')
+                   ->havingRaw('SUM(inventory.quantity) > 0')
+                   ->orderBy('inventory.receive_date', $query_order)->get();
+
+        //init variables for adding to ship_bin and inventory table
+        $remaining_quantity = $transaction_detail->quantity;
+        $inventory_model = new Inventory();
+
+        //walk through the bins and add to the ship_bin table and inventory table
+        foreach( $bins as $bin )
+        {
+            $bin_quantity = $bin->quantity;
+
+            //if there is enough available in this bin, just set the quantity to remaining quantity
+            if( $remaining_quantity <= $bin_quantity ) { $quantity = $remaining_quantity; }
+
+            //since there is not enough in the bin, just get all from the bin
+            else { $quantity = $bin_quantity; }
+
+            //decrement the remaining quantity
+            $remaining_quantity -= $quantity;
+
+            //add to the transaction bin table
+            $tx_bin_id = $this->addTxBin($classes['transaction_bin'], 'ship', $transaction_detail->id, $bin->id, $quantity, $bin->receive_date);
+
+            //update the inventory
+            $inventory_model->addInventoryItem($quantity * -1, $bin->id, $bin->receive_date, $transaction_detail->variant1_id,
+                $transaction_detail->variant2_id, $transaction_detail->variant3_id, $transaction_detail->variant4_id,
+                InventoryActivityType::SHIP, 'ship_bin', $tx_bin_id);
+
+            //if we have gotten all the quantities we need, then exit the loop
+            if( $remaining_quantity <= 0 ) { break; }
+        }
     }
 
     /**
@@ -582,7 +731,6 @@ class Transaction extends Model
                 WHERE bin.product_id = ?
                 GROUP BY bin.id, bin.aisle, bin.section, bin.tier, bin.position, bin.default, " . $tx_bin_table . ".quantity
                 ORDER BY bin.aisle ASC, bin.section ASC, bin.tier ASC, bin.position ASC";
-
 
         return DB::select($sql, [$tx_detail_id, $product_id]);
     }

@@ -9,14 +9,16 @@ FROM tblBinLot bl
   LEFT OUTER JOIN tblDlot dl
     ON bl.dlotId = dl.id
 
-INSERT INTO inventory (bin_id, quantity, receive_date, variant1_id, created_at, updated_at)
+
+INSERT INTO inventory (bin_id, quantity, receive_date, variant1_id, created_at, updated_at, inventory_activity_type_id, user_id)
   (
     SELECT
       bin_id,
-      quantity,
+      quantity * CAST(p.uom2 AS bigint),
       CAST(receive_date AS TIMESTAMP),
       variant1_id,
-      date_trunc('second', LOCALTIMESTAMP), date_trunc('second', LOCALTIMESTAMP)
+      date_trunc('second', LOCALTIMESTAMP), date_trunc('second', LOCALTIMESTAMP),
+      9, 1
     FROM inventory_migrate im
       INNER JOIN bin b
         ON im.bin_id = b.id
@@ -26,3 +28,4 @@ INSERT INTO inventory (bin_id, quantity, receive_date, variant1_id, created_at, 
           AND   b.active = TRUE
           AND   im.quantity > 0
   );
+

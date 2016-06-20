@@ -51,6 +51,7 @@ app.controller('ListController', function(ListService, alertService, checkBoxSer
         mainController.newItem.warehouses = [];
         mainController.newItem.clients = [];
         mainController.newItem.default_uom = ( typeof defaultUomData != "undefined" ) ? ListController.default_uom_list[0] : '';
+        mainController.newItem.fifo_lifo = 'fifo';
     };
 
     /* INIT DATA */

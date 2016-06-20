@@ -11,26 +11,28 @@ namespace App\Enum;
  */
 class InventoryActivityType
 {
-    const MANUAL_EDIT        = 1; //manual edit to the database
-    const INVENTORY_EDIT     = 2; //the inventory screen
-    const BIN_TRANSFER       = 3;
-    const ASN_RECEIVE        = 4;
-    const ASN_SHIP           = 5;
-    const RECEIVE            = 6;
-    const SHIP               = 7;
-    const WAREHOUSE_TRANSFER = 8;
+    const MANUAL_EDIT         = 1; //manual edit to the database
+    const INVENTORY_EDIT      = 2; //the inventory screen
+    const BIN_TRANSFER        = 3;
+    const ASN_RECEIVE         = 4;
+    const ASN_SHIP            = 5;
+    const RECEIVE             = 6;
+    const SHIP                = 7;
+    const WAREHOUSE_TRANSFER  = 8;
+    const INITIAL_DATA_IMPORT = 9;
 
     public static function lists()
     {
         return [
-            self::MANUAL_EDIT        => self::MANUAL_EDIT,
-            self::INVENTORY_EDIT     => self::INVENTORY_EDIT,
-            self::BIN_TRANSFER       => self::BIN_TRANSFER,
-            self::ASN_RECEIVE        => self::ASN_RECEIVE,
-            self::ASN_SHIP           => self::ASN_SHIP,
-            self::RECEIVE            => self::RECEIVE,
-            self::SHIP               => self::SHIP,
-            self::WAREHOUSE_TRANSFER => self::WAREHOUSE_TRANSFER
+            self::MANUAL_EDIT         => self::MANUAL_EDIT,
+            self::INVENTORY_EDIT      => self::INVENTORY_EDIT,
+            self::BIN_TRANSFER        => self::BIN_TRANSFER,
+            self::ASN_RECEIVE         => self::ASN_RECEIVE,
+            self::ASN_SHIP            => self::ASN_SHIP,
+            self::RECEIVE             => self::RECEIVE,
+            self::SHIP                => self::SHIP,
+            self::WAREHOUSE_TRANSFER  => self::WAREHOUSE_TRANSFER,
+            self::INITIAL_DATA_IMPORT => self::INITIAL_DATA_IMPORT
         ];
     }
 }

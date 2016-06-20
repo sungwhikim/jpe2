@@ -47,7 +47,7 @@
                                 <a class="btn btn-primary btn-sm" href="{{ $url }}/@{{ item.tx_type | UnderScoreToForwardSlash }}/@{{ item.id }}">View / Edit</a>
                             </td>
                             {{--<td ng-bind="item.tx_type"></td>--}}
-                            <td ng-bind="item.tx_date"></td>
+                            <td ng-bind="item.tx_date | date : 'longDate'"></td>
                             <td ng-bind="item.po_number"></td>
                             <td><span ng-bind="item.tx_status" class="label label-default" style="font-size: 12px;"></span></td>
                         </tr>

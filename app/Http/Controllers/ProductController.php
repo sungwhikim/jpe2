@@ -218,8 +218,13 @@ class ProductController extends Controller
         //get the uom list data first
         $data = $product_model->getUomList($product_id, true);
 
+        //set flag to whether to bring back only variants with inventory quantities
+        $only_in_stock = ( $tx_type == 'ship' ) ? true : false;
+
+       //$only_in_stock = false;
+
         //now get the variants
-        $data['variants'] = $product_model->getTxVariant($product_id);
+        $data['variants'] = $product_model->getTxVariant($product_id, $only_in_stock);
 
         //get bins
         if( $tx_type == 'receive' )

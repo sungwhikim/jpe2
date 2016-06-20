@@ -19,6 +19,11 @@ body {
     margin: 20px 0;
 }
 
+/* GLOBAL */
+input[type='radio'] {
+    transform: scale(2);
+}
+
 /* TOP HEADER */
 .header-bar {
     background-color: #000000;
@@ -236,6 +241,9 @@ body {
     width: 97%;
     position: relative;
     top: -15px;
+}
+.td-form .label-radio-button {
+    margin: 0 0 15px 15px;
 }
 
 /* UOM */

@@ -17,11 +17,12 @@
                     <div class="panel-heading panel-heading-tx">
                         <button type="button" class="btn btn-success" ng-show="txCtrl.txSetting.new == true"
                                 ng-click="txCtrl.saveTransaction(true, txForm)">Save & New</button>
-                        <button type="button" class="btn btn-success" ng-show="txCtrl.txSetting.edit == true"
+                        <button type="button" class="btn btn-success" style="margin-right: 50px;"
+                                ng-show="txCtrl.txSetting.edit == true"
                                 ng-click="txCtrl.saveTransaction(false, txForm)">Save</button>
                         <button type="reset" class="btn btn-default btn-cancel-tx" ng-show="txCtrl.txSetting.new == true"
                                 ng-click="txCtrl.resetTransaction(txForm);">Clear</button>
-                        <button type="button" class="btn btn-default btn-void-tx"
+                        <button type="button" class="btn btn-default"
                                 ng-show="txCtrl.txSetting.new == false && txCtrl.txSetting.edit == true"
                                 ng-click="txCtrl.voidTransaction();">Void</button>
                         @yield('tx-buttons')

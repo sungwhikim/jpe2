@@ -7,7 +7,7 @@
 @stop
 
 @section('body')
-    <div class="container main-content" ng-controller="ListController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
+    <div class="container main-content" ng-controller="CustomerController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
             <div class="col-lg-7 col-md-6 col-sm-5">
                 <h1>Customers</h1>
@@ -50,6 +50,7 @@
                                         @include('forms.new-email')
                                         @include('forms.new-phone')
                                         @include('forms.new-fax')
+
                                         @include('forms.new-edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
@@ -85,6 +86,49 @@
                                         @include('forms.email')
                                         @include('forms.phone')
                                         @include('forms.fax')
+
+                                        <div class="row col-lg-11 col-md-11 col-sm-11" style="margin-bottom: 25px;">
+                                            <table class="table table-striped table-hover table-form">
+                                                <tr>
+                                                    <th class="col-lg-1 col-md-1 col-sm-1">
+                                                        <button class="btn btn-warning" type="button" ng-click="mainList.newClientWarehouse(item)">New</button>
+                                                    </th>
+                                                    <th>Warehouse</th>
+                                                    <th>Client</th>
+                                                    <th class="col-lg-1 col-md-1 col-sm-1"></th>
+                                                </tr>
+                                                <tr ng-repeat="ccw_new in item.client_warehouse_new">
+                                                    <td></td>
+                                                    <td>
+                                                        <select class="form-control" name="warehouse_id" ng-model="ccw_new.warehouse_id"
+                                                                ng-options="warehouse.id as warehouse.name for warehouse in mainList.warehouseData">
+                                                            <option value="">-- select a warehouse --</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control" name="client_id" ng-model="ccw_new.client_id"
+                                                                ng-options="client.id as client.short_name for client in mainList.clientData">
+                                                            <option value="">-- select a client --</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <a ng-click="mainList.deleteClientWarehouse(item.client_warehouse_new, $index)"
+                                                           class="btn glyphicon glyphicon-trash btn-delete"
+                                                           data-toggle="tooltip" title="Delete"></a>
+                                                    </td>
+                                                </tr>
+                                                <tr ng-repeat="ccw in item.client_warehouse">
+                                                    <td></td>
+                                                    <td ng-bind="ccw.warehouse_name"></td>
+                                                    <td ng-bind="ccw.client_name"></td>
+                                                    <td>
+                                                        <a ng-click="mainList.deleteClientWarehouse(item.client_warehouse, $index)"
+                                                           class="btn glyphicon glyphicon-trash btn-delete"
+                                                           data-toggle="tooltip" title="Delete"></a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
                                         @include('forms.edit-buttons', ['active_flag' => true])
                                     </fieldset>
                                 </form>
@@ -108,10 +152,12 @@
          var appUrl  = '{{ $url }}';
          var appData = {!! $main_data !!};
          var countryData = {!! $country_data !!};
+         var warehouseData = {!! $warehouse_data !!};
+         var clientData = {!! $client_data !!};
      </script>
 @stop
 
 @section('js-footer')
     @include('layouts.angular-js')
-    @include('layouts.list-js')
+    @include('layouts.customer-js')
 @stop

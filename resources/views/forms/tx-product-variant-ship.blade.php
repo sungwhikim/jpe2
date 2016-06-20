@@ -11,7 +11,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-select-col-2" ng-show="txCtrl.newItem.variants.variant1_variants.length > 0">
-                        <li><a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant1', txCtrl.variantNone)">[none]</a></li>
+                        <li><a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant1', txCtrl.variantNone)">-- none --</a></li>
                         <li ng-repeat="variant in txCtrl.newItem.variants.variant1_variants">
                             <a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant1', variant)">@{{ variant.value }}</a>
                         </li>
@@ -33,7 +33,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-select-col-2" ng-show="txCtrl.newItem.variants.variant2_variants.length > 0">
-                        <li><a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant2', txCtrl.variantNone)">[none]</a></li>
+                        <li><a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant2', txCtrl.variantNone)">-- none --</a></li>
                         <li ng-repeat="variant in txCtrl.newItem.variants.variant2_variants">
                             <a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant2', variant)">@{{ variant.value }}</a>
                         </li>
@@ -55,7 +55,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-select-col-2" ng-show="txCtrl.newItem.variants.variant3_variants.length > 0">
-                        <li><a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant3', txCtrl.variantNone)">[none]</a></li>
+                        <li><a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant3', txCtrl.variantNone)">-- none --</a></li>
                         <li ng-repeat="variant in txCtrl.newItem.variants.variant3_variants">
                             <a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant3', variant)">@{{ variant.value }}</a>
                         </li>
@@ -77,7 +77,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-select-col-2" ng-show="txCtrl.newItem.variants.variant4_variants.length > 0">
-                        <li><a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant4', txCtrl.variantNone)">[none]</a></li>
+                        <li><a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant4', txCtrl.variantNone)">-- none --</a></li>
                         <li ng-repeat="variant in txCtrl.newItem.variants.variant4_variants">
                             <a ng-click="txCtrl.selectVariantShip(txCtrl.newItem, 'variant4', variant)">@{{ variant.value }}</a>
                         </li>
