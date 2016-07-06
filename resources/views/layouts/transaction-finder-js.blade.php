@@ -1,3 +1,6 @@
+<!-- libraries -->
+<script src="/js/popupWindow.js"></script>
+
 <!-- open source components -->
 <script src="/js/angular-library/dirPaginate.js"></script>
 <script src="/js/angular-library/smart-table.js"></script>

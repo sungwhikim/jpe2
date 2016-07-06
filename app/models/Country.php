@@ -17,8 +17,8 @@ class Country extends Model
         foreach( $countries as $country )
         {
             $provinces = Province::select('id', 'code', 'name')->where('country_id', '=', $country->id)->get();
-            $country->provinces = ( count($provinces) > 0 ? $provinces->toArray() : array(0 => ['id' => -1,
-                                                                                                'code' => 'NONE',
+            $country->provinces = ( count($provinces) > 0 ? $provinces->toArray() : array(0 => ['id' => 1,
+                                                                                                'code' => '--',
                                                                                                 'name' => '-- None --']) );
             debugbar()->info($country->provinces);
         }

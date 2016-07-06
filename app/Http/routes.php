@@ -52,6 +52,7 @@ Route::get('/user-function-categories', 'UserFunctionCategoryController@getListV
 /* CUSTOMER */
 Route::get('/customer/list-by-wc', 'CustomerController@getListByWarehouseClient');
 Route::get('/customers', 'CustomerController@getListView');
+Route::get('/customer/new-popup', 'CustomerController@getNewPopup');
 Route::controller('/customer', 'CustomerController');
 
 /* WAREHOUSE */
@@ -119,7 +120,10 @@ Route::get('/transaction/receive/new', 'ReceiveController@getNew');
 Route::get('/transaction/receive/{tx_id}', 'ReceiveController@getIndex');
 Route::controller('/transaction/receive', 'ReceiveController');
 
-/* ASN - SHIP */
+/* SHIP */
 Route::get('/transaction/ship/new', 'ShipController@getNew');
 Route::get('/transaction/ship/{tx_id}', 'ShipController@getIndex');
+Route::get('/transaction/ship/pick-list/{tx_id}', 'ShipController@getPickList');
+Route::get('/transaction/ship/shipping-memo{tx_id}', 'ShipController@getShippingMemo');
+Route::get('/transaction/ship/pick-and-pack/{tx_ids}', 'ShipController@getPickAndPack');
 Route::controller('/transaction/ship', 'ShipController');

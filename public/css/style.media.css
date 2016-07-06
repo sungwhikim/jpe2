@@ -3,6 +3,13 @@
     .td-form .form-group {
         height: 55px !important;
     }
+
+    /* NEW CUSTOMER POPUP */
+    /* this is to control the label width as it is not shifting properly on the popup form */
+    .customer-form .control-label {
+        white-space: nowrap !important;
+        width: 30% !important;
+    }
 }
 
 @media (max-width: 1200px) {

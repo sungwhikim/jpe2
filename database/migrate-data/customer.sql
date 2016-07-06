@@ -26,7 +26,19 @@ INSERT INTO "customer" (id, "name", address1, address2, city, province_id, count
      JOIN province p
        ON cm.province = p.code );
 
+/* add to x-ref table */
+TRUNCATE TABLE customer_client_warehouse;
 
+INSERT INTO customer_client_warehouse (created_at, updated_at, customer_id, client_id, warehouse_id)
+  (
+    SELECT '6/27/2016', '6/27/2016', cm.id, cm.client_id, cw.warehouse_id
+    FROM customer_migrate cm
+      RIGHT OUTER JOIN customer c
+        ON c.id = cm.id
+      INNER JOIN client_warehouse cw
+        ON cm.client_id = cw.client_id
+    WHERE cm.active = true
+  )
 
 /* ----------------------------------- */
 /*  SQL SERVER BELOW */

@@ -7,13 +7,19 @@ use App\Models\Warehouse;
 use App\Models\Client;
 use App\Models\CustomerClientWarehouse;
 
+use DB;
+use Log;
+
 class CustomerController extends Controller
 {
     protected $my_name = 'customer';
+    protected $url = null;
 
     public function __construct()
     {
         $this->middleware('auth');
+
+        $this->url = url('/customer');
     }
 
     public function getListView()
@@ -22,9 +28,6 @@ class CustomerController extends Controller
         $data = Customer::select('customer.*', 'province.name as province_name')
                           ->join('province', 'customer.province_id', '=', 'province.id')
                           ->orderBy('customer.name')->get();
-
-        //we need to send the url to do Ajax queries back here
-        $url = url('/customer');
 
         //set lists
         $country = new Country();
@@ -35,11 +38,19 @@ class CustomerController extends Controller
         $client_data = Client::select('id', 'short_name', 'name', 'active')->orderBy('name')->get();
 
         return response()->view('pages.customer', ['main_data' => $data,
-                                                    'url' => $url,
+                                                    'url' => $this->url,
                                                     'my_name' => $this->my_name,
                                                     'country_data' => $country_data,
                                                     'warehouse_data' => $warehouse_data,
                                                     'client_data' => $client_data]);
+    }
+
+    public function getNewPopup()
+    {
+        return response()->view('pages.customer-popup', ['url' => $this->url,
+                                                         'my_name' => $this->my_name,
+                                                         'warehouse_id' => auth()->user()->current_warehouse_id,
+                                                         'client_id' => auth()->user()->current_client_id]);
     }
 
     public function getClientWarehouse($customer_id)
@@ -72,8 +83,44 @@ class CustomerController extends Controller
             return response()->json($error_message);
         }
 
-        //create new item
-        $customer_id = $this->saveItem();
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            //create new item
+            $customer_id = $this->saveItem();
+
+            //add to warehouse client table if it was a popup and warehouse and client id's were sent in
+            $warehouse_id = request()->json('warehouse_id');
+            $client_id = request()->json('client_id');
+            if ( !empty($warehouse_id) && !empty($client_id) )
+            {
+                $customer_client_warehouse = new CustomerClientWarehouse();
+                $customer_client_warehouse->customer_id = $customer_id;
+                $customer_client_warehouse->warehouse_id = $warehouse_id;
+                $customer_client_warehouse->client_id = $client_id;
+                $customer_client_warehouse->save();
+            }
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The customer was not saved. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
 
         return response()->json(['id' => $customer_id]);
     }
@@ -95,7 +142,10 @@ class CustomerController extends Controller
         $customer->address2    = request()->json('address2');
         $customer->city        = request()->json('city');
         $customer->postal_code = request()->json('postal_code');
-        $customer->province_id = request()->json('province_id');
+        //set to null if -1 was sent in.  We can't send in null because then the client side validation won't work with
+        //angular.  The reason for null province id is due to foreign countries with questionable province definitions
+        //and existing data is dirty without set provinces for customer data
+        $customer->province_id = ( request()->json('province_id') == -1 ) ? null : request()->json('province_id');
         $customer->country_id  = request()->json('country_id');
         $customer->active      = ( !empty(request()->json('active')) ) ? true : false;
         $customer->save();
@@ -105,7 +155,35 @@ class CustomerController extends Controller
 
     public function putDelete($id)
     {
-        Customer::find($id)->delete();
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            //delete the items in the warehouse client table first
+            CustomerClientWarehouse::where('customer_id', '=', $id)->delete();
+
+            //delete from the main table
+            Customer::find($id)->delete();
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The customer was not deleted. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
     }
 
     public function getListByWarehouseClient()

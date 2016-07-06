@@ -371,6 +371,15 @@ input[type='radio'] {
     top: -1.5px;
 }
 
+/* NEW CUSTOMER POPUP */
+.customer-form {
+    overflow: hidden;
+}
+.customer-form .status-row {
+    padding-top: 15px;
+}
+
+
 /* TRANSACTION SCREENS */
 .tx-panel {
     min-height: 450px;
@@ -468,6 +477,9 @@ input[type='radio'] {
 .btn-cancel-tx, .btn-void-tx {
     margin-left: 55px;
 }
+.btn-new-customer {
+    margin: -5px 0 5px 5px;
+}
 
 /* SEARCH SELECT COMPONENT */
 .search-select-dropdown {
@@ -526,7 +538,7 @@ input[type='radio'] {
     border-radius: 10px;
 }
 
-    /* FOR ANGULAR-UI COMPONENTS */
+/* FOR ANGULAR-UI COMPONENTS */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
 /* FOR MODAL MESSAGE DIALOG BOX */

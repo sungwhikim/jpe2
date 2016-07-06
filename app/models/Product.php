@@ -142,6 +142,7 @@ class Product extends Model
         {
             $return['selectedUom'] = $uom_selected['key'];
             $return['selectedUomMultiplierTotal'] = $uom_selected['multiplier_total'];
+            $return['selectedUomName'] = $uom_selected['name'];
         }
 
         return $return;

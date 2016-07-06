@@ -31,6 +31,9 @@ class Carrier extends Model
             $query->where('carrier_client_warehouse.ship', '=', true);
         }
 
+        //add order by clause
+        $query->orderBy('carrier.name');
+
         //return data
         return $query->get();
     }

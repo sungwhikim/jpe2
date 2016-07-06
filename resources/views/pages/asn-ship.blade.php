@@ -38,5 +38,6 @@
 @section('tx-inline-javascript')
 <script>
     var customerData = {!! $customer_data !!};
+    var countryData = {!! $country_data !!};
 </script>
 @endsection

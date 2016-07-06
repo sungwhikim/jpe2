@@ -1,4 +1,3 @@
-//var appAMS = angular.module('angularModalService');
 
 app.controller('BinController', ['$scope', 'close', 'modalService', 'item', function($scope, close, modalService, item) {
     //set data

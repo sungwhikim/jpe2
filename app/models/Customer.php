@@ -14,7 +14,8 @@ class Customer extends Model
                         ->join('customer_client_warehouse', 'customer.id', '=', 'customer_id')
                         ->where('customer_client_warehouse.client_id', '=', auth()->user()->current_client_id)
                         ->where('customer_client_warehouse.warehouse_id', '=', auth()->user()->current_warehouse_id)
-                        ->where('customer.active', '=', true)->get();
+                        ->where('customer.active', '=', true)
+                        ->orderBy('name')->get();
 
         return $data;
     }

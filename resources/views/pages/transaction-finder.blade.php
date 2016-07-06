@@ -36,9 +36,12 @@
                                 </select>
                             </th>
                             {{--<th class="sort-header" st-sort="tx_type">Type</th>--}}
-                            <th class="sort-header" st-sort="tx_date">Date</th>
+                            <th class="sort-header" st-sort="tx_date" st-sort-default="reverse">Date</th>
                             <th class="sort-header" st-sort="po_number">PO Number</th>
                             <th class="sort-header" st-sort="tx_status">Status</th>
+                            <th ng-show="mainList.txType == 'ship'" style="text-align: center" class="col-lg-2 col-md-2 col-sm-2">
+                                <button type="button" class="btn btn-default btn-sm" ng-click="mainList.pickAndPack();">Pick & Pack</button>
+                            </th>
                         </tr>
                     </thead>
                     <tbody dir-paginate="item in mainList.displayItems | itemsPerPage: 10" class="tbody-form">
@@ -49,7 +52,12 @@
                             {{--<td ng-bind="item.tx_type"></td>--}}
                             <td ng-bind="item.tx_date | date : 'longDate'"></td>
                             <td ng-bind="item.po_number"></td>
-                            <td><span ng-bind="item.tx_status" class="label label-default" style="font-size: 12px;"></span></td>
+                            <td><span ng-bind="item.tx_status" ng-class="{ 'label label-default' : item.tx_status == 'active' }" style="font-size: 12px;"></span></td>
+                            <td ng-show="mainList.txType == 'ship'" style="text-align: center">
+                                <input type="checkbox" name="tx_id" style="transform: scale(2, 2);"
+                                       ng-click="mainList.toggleCheckBox(mainList.pick_pack_tx_ids, item.id)"
+                                       ng-show="item.tx_status == 'active'">
+                            </td>
                         </tr>
                     </tbody>
                 </table>

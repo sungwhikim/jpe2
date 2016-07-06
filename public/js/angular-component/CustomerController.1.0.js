@@ -23,6 +23,7 @@ app.controller('CustomerController', function(ListService, alertService, checkBo
     CustomerController.items = appData;
     CustomerController.displayItems = [].concat(appData);
     CustomerController.newItem = {};
+    CustomerController.countries = countryData;
     CustomerController.newClientWarehouse = newClientWarehouse;
     CustomerController.deleteClientWarehouse = deleteClientWarehouse;
 

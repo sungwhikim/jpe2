@@ -1,7 +1,12 @@
 @extends('layouts.transaction')
 
 @section('tx-buttons')
-    {{--add pick ticket and shipping memo here--}}
+    <button type="button" class="btn btn-info" style="margin-left: 100px;"
+            ng-show="txCtrl.txSetting.edit == true"
+            ng-click="txCtrl.pickList(txForm)">Pick List</button>
+    <button type="button" class="btn btn-info" style=""
+            ng-show="txCtrl.txSetting.edit == true"
+            ng-click="txCtrl.shippingMemo(txForm)">Shipping Memo</button>
 @endsection
 
 @section('tx-main-input')
@@ -38,5 +43,6 @@
 @section('tx-inline-javascript')
 <script>
     var customerData = {!! $customer_data !!};
+    var countryData = {!! $country_data !!};
 </script>
 @endsection

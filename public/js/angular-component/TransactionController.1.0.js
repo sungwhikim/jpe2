@@ -39,6 +39,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { TransactionController.warehouse_client = warehouseClientData; }
     if( typeof customerData != "undefined" ) { TransactionController.customers = customerData; }
+    if( typeof countryData != "undefined" ) { TransactionController.countries = countryData; }
 
     /* SET MEMBER METHODS */
     TransactionController.saveTransaction = saveTransaction;
@@ -55,6 +56,9 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     TransactionController.showBin = showBin;
     TransactionController.checkBarcodeClient = checkBarcodeClient;
     TransactionController.selectVariantShip = selectVariantShip;
+    TransactionController.pickList = pickList;
+    TransactionController.shippingMemo = shippingMemo;
+    TransactionController.newCustomer = newCustomer;
 
     /* ASSIGN SERVICES TO ALLOW DIRECT ACCESS FROM TEMPLATE TO SERVICE */
     TransactionController.modalService = modalService;
@@ -204,7 +208,6 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
             TransactionController.newItem.product_id = product.id;
             TransactionController.newItem.product = product;
             TransactionController.newItem.barcode_client = product.barcode_client;
-       console.log(TransactionController.newItem);
 
             //clear out the variant data
             clearVariants(TransactionController.newItem);
@@ -251,7 +254,7 @@ console.log(TransactionController.txData);
     }
 
     /* Save the transaction data */
-    function saveTransaction(reset, form) {
+    function saveTransaction(reset, form, callback) {
         //set form submitted to true here since we are not using form submission to process saving of data
         //as we require different parameters to be passed in by different buttons.
         form.$submitted = true;
@@ -275,8 +278,21 @@ console.log(TransactionController.txData);
                 //set success message
                 modalMessageService.showModalMessage('info', 'The transaction has been saved');
 
+                //set id
+                if( response.data.tx_id ) { TransactionController.txData.id = response.data.tx_id; }
+
                 //reset transaction
-                if( reset === true ) resetTransaction(form);
+                if( reset === true ) { resetTransaction(form); }
+
+                //if on a new transaction, it wasn't set to reset, then we want to change the status so any future
+                //saves the existing transaction and not create a new one;
+                else{ TransactionController.txSetting.new = false; }
+
+                //set the convert flag since if it was saved, then it was already converted
+                TransactionController.txSetting.convert = false;
+
+                //go to callback if set - this is to process pick list and shipping memo
+                if( callback ) { callback(); }
             }
         }, function errorCallback(response) {
             //set alert
@@ -352,8 +368,7 @@ console.log(TransactionController.txData);
         //inventory quantity is set to zero.
         TransactionController.newItem = {
             inventoryTotal: 0,
-            selectedUomMultiplierTotal: 1,
-
+            selectedUomMultiplierTotal: 1
         };
     }
 
@@ -370,6 +385,7 @@ console.log(TransactionController.txData);
         TransactionController.SearchSelectProduct.clear(); //clear out product select box
         TransactionController.txData.txSetting = txSetting;
         setWarehouseClientTxData(); //add back warehouse_id and client_id
+        initTxDate(); //set tx date back to today's date
         resetNewItem();
     }
 
@@ -409,6 +425,7 @@ console.log(TransactionController.txData);
         //set selected Uom
         model.selectedUom = uom.key;
         model.selectedUomMultiplierTotal = uom.multiplier_total;
+        model.selectedUomName = uom.name;
     }
 
     /* Main data validation function.  Case switch for different transaction types */
@@ -613,7 +630,6 @@ console.log(TransactionController.txData);
                 //set alert
                 modalMessageService.showModalMessage('danger', response.data.errorMsg);
             } else {
-console.log(response.data);
                 //set data
                 model.inventoryTotal = response.data.inventory_total;
             }
@@ -626,5 +642,90 @@ console.log(response.data);
     /* builds the transaction route */
     function getTransactionUrl(route) {
         return TransactionController.baseUrl + '/transaction/' + TransactionController.txSetting.type.replace('_', '/') + '/' + route;
+    }
+
+    /* pick list popup */
+    function pickList(form) {
+        //if transaction has not been saved yet or in a pre-covert stage, then popup up save confirm dialog
+        if( !TransactionController.txData.id || TransactionController.txSetting.convert ) {
+            modalService.showModal({
+                templateUrl: "/js/angular-component/modalService-ship-popup-save.html",
+                controller: "YesNoController"
+            }).then(function(modal) {
+                modal.element.modal();
+                modal.close.then(function(result) {
+                    if( result === true ) { TransactionController.saveTransaction(false, form, pickListCallback); }
+                });
+            });
+        }
+
+        //just route to callback function to process pick list
+        else {
+            pickListCallback();
+        }
+    }
+
+    /* generate pick list */
+    function pickListCallback() {
+        //set new popup window settings
+        var url = TransactionController.baseUrl + '/transaction/ship/pick-list/' + TransactionController.txData.id;
+
+        //open window
+        popupWindow(url, 'Pick List', 900, 600);
+    }
+
+    /* shipping memo popup */
+    function shippingMemo() {
+        //if transaction has not been saved yet or in a pre-covert stage, then popup up save confirm dialog
+        if( !TransactionController.txData.id || TransactionController.txSetting.convert ) {
+            modalService.showModal({
+                templateUrl: "/js/angular-component/modalService-ship-popup-save.html",
+                controller: "YesNoController"
+            }).then(function(modal) {
+                modal.element.modal();
+                modal.close.then(function(result) {
+                    if( result === true ) { TransactionController.saveTransaction(false, form, shippingMemoCallback); }
+                });
+            });
+        }
+
+        //just route to callback function to process pick list
+        else {
+            shippingMemoCallback();
+        }
+    }
+
+    /* generate shipping memo */
+    function shippingMemoCallback() {
+        //set new popup window settings
+        var url = TransactionController.baseUrl + '/transaction/ship/shipping-memo/' + TransactionController.txData.id;
+
+        //open window
+        popupWindow(url, 'Pick List', 800, 600);
+    }
+
+    function newCustomer() {
+        //we have to do this if no customer was selected because if an undefined variable gets passed, then even
+        //if set, it doesn't come back
+        if( !TransactionController.txData.customer_id ) { TransactionController.txData.customer_id = null; }
+        console.log(TransactionController.txData.customer_id);
+        /* new customer modal window */
+        modalService.showModal({
+            templateUrl: "/customer/new-popup",
+            controller: "CustomerPopupController",
+            inputs: {
+                baseUrl: TransactionController.baseUrl,
+                customerList: TransactionController.customers,
+                newItem: {
+                    warehouse_id: TransactionController.selectedWarehouseClient.warehouse_id,
+                    client_id: TransactionController.selectedWarehouseClient.client_id
+                }
+            }
+        }).then(function(modal) {
+            modal.element.modal();
+            modal.close.then(function(result) {
+                TransactionController.txData.customer_id = result;
+            });
+        });
     }
 });

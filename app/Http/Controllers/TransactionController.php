@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\Carrier;
 use App\Models\Customer;
+use App\Models\Country;
 use App\Enum\TxStatus;
 
 class TransactionController extends Controller
@@ -125,6 +126,9 @@ class TransactionController extends Controller
         {
             $customer = new customer();
             $data['customer_data'] = $customer->getUserCustomerList();
+
+            $country = new Country();
+            $data['country_data'] = $country->ListWithProvinces();
         }
 
         return $data;

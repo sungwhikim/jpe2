@@ -13,7 +13,7 @@ app.filter('UnderScoreToForwardSlash', function () {
 /* app is instantiated in the myApp.js file */
 
 app.controller('TxFinderController', function($http, ListService, alertService, modalMessageService,
-                                              warehouseClientSelectService) {
+                                              warehouseClientSelectService, checkBoxService) {
     //set object to variable to prevent self reference collisions
     var TxFinderController = this;
 
@@ -30,16 +30,23 @@ app.controller('TxFinderController', function($http, ListService, alertService, 
     TxFinderController.deleteConfirm = ListService.deleteConfirm;
     TxFinderController.resetData = ListService.resetData;
     TxFinderController.closeAlert = ListService.closeAlert;
+    TxFinderController.toggleCheckBox = checkBoxService.toggleCheckBox;
 
     /* SET PROPERTIES */
+    TxFinderController.baseUrl = baseUrl;
     TxFinderController.items = appData;
     TxFinderController.displayItems = [].concat(appData);
     TxFinderController.newItem = {};
     TxFinderController.alerts = ListService.alerts;
     TxFinderController.txType = txType;
+    TxFinderController.pick_pack_tx_ids = [];
 
     /* SET MEMBER METHODS */
     TxFinderController.changeTxType = changeTxType;
+    TxFinderController.pickAndPack = pickAndPack;
+
+    /* OVERLOAD REFRESH DATA FUNCTION IN WAREHOUSE CLIENT SELECTOR TO REFRESH THE PAGE WHEN WAREHOUSE/CLIENT IS CHANGED */
+    warehouseClientSelectService.refreshData = changeTxType;
 
     function changeTxType() {
         //make ajax call to refresh transaction list
@@ -62,5 +69,19 @@ app.controller('TxFinderController', function($http, ListService, alertService, 
             modalMessageService.showModalMessage('danger', 'The following error occurred: ' + response.statusText);
             return false;
         });
+    }
+
+    function pickAndPack() {
+        //don't allow if no transactions were selected
+        if( TxFinderController.pick_pack_tx_ids.length == 0 ) {
+            modalMessageService.showModalMessage('info', 'Please select transaction(s).');
+            return false;
+        }
+
+        //set new popup window settings
+        var url = TxFinderController.baseUrl + '/transaction/ship/pick-and-pack/' + TxFinderController.pick_pack_tx_ids.join();
+
+        //open window
+        popupWindow(url, 'Pack & Pick', 925, 600);
     }
 });

@@ -40,31 +40,8 @@ class Transaction extends Model
         if( $tx->tx_status_id == TxStatus::converted )
         { throw new Exception('This transaction was already converted.'); }
 
-        //add line items
-        $tx_detail = new $classes['transaction_detail'];
-        $table_detail = $tx_type . '_detail';
-
-        //get detail line item
-        $transaction_detail = $tx_detail::select($table_detail . '.id',
-                                                 $table_detail . '.' . $tx_type . '_id',
-                                                 $table_detail . '.product_id',
-                                                 $table_detail . '.quantity',
-                                                 $table_detail . '.uom AS selectedUom',
-                                                 $table_detail . '.uom_multiplier AS selectedUomMultiplierTotal',
-                                                 $table_detail . '.variant1_id',
-                                                 $table_detail . '.variant2_id',
-                                                 $table_detail . '.variant3_id',
-                                                 $table_detail . '.variant4_id',
-                                                 'product_variant1.value AS variant1_value',
-                                                 'product_variant2.value AS variant2_value',
-                                                 'product_variant3.value AS variant3_value',
-                                                 'product_variant4.value AS variant4_value')
-                                        ->leftJoin('product_variant1', $table_detail . '.variant1_id', '=', 'product_variant1.id')
-                                        ->leftJoin('product_variant2', $table_detail . '.variant2_id', '=', 'product_variant2.id')
-                                        ->leftJoin('product_variant3', $table_detail . '.variant3_id', '=', 'product_variant3.id')
-                                        ->leftJoin('product_variant4', $table_detail . '.variant4_id', '=', 'product_variant4.id')
-                                        ->where($tx_type . '_id', '=', $transaction->id)
-                                        ->orderBy($table_detail . '.id')->get();
+        //get transaction detail
+        $transaction_detail = $this->getTransactionDetail($tx_type, $tx_id, $classes['transaction_detail']);
 
         //loop and add product object and variants and detail to each line item
         foreach( $transaction_detail as $line_item)
@@ -111,6 +88,40 @@ class Transaction extends Model
         return $transaction;
     }
 
+    public function getTransactionDetail($tx_type, $tx_id, $tx_detail_class)
+    {
+        //add line items
+        $tx_detail = new $tx_detail_class;
+        $table_detail = $tx_type . '_detail';
+
+        //get detail line item
+        return $tx_detail::select($table_detail . '.id',
+                                  $table_detail . '.' . $tx_type . '_id',
+                                  $table_detail . '.product_id',
+                                  $table_detail . '.quantity',
+                                  $table_detail . '.uom AS selectedUom',
+                                  $table_detail . '.uom_multiplier AS selectedUomMultiplierTotal',
+                                  $table_detail . '.uom_name AS selectedUomName',
+                                  $table_detail . '.variant1_id',
+                                  $table_detail . '.variant2_id',
+                                  $table_detail . '.variant3_id',
+                                  $table_detail . '.variant4_id',
+                                  'product_variant1.value AS variant1_value',
+                                  'product_variant2.value AS variant2_value',
+                                  'product_variant3.value AS variant3_value',
+                                  'product_variant4.value AS variant4_value',
+                                  'product_variant1.name AS variant1_name',
+                                  'product_variant2.name AS variant2_name',
+                                  'product_variant3.name AS variant3_name',
+                                  'product_variant4.name AS variant4_name')
+                        ->leftJoin('product_variant1', $table_detail . '.variant1_id', '=', 'product_variant1.id')
+                        ->leftJoin('product_variant2', $table_detail . '.variant2_id', '=', 'product_variant2.id')
+                        ->leftJoin('product_variant3', $table_detail . '.variant3_id', '=', 'product_variant3.id')
+                        ->leftJoin('product_variant4', $table_detail . '.variant4_id', '=', 'product_variant4.id')
+                        ->where($tx_type . '_id', '=', $tx_id)
+                        ->orderBy($table_detail . '.id')->get();
+    }
+
     public function newTransaction($request, $tx_type)
     {
         //data validation
@@ -129,7 +140,7 @@ class Transaction extends Model
             $this->setTransactionProperty($transaction, $request, TxStatus::active);
             $transaction->save();
 
-            /* update line items */
+            /* add line items */
             foreach( $request->json('items') as $item )
             {
                 //set line item object
@@ -143,20 +154,17 @@ class Transaction extends Model
                 $transaction_detail->save();
 
                 //save bins
-                if( isset($classes['transaction_bin']) )
-                {
+                if( isset($classes['transaction_bin']) ) {
                     /* Receiving and Shipping are handled differently.  Receiving can be just added, but shipping needs
                        to calculate FIFO/LIFO, etc */
                     //receiving
-                    if( $tx_type == 'receive' )
-                    {
+                    if ( $tx_type == 'receive' ) {
                         $this->addTxBinReceive($transaction_detail, $item['bins'], $classes['transaction_bin'],
-                            $tx_type, $request['tx_date']);
+                            $tx_type, $transaction->tx_date);
                     }
 
                     //shipping
-                    if( $tx_type == 'ship' )
-                    {
+                    if ( $tx_type == 'ship' ) {
                         $this->addShippingBin($transaction, $transaction_detail, $classes);
                     }
                 }
@@ -207,7 +215,7 @@ class Transaction extends Model
         DB::beginTransaction();
         try
         {
-            //update main tx table
+            //get main tx table
             $tx_model = new $classes['transaction'];
             $transaction = $tx_model->find($tx_id);
 
@@ -221,27 +229,29 @@ class Transaction extends Model
             $this->setTransactionProperty($transaction, $request, TxStatus::active);
             $transaction->save();
 
-            /*
-               We are going to void the previous transaction detail, then add back all the new items.  There is another
-               way to do this, which is to do a differential, but if we do it this way, we have a record of the
-               change of the transaction detail
-            */
-            //get current transaction detail
+            //initialize array of transaction id's used
+            $tx_detail_ids = [];
+
+            //initialize model separate from what we will use in the loop to prevent collisions
             $tx_detail_model = new $classes['transaction_detail'];
-            $tx_detail_old = $tx_detail_model::where($tx_type . '_id', '=', $transaction->id)->get();
 
-            //loop through and back out all the bins
-
-            //soft delete the detail
-
-            /* update & add line items */
+            //process line items
             foreach( $request->json('items') as $item )
             {
-                //create line item object
+                //set line item object
                 $transaction_detail = new $classes['transaction_detail'];
 
-                //set parent id
-                $transaction_detail->{$tx_type . '_id'} = $transaction->id;
+                //process new item first
+                if( !isset($item['id']) || $item['id'] === null )
+                {
+                    $transaction_detail->{$tx_type . '_id'} = $transaction->id;
+                }
+
+                //get existing item
+                else
+                {
+                    $transaction_detail = $transaction_detail->find($item['id']);
+                }
 
                 //set the detail
                 $this->setLineItem($transaction_detail, $item);
@@ -249,8 +259,46 @@ class Transaction extends Model
                 //save
                 $transaction_detail->save();
 
-                //add bins
+                //add id to array so we can use it to delete all the unused line items later
+                array_push($tx_detail_ids, $transaction_detail->id);
+
+                //update bins and inventory
+                if( isset($classes['transaction_bin']) )
+                {
+                    //receiving
+                    if ( $tx_type == 'receive' )
+                    {
+                        $this->updateTxBinReceive($transaction_detail, $item['bins'], $classes['transaction_bin'],
+                            $tx_type, $transaction->tx_date);
+                    }
+
+                    /* for shipping, since the fifo and lifo has to be re-calculated, just back out all the bins and
+                       inventory and recalculate and re-add */
+                    //shipping
+                    if ( $tx_type == 'ship' )
+                    {
+                        //delete the bins
+                        $this->deleteTxBin($tx_type, [$transaction_detail], $classes);
+
+                        //add all the bin items
+                        $this->addShippingBin($transaction, $transaction_detail, $classes);
+                    }
+                }
             }
+
+            /* delete line items and back out the bins and inventory */
+            //get the items to delete
+            $tx_detail_items = $tx_detail_model::where($tx_type . '_id', '=', $transaction->id)
+                                                ->whereNotIn('id', $tx_detail_ids)->get();
+
+            //delete all the bins
+            $this->deleteTxBin($tx_type, $tx_detail_items, $classes);
+
+            //delete the detail items
+
+            //delete the transaction detail
+            $tx_detail_model::where($tx_type . '_id', '=', $transaction->id)
+                            ->whereNotIn('id', $tx_detail_ids)->delete();
         }
         catch(\Exception $e)
         {
@@ -312,14 +360,33 @@ class Transaction extends Model
 
                 //get the list of all the bin transactions
                 $tx_bin = new $classes['transaction_bin'];
-                $transaction_bins = $tx_bin::select($table_tx_bin . '.*', $table_tx_detail . '.variant1_id', $table_tx_detail . '.variant2_id',
+                $transaction_bins = $tx_bin::select($table_tx_bin . '.id', $table_tx_bin . '.bin_id',$table_tx_bin . '.quantity', $table_tx_bin . '.receive_date',
+                                                    $table_tx_detail . '.variant1_id', $table_tx_detail . '.variant2_id',
                                                     $table_tx_detail . '.variant3_id', $table_tx_detail . '.variant4_id')
                                            ->join($table_tx_detail, $table_tx . '_detail_id', '=', $table_tx_detail . '.id')
                                            ->join($table_tx, $table_tx . '_id', '=', $table_tx . '.id')
-                                           ->where($table_tx . '.id', '=', $tx_id)->get();
+                                           ->where($table_tx . '.id', '=', $tx_id)
+                                           ->where($table_tx_detail . '.deleted_at', '=', null)
+                                           ->groupBy($table_tx_bin . '.id', $table_tx_bin . '.bin_id',$table_tx_bin . '.quantity', $table_tx_bin . '.receive_date',
+                                                    $table_tx_detail . '.variant1_id', $table_tx_detail . '.variant2_id',
+                                                    $table_tx_detail . '.variant3_id', $table_tx_detail . '.variant4_id')->get();
 
-                //void the inventory
-                $this->voidInventory($tx_type, $transaction_bins);
+                //get inventory model
+                $inventory_model = new Inventory();
+
+                //set activity type
+                $activity_type = ( $tx_type == 'receive' ) ? InventoryActivityType::RECEIVE : InventoryActivityType::SHIP;
+
+                foreach( $transaction_bins as $transaction_bin )
+                {
+                    //set quantity. Receiving needs to subtract while shipping needs to add
+                    $quantity = ( $tx_type == 'receive' ) ? $transaction_bin->quantity * -1 : $transaction_bin->quantity;
+
+                    //update the inventory
+                    $inventory_model->addInventoryItem($quantity, $transaction_bin->bin_id, $transaction_bin->receive_date,
+                        $transaction_bin->variant1_id, $transaction_bin->variant2_id, $transaction_bin->variant3_id,
+                        $transaction_bin->variant4_id, $activity_type, $tx_type . '_bin', $transaction_bin->id);
+                }
             }
         }
         catch(\Exception $e)
@@ -341,35 +408,6 @@ class Transaction extends Model
 
         //if we got here, then everything worked!
         DB::commit();
-    }
-
-    /**
-     * This loops through the transaction bins and creates an opposing transaction in the inventory table to back out
-     * the inventory added/removed from the transaction
-     *
-     * @param $tx_type
-     * @param $transaction_bins
-     *
-     * @throws Exception
-     */
-    private function voidInventory($tx_type, $transaction_bins)
-    {
-        //get inventory model
-        $inventory_model = new Inventory();
-
-        //set activity type
-        $activity_type = ( $tx_type == 'receive' ) ? InventoryActivityType::RECEIVE : InventoryActivityType::SHIP;
-
-        foreach( $transaction_bins as $transaction_bin )
-        {
-            //set quantity. Receiving needs to subtract while shipping needs to add
-            $quantity = ( $tx_type == 'receive' ) ? $transaction_bin->quantity * -1 : $transaction_bin->quantity;
-
-            //update the inventory
-            $inventory_model->addInventoryItem($quantity, $transaction_bin->bin_id, $transaction_bin->receive_date,
-                $transaction_bin->variant1_id, $transaction_bin->variant2_id, $transaction_bin->variant3_id,
-                $transaction_bin->variant4_id, $activity_type, $tx_type . '_bin', $transaction_bin->id);
-        }
     }
 
     /**
@@ -488,6 +526,7 @@ class Transaction extends Model
         $item_object->quantity = $base_quantity;
         $item_object->uom = $uom;
         $item_object->uom_multiplier = $uom_multiplier;
+        $item_object->uom_name = $item['selectedUomName'];
 
         /* Process variant 1 */
         if( isset($item['variant1_value']) && strlen($item['variant1_value']) > 0
@@ -637,6 +676,115 @@ class Transaction extends Model
     }
 
     /**
+     * Updates existing receiving transaction bins and inventory
+     *
+     * @param $transaction_item
+     * @param $bins
+     * @param $tx_bin
+     * @param $tx_type
+     * @param $tx_date
+     *
+     * @throws Exception
+     */
+    public function updateTxBinReceive($transaction_item, $bins, $tx_bin, $tx_type, $tx_date)
+    {
+        //set variables
+        $total = $transaction_item->quantity;
+        $tx_detail_id = $transaction_item->id;
+        $subtotal = 0;
+        $inventory_model = new Inventory();
+
+        //loop through the bins
+        foreach( $bins as $bin )
+        {
+            //create bin if need be
+            $bin_id = $bin['id'];
+            if( $bin_id === null )
+            {
+                $bin_object = new Bin;
+                $bin_object->product_id = $transaction_item->product_id;
+                $bin_object->aisle = $bin['aisle'];
+                $bin_object->section = $bin['section'];
+                $bin_object->tier = $bin['tier'];
+                $bin_object->position = $bin['position'];
+                $bin_object->default = false;
+                $bin_object->active = true;
+                $bin_object->save();
+
+                $bin_id = $bin_object->id;
+            }
+
+            //convert to base quantity
+            $bin_quantity = $bin['quantity'] * $transaction_item->uom_multiplier;
+
+            //increment subtotal
+            $subtotal += $bin_quantity;
+
+            //check to make sure we are not somehow adding too many items
+            if( $total - $subtotal < 0 ) { throw new Exception('Too many quantities assigned in the bins.'); }
+
+            //if this transaction bin exists, then update it if the quantity is difference
+            if( isset($bin['tx_bin_id']) && $bin['tx_bin_id'] !== null )
+            {
+                //get tx bin
+                $transaction_bin_model = new $tx_bin;
+                $transaction_bin = $transaction_bin_model::find($bin['tx_bin_id']);
+
+                //set quantity
+                $bin_quantity_difference =  $bin_quantity - $transaction_bin->quantity;
+
+                /* update only if the quantity has changed */
+                if( $bin_quantity_difference != 0 )
+                {
+                    //update the bin quantity
+                    $transaction_bin->quantity = $bin_quantity;
+                    $transaction_bin->save();
+
+                    //update inventory
+                    $inventory_model->addInventoryItem($bin_quantity_difference, $bin_id, $tx_date, $transaction_item->variant1_id,
+                        $transaction_item->variant2_id, $transaction_item->variant3_id, $transaction_item->variant4_id,
+                        InventoryActivityType::RECEIVE, $tx_type . '_bin', $bin['tx_bin_id']);
+                }
+            }
+            //since this transaction bin does not exists, just add it
+            else
+            {
+                //change tx_bin table and update inventory only if this is a new bin or if there is a quantity difference
+                if( $bin_quantity > 0 )
+                {
+                    //add to the transaction bin table
+                    $tx_bin_id = $this->addTxBin($tx_bin, $tx_type, $tx_detail_id, $bin_id, $bin_quantity, $tx_date);
+
+                    //update the inventory
+                    $inventory_model->addInventoryItem($bin_quantity, $bin_id, $tx_date, $transaction_item->variant1_id,
+                        $transaction_item->variant2_id, $transaction_item->variant3_id, $transaction_item->variant4_id,
+                        InventoryActivityType::RECEIVE, $tx_type . '_bin', $tx_bin_id);
+                }
+            }
+
+            //find the default bin to be used later so we don't have to run the loop again
+            if( $bin['default'] === true ) { $default_bin = $bin; }
+        }
+
+        //if there are not enough items, add the rest to the default bin
+        //set quantity
+        $remaining_bin_quantity = $total - $subtotal;
+        if( $remaining_bin_quantity > 0 )
+        {
+            //if there is no default bin, we can't complete the transaction
+            if( isset($default_bin) === false ) { throw new Exception('Default bin was not found for product id: ' . $transaction_item->product_id); }
+
+            //add tx bin
+            $tx_bin_id = $this->addTxBin($tx_bin, $tx_type, $tx_detail_id, $default_bin['id'], $remaining_bin_quantity, $tx_date);
+
+            //update the inventory
+            $inventory_model->addInventoryItem($remaining_bin_quantity, $default_bin['id'], $tx_date, $transaction_item->variant1_id,
+                $transaction_item->variant2_id, $transaction_item->variant3_id, $transaction_item->variant4_id,
+                InventoryActivityType::RECEIVE, $tx_type . '_bin', $tx_bin_id);
+        }
+    }
+
+    /**
      * Add a transaction bin item
      */
     private function addTxBin($tx_bin, $tx_type, $tx_detail_id, $bin_id, $quantity, $receive_date)
@@ -670,12 +818,15 @@ class Transaction extends Model
                    ->join('inventory', 'bin.id', '=', 'inventory.bin_id')
                    ->where('bin.product_id', '=', $transaction_detail->product_id)
                    ->where('inventory.variant1_id', '=', $transaction_detail->variant1_id)
-                   ->where('inventory.variant2_id', '=', $transaction_detail->variant1_id)
-                   ->where('inventory.variant3_id', '=', $transaction_detail->variant1_id)
-                   ->where('inventory.variant4_id', '=', $transaction_detail->variant1_id)
+                   ->where('inventory.variant2_id', '=', $transaction_detail->variant2_id)
+                   ->where('inventory.variant3_id', '=', $transaction_detail->variant3_id)
+                   ->where('inventory.variant4_id', '=', $transaction_detail->variant4_id)
                    ->groupBy('bin.product_id', 'bin.id', 'inventory.receive_date')
                    ->havingRaw('SUM(inventory.quantity) > 0')
                    ->orderBy('inventory.receive_date', $query_order)->get();
+
+        /* If somehow no bins are returned, then inventory is off so stop processing */
+        if( count($bins) == 0 ) { throw new Exception('Cannot find the inventory needed in the bins.'); }
 
         //init variables for adding to ship_bin and inventory table
         $remaining_quantity = $transaction_detail->quantity;
@@ -720,7 +871,7 @@ class Transaction extends Model
         /* We are using raw sql here due to limitations of eloquent and join statements with passing in variables
            into multiple join on statements */
         $sql = "SELECT bin.id, bin.aisle, bin.section, bin.tier, bin.position, bin.default,
-                       SUM(inventory.quantity) AS inventory,
+                       SUM(inventory.quantity) AS inventory, " . $tx_bin_table . ".id AS tx_bin_id,
                        " . $tx_bin_table . ".quantity /" . $uom_multiplier . " AS quantity
                 FROM bin
                     LEFT OUTER JOIN inventory
@@ -729,10 +880,56 @@ class Transaction extends Model
                         ON " . $tx_bin_table . ".bin_id = bin.id
                             AND " . $tx_bin_table . "." . $tx_type . "_detail_id = ?
                 WHERE bin.product_id = ?
-                GROUP BY bin.id, bin.aisle, bin.section, bin.tier, bin.position, bin.default, " . $tx_bin_table . ".quantity
+                GROUP BY bin.id, bin.aisle, bin.section, bin.tier, bin.position, bin.default, " .
+                         $tx_bin_table . ".quantity, " . $tx_bin_table . ".id
                 ORDER BY bin.aisle ASC, bin.section ASC, bin.tier ASC, bin.position ASC";
 
         return DB::select($sql, [$tx_detail_id, $product_id]);
+    }
+
+    /**
+     * Pass in the detail items and it will delete the bins associated with them and back out the inventory
+     *
+     * @param $tx_type
+     * @param $tx_detail_items
+     * @param $classes
+     *
+     * @throws Exception
+     */
+    private function deleteTxBin($tx_type, $tx_detail_items, $classes)
+    {
+        //loop through and soft delete the transaction and back out the bins
+        foreach( $tx_detail_items as $tx_detail_item )
+        {
+            //if we have bins, delete them and back out the inventory
+            if( isset($classes['transaction_bin']) )
+            {
+                //get bins
+                $tx_bin_model = new $classes['transaction_bin'];
+                $transaction_bins = $tx_bin_model::where($tx_type . '_detail_id', '=', $tx_detail_item->id)->get();
+
+                //get inventory model
+                $inventory_model = new Inventory();
+
+                //set activity type
+                $activity_type = ( $tx_type == 'receive' ) ? InventoryActivityType::RECEIVE : InventoryActivityType::SHIP;
+
+                //update inventory
+                foreach ( $transaction_bins as $transaction_bin )
+                {
+                    //set quantity. Receiving needs to subtract while shipping needs to add
+                    $quantity = ( $tx_type == 'receive' ) ? $transaction_bin->quantity * -1 : $transaction_bin->quantity;
+
+                    //update the inventory
+                    $inventory_model->addInventoryItem($quantity, $transaction_bin->bin_id, $transaction_bin->receive_date,
+                        $tx_detail_item->variant1_id, $tx_detail_item->variant2_id, $tx_detail_item->variant3_id,
+                        $tx_detail_item->variant4_id, $activity_type, $tx_type . '_bin', $transaction_bin->id);
+                }
+
+                //delete bins
+                $tx_bin_model::where($tx_type . '_detail_id', '=', $tx_detail_item->id)->delete();
+            }
+        }
     }
 
     /**
@@ -742,7 +939,7 @@ class Transaction extends Model
      *
      * @return mixed
      */
-    private function getClasses($tx_type)
+    public function getClasses($tx_type)
     {
         switch( $tx_type )
         {
