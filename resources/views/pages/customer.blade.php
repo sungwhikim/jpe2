@@ -62,7 +62,8 @@
                     <tr>
                         <td>
                             <div class="btn-group">
-                                <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#item-@{{ item.id }}">Edit</button>
+                                <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#item-@{{ item.id }}"
+                                    ng-click="mainList.getClientWarehouse(item)">Edit</button>
                             </div>
                         </td>
                         <td ng-bind="item.name"></td>

@@ -15,7 +15,7 @@
     <div class="input-group-btn">
         <button class="inventory-quantity-container">
             <span id="item-total" class="badge-inventory"
-                  ng-bind="({{ $model_object }}.inventoryTotal / {{ $model_object }}.selectedUomMultiplierTotal) - {{ $model_object }}.quantity"></span>
+                  ng-bind="({{ $model_object }}.inventoryTotal / {{ $model_object }}.selectedUomMultiplierTotal) - {{ $model_object }}.quantity | rounded:1"></span>
         </button>
     </div>
 </div>

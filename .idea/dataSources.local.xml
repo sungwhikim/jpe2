@@ -17,5 +17,12 @@
       <secret-storage>master_key</secret-storage>
       <user-name>jpent_admin</user-name>
     </data-source>
+    <data-source name="SQL Server - New Windows Server Jpent" uuid="fcf25f7b-6e9f-4bde-8620-67c91be20e85">
+      <secret-storage>master_key</secret-storage>
+      <first-sync>true</first-sync>
+      <user-name>larkin</user-name>
+      <schema-pattern>jpentDEV.*</schema-pattern>
+      <default-schemas>jpentDEV.*</default-schemas>
+    </data-source>
   </component>
 </project>

@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Enum\TransactionLogActivityType;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 use Log;
 use Exception;
+use Mail;
 
 use App\Enum\InventoryActivityType;
 use App\Enum\TxStatus;
@@ -22,11 +24,14 @@ class Transaction extends Model
         //get main transaction
         $user_id = auth()->user()->id;
         $tx = new $classes['transaction'];
-        $transaction = $tx::select($tx_type . '.*', 'warehouse.name AS warehouse_name', 'client.short_name AS client_short_name')
+        $transaction = $tx::select($tx_type . '.*', 'warehouse.name AS warehouse_name', 'client.short_name AS client_short_name',
+                                   'tx_status.name AS tx_status_name', 'user.name AS user_name')
                           ->join('warehouse', $tx_type . '.warehouse_id', '=', 'warehouse.id')
                           ->join('client', $tx_type . '.client_id', '=', 'client.id')
                           ->join('user_warehouse', $tx_type . '.warehouse_id', '=', 'user_warehouse.warehouse_id')
                           ->join('user_client', $tx_type . '.client_id', '=', 'user_client.client_id')
+                          ->join('tx_status', $tx_type . '.tx_status_id', '=', 'tx_status.id')
+                          ->join('user', $tx_type . '.user_id', '=', 'user.id')
                           ->where('user_warehouse.user_id', '=', $user_id)
                           ->where('user_client.user_id', '=', $user_id)
                           ->where($tx_type . '.id', '=', $tx_id)->take(1)->get()[0];
@@ -54,7 +59,7 @@ class Transaction extends Model
 
             //get details and data
             $line_item['uoms'] = $product_model->getUomList($product_id, false)['uoms'];
-            $line_item['product'] = Product::find($product_id);
+            $line_item['product'] = Product::findOrFail($product_id);
             $line_item['variants'] = $product_model->getTxVariant($product_id);
 
             //get bins for receiving transactions
@@ -170,14 +175,19 @@ class Transaction extends Model
                 }
             }
 
-            //if it was a converted transaction, update the status
+            //if it was a converted transaction, update the status and log
             if( $request->json('txSetting')['convert'] === true )
             {
                 DB::table('asn_' . $tx_type)
                   ->where('id', '=', $request->json('id'))
                   ->update(['tx_status_id' => TxStatus::converted]);
+
+                //log the converted transaction
+                $this->addTransactionLog($request->json('id'), 'asn_' . $tx_type, TransactionLogActivityType::convert, $request->json()->all());
             }
 
+            //log activity
+            $this->addTransactionLog($transaction->id, $tx_type, TransactionLogActivityType::create, $request->json()->all());
         }
         catch(\Exception $e)
         {
@@ -217,7 +227,7 @@ class Transaction extends Model
         {
             //get main tx table
             $tx_model = new $classes['transaction'];
-            $transaction = $tx_model->find($tx_id);
+            $transaction = $tx_model->findOrFail($tx_id);
 
             /* Don't allow update if the status is not active */
             if( $transaction->tx_status_id != TxStatus::active )
@@ -250,7 +260,7 @@ class Transaction extends Model
                 //get existing item
                 else
                 {
-                    $transaction_detail = $transaction_detail->find($item['id']);
+                    $transaction_detail = $transaction_detail->findOrFail($item['id']);
                 }
 
                 //set the detail
@@ -294,11 +304,12 @@ class Transaction extends Model
             //delete all the bins
             $this->deleteTxBin($tx_type, $tx_detail_items, $classes);
 
-            //delete the detail items
-
             //delete the transaction detail
             $tx_detail_model::where($tx_type . '_id', '=', $transaction->id)
                             ->whereNotIn('id', $tx_detail_ids)->delete();
+
+            //log activity
+            $this->addTransactionLog($tx_id, $tx_type, TransactionLogActivityType::update, $request->json()->all());
         }
         catch(\Exception $e)
         {
@@ -319,6 +330,9 @@ class Transaction extends Model
 
         //if we got here, then everything worked!
         DB::commit();
+
+        //send confirmation email
+        $this->sendConfirmationEmail($tx_type, $transaction);
     }
 
     /**
@@ -337,7 +351,7 @@ class Transaction extends Model
 
         //get transaction
         $tx =  new $classes['transaction'];
-        $transaction = $tx::find($tx_id);
+        $transaction = $tx::findOrFail($tx_id);
 
         //make sure it is active.  We cannot void transactions in any other status
         if( $transaction->tx_status_id != TxStatus::active ) { throw new Exception('Only an active transaction can be voided.'); }
@@ -388,6 +402,9 @@ class Transaction extends Model
                         $transaction_bin->variant4_id, $activity_type, $tx_type . '_bin', $transaction_bin->id);
                 }
             }
+
+            //log activity
+            $this->addTransactionLog($tx_id, $tx_type, TransactionLogActivityType::void, null);
         }
         catch(\Exception $e)
         {
@@ -421,6 +438,7 @@ class Transaction extends Model
                     ->where('warehouse_id', '=', $warehouse_id)
                     ->where('client_id', '=', $client_id)
                     ->where('po_number', '=', $po_number)
+                    ->where('tx_status_id', '!=', TxStatus::voided) // allow duplicates for voided transactions
                     ->take(1);
 
         //we need to account for when this is an update and the user changes the po number
@@ -728,7 +746,7 @@ class Transaction extends Model
             {
                 //get tx bin
                 $transaction_bin_model = new $tx_bin;
-                $transaction_bin = $transaction_bin_model::find($bin['tx_bin_id']);
+                $transaction_bin = $transaction_bin_model::findOrFail($bin['tx_bin_id']);
 
                 //set quantity
                 $bin_quantity_difference =  $bin_quantity - $transaction_bin->quantity;
@@ -811,7 +829,7 @@ class Transaction extends Model
     private function addShippingBin($transaction, $transaction_detail, $classes)
     {
         //get the inventory management type and set query order
-        $query_order = ( Client::find($transaction->client_id)->fifo_lifo == 'fifo' ) ? 'ASC' : 'DESC';
+        $query_order = ( Client::findOrFail($transaction->client_id)->fifo_lifo == 'fifo' ) ? 'ASC' : 'DESC';
 
         //get all the bins for this product and variant(s)
         $bins = Bin::select('bin.id', 'inventory.receive_date', DB::raw('SUM(inventory.quantity) AS quantity'))
@@ -932,6 +950,52 @@ class Transaction extends Model
         }
     }
 
+    private function sendConfirmationEmail($tx_type, $tx_data)
+    {
+        /* WE MAY NEED TO VERIFY IF THIS TYPE OF TRANSACTION FOR THIS PARTICULAR WAREHOUSE/CLIENT SHOULD BE SENT OR NOT
+           DEPENDING ON THE USER ACCOUNT SETTINGS AND THE TX ACTIVITY TYPE.  FOR EXAMPLE, SHOULD THERE BE CONFIRMATIONS
+           FOR VOIDS AND CONVERSIONS?  OR, JUST NEW AND UPDATES? */
+
+        /* NEED TO ACCOUNT FOR WHITE LABEL SITES HERE
+             Email, From, Image, Subject, Outbound Server, etc */
+        //use temp object for now
+        $site = ['site_title' => 'JPE Logistics',
+                 'admin_email' => 'dev.transactions@jpent.com',
+                 'admin_name' => 'Jpent Admin'];
+
+        $tx_data->tx_title = $this->convertTxTypeToTitle($tx_type);
+
+        Mail::send('emails.transaction', ['data' => $tx_data], function ($m) use($tx_type, $site)
+        {
+            //set email addresses
+            $m->from($site['admin_email'], $site['admin_name']);
+            $m->to(auth()->user()->email, auth()->user()->name);
+            $m->cc($site['admin_email']);
+
+            //set subject
+            $m->subject($this->convertTxTypeToTitle($tx_type) . ' confirmation from ' . $site['site_title']);
+        });
+    }
+
+    /**
+     * The log of all transaction changes
+     *
+     * @param $tx_id
+     * @param $tx_table
+     * @param $tx_activity_type_id
+     * @param $tx_data
+     *
+     * @return mixed
+     */
+    public function addTransactionLog($tx_id, $tx_table, $tx_activity_type_id, $tx_data)
+    {
+        return TransactionLog::create(['user_id' => auth()->user()->id,
+                                       'transaction_id' => $tx_id,
+                                       'transaction_table' => $tx_table,
+                                       'transaction_activity_type_id' => $tx_activity_type_id,
+                                       'transaction_data' => json_encode($tx_data)]);
+    }
+
     /**
      * This sets up the transaction model classes
      *
@@ -964,5 +1028,34 @@ class Transaction extends Model
         }
 
         return $classes;
+    }
+
+
+    /**
+     * Converts the transaction type to display friendly title
+     *
+     * @param $tx_type
+     *
+     * @return string
+     */
+    public function convertTxTypeToTitle($tx_type)
+    {
+        switch( $tx_type )
+        {
+            case 'asn_receive':
+                $tx_title = 'ASN Receiving';
+                break;
+            case 'receive';
+                $tx_title = 'Receiving';
+                break;
+            case 'asn_ship';
+                $tx_title = 'ASN Shipping';
+                break;
+            case 'ship';
+                $tx_title = 'Shipping';
+                break;
+        }
+
+        return $tx_title;
     }
 }

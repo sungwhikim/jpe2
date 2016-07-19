@@ -14,6 +14,7 @@
 <script src="/js/angular-component/warehouseClientSelectService.1.0.js"></script>
 <script src="/js/angular-component/warehouseClientSelectController.1.0.js"></script>
 <script src="/js/angular-component/dateToISOFilter.1.0.js"></script>
+<script src="/js/angular-component/roundedFilter.1.0.js"></script>
 <script src="/js/spin-min.js"></script>
 <script src="/js/angular-library/angular-spinner.min.js"></script>
 <script src="/js/angular-library/angular-loading-spinner.js"></script>

@@ -55,14 +55,14 @@ class CustomerController extends Controller
 
     public function getClientWarehouse($customer_id)
     {
-        $clients = CustomerClientWarehouse::select('client_id')
-                                            ->where('customer_id', '=', $customer_id)->get();
-
-        $warehouses = CustomerClientWarehouse::select('warehouse_id')
-                                               ->where('customer_id', '=', $customer_id)->get();
-
-        return ['clients' => $clients->toArray(),
-                'warehouses' => $warehouses->toArray()];
+        return CustomerClientWarehouse::select('customer_id', 'client.id as client_id', 'client.short_name AS client_name',
+                                               'warehouse.id as warehouse_id', 'warehouse.name AS warehouse_name')
+                                        ->join('client', 'customer_client_warehouse.client_id', '=', 'client.id')
+                                        ->join('warehouse', 'customer_client_warehouse.warehouse_id', '=', 'warehouse.id')
+                                        ->where('customer_id', '=', $customer_id)
+                                        ->orderBy('warehouse.name')
+                                        ->orderBy('client.name')
+                                        ->get();
     }
 
     public function getCheckDuplicate($name)
@@ -82,13 +82,41 @@ class CustomerController extends Controller
             $error_message = array('errorMsg' => 'The customer with name of ' . $name . ' already exists.');
             return response()->json($error_message);
         }
+        
+        //create new item
+        $customer_id = $this->saveItem();
 
+        return response()->json(['id' => $customer_id]);
+    }
+
+    public function postUpdate()
+    {
+        $this->saveItem();
+    }
+
+    private function saveItem()
+    {
         //wrap the entire process in a transaction
         DB::beginTransaction();
         try
         {
-            //create new item
-            $customer_id = $this->saveItem();
+            $customer = ( !empty(request()->json('id')) ) ? Customer::find(request()->json('id')) : new Customer();
+            $customer->name        = request()->json('name');
+            $customer->contact     = request()->json('contact');
+            $customer->email       = request()->json('email');
+            $customer->phone       = request()->json('phone');
+            $customer->fax         = request()->json('fax');
+            $customer->address1    = request()->json('address1');
+            $customer->address2    = request()->json('address2');
+            $customer->city        = request()->json('city');
+            $customer->postal_code = request()->json('postal_code');
+            $customer->province_id = request()->json('province_id');
+            $customer->country_id  = request()->json('country_id');
+            $customer->active      = ( !empty(request()->json('active')) ) ? true : false;
+            $customer->save();
+            
+            //set customer id
+            $customer_id = $customer->id;
 
             //add to warehouse client table if it was a popup and warehouse and client id's were sent in
             $warehouse_id = request()->json('warehouse_id');
@@ -100,6 +128,25 @@ class CustomerController extends Controller
                 $customer_client_warehouse->warehouse_id = $warehouse_id;
                 $customer_client_warehouse->client_id = $client_id;
                 $customer_client_warehouse->save();
+            }
+            else
+            {
+                /* Update client warehouse */
+                //delete all current data
+                CustomerClientWarehouse::where('customer_id', '=', $customer_id)->delete();
+
+                //merge both lists and add
+                $items = request()->json('client_warehouse_new', []);
+                $items = array_merge($items, request()->json('client_warehouse', []));
+
+                foreach( $items as $item )
+                {
+                    $object = new CustomerClientWarehouse();
+                    $object->customer_id = $customer->id;
+                    $object->warehouse_id = $item['warehouse_id'];
+                    $object->client_id = $item['client_id'];
+                    $object->save();
+                }
             }
         }
         catch(\Exception $e)
@@ -121,36 +168,8 @@ class CustomerController extends Controller
 
         //if we got here, then everything worked!
         DB::commit();
-
-        return response()->json(['id' => $customer_id]);
-    }
-
-    public function postUpdate()
-    {
-        $this->saveItem();
-    }
-
-    private function saveItem()
-    {
-        $customer = ( !empty(request()->json('id')) ) ? Customer::find(request()->json('id')) : new Customer();
-        $customer->name        = request()->json('name');
-        $customer->contact     = request()->json('contact');
-        $customer->email       = request()->json('email');
-        $customer->phone       = request()->json('phone');
-        $customer->fax         = request()->json('fax');
-        $customer->address1    = request()->json('address1');
-        $customer->address2    = request()->json('address2');
-        $customer->city        = request()->json('city');
-        $customer->postal_code = request()->json('postal_code');
-        //set to null if -1 was sent in.  We can't send in null because then the client side validation won't work with
-        //angular.  The reason for null province id is due to foreign countries with questionable province definitions
-        //and existing data is dirty without set provinces for customer data
-        $customer->province_id = ( request()->json('province_id') == -1 ) ? null : request()->json('province_id');
-        $customer->country_id  = request()->json('country_id');
-        $customer->active      = ( !empty(request()->json('active')) ) ? true : false;
-        $customer->save();
-
-        return $customer->id;
+        
+        return $customer_id;
     }
 
     public function putDelete($id)

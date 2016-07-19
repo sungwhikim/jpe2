@@ -49,11 +49,16 @@ class TransactionController extends Controller
 
     public function getNew()
     {
+        //set tx data
+        $tx_data = collect(['tx_status_name' => null,
+                            'user_name' => auth()->user()->name,
+                            'items' => []]);
+
         //set tx settings
         $tx_setting = $this->getTxSettings($this->tx_type, $this->tx_direction, true, true, false);
 
         //generate view
-        return response()->view($this->tx_view, $this->buildViewData(collect(['items' => []]), $tx_setting));
+        return response()->view($this->tx_view, $this->buildViewData($tx_data, $tx_setting));
     }
 
     public function getConvert($tx_id)
@@ -177,5 +182,27 @@ class TransactionController extends Controller
             $request->json('client_id'), $request->json('po_number'));
 
         return $result;
+    }
+
+    public function testTransactionEmail($tx_type, $tx_id)
+    {
+        //get transaction data
+        $tx_data = $this->transaction_model->getTransaction($tx_type, $tx_id, false);
+
+        //set title of transaction
+        $tx_data->tx_title = $this->transaction_model->convertTxTypeToTitle($tx_type);
+
+        return view('emails.transaction', ['data' => $tx_data]);
+    }
+
+    public function testTransactionEmailCss($tx_type, $tx_id)
+    {
+        //get transaction data
+        $tx_data = $this->transaction_model->getTransaction($tx_type, $tx_id, false);
+
+        //set title of transaction
+        $tx_data->tx_title = $this->transaction_model->convertTxTypeToTitle($tx_type);
+
+        return view('emails.transaction-css', ['data' => $tx_data]);
     }
 }

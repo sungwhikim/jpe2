@@ -26,6 +26,10 @@
                                 ng-show="txCtrl.txSetting.new == false && txCtrl.txSetting.edit == true"
                                 ng-click="txCtrl.voidTransaction();">Void</button>
                         @yield('tx-buttons')
+                        <div class="tx-status-container pull-right text-right">
+                            <span class="label label-primary label-status">@{{ txCtrl.txData.tx_status_name }}</span><br>
+                            <span class="label label-default label-user">@{{ txCtrl.txData.user_name }}</span>
+                        </div>
                         <div class="pull-right tx-wc-header">
                             <span ng-bind="txCtrl.txData.warehouse_name"></span> /
                             <span ng-bind="txCtrl.txData.client_short_name"></span>

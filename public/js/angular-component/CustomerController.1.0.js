@@ -6,7 +6,7 @@
 
 /* app is instantiated in the myApp.js file */
 
-app.controller('CustomerController', function(ListService, alertService, checkBoxService) {
+app.controller('CustomerController', function(ListService, alertService, checkBoxService, modalMessageService, modalService, $http) {
     //set object to variable to prevent self reference collisions
     var CustomerController = this;
 
@@ -26,6 +26,7 @@ app.controller('CustomerController', function(ListService, alertService, checkBo
     CustomerController.countries = countryData;
     CustomerController.newClientWarehouse = newClientWarehouse;
     CustomerController.deleteClientWarehouse = deleteClientWarehouse;
+    CustomerController.getClientWarehouse = getClientWarehouse;
 
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { CustomerController.warehouse_client = warehouseClientData; }
@@ -55,6 +56,33 @@ app.controller('CustomerController', function(ListService, alertService, checkBo
     CustomerController.toggleCheckBox = checkBoxService.toggleCheckBox;
     CustomerController.allCheckBoxes = checkBoxService.allCheckBoxes;
     CustomerController.noneCheckBoxes = checkBoxService.noneCheckBoxes;
+
+    /* GETS THE LIST OF CLIENT WAREHOUSES */
+    function getClientWarehouse(item) {
+        //don't do if we already have results
+        if( item.client_warehouse ) { return; }
+
+        //make ajax call
+        $http({
+            method: 'GET',
+            url: ListService.appUrl + '/client-warehouses/' + item.id
+        }).then(function successCallback(response) {
+            //Captured error in processing
+            if( response.data.errorMsg ) {
+                modalMessageService.showModalMessage('danger', response.data.errorMsg);
+                return false;
+            }
+            //success
+            else {
+                //set data
+                item.client_warehouse = response.data;
+            }
+        }, function errorCallback(response) {
+            //set alert
+            modalMessageService.showModalMessage('danger', 'The following error occurred in getting the client warehouse list: ' + response.statusText);
+            return false;
+        });
+    }
 
     /* ADDS A NEW CLIENT WAREHOUSE ITEM */
     function newClientWarehouse(item) {

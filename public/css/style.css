@@ -400,6 +400,18 @@ input[type='radio'] {
     margin-bottom: 0;
     height: 80px;
 }
+.tx-status-container {
+    margin-left: 15px;
+    position: relative;
+    top: -5px;
+}
+.tx-status-container .label-status {
+    text-transform: capitalize;
+}
+.tx-status-container .label-user{
+    position: relative;
+    top: 3px;
+}
 #tx-note {
     height: 115px;
 }
@@ -475,7 +487,7 @@ input[type='radio'] {
     font-size: 24px;
 }
 .btn-cancel-tx, .btn-void-tx {
-    margin-left: 55px;
+    margin-left: 50px;
 }
 .btn-new-customer {
     margin: -5px 0 5px 5px;

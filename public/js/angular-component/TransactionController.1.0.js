@@ -291,6 +291,9 @@ console.log(TransactionController.txData);
                 //set the convert flag since if it was saved, then it was already converted
                 TransactionController.txSetting.convert = false;
 
+                //update status name to active only if the user wants to stay on the current transaction
+                if( reset !== true ) { TransactionController.txData.tx_status_name = 'active'; }
+
                 //go to callback if set - this is to process pick list and shipping memo
                 if( callback ) { callback(); }
             }
@@ -339,6 +342,7 @@ console.log(TransactionController.txData);
 
                 //update tx settings
                 TransactionController.txSetting.edit = false;
+                TransactionController.txData.tx_status_name = 'voided';
             }
         }, function errorCallback(response) {
             //set alert
@@ -379,8 +383,13 @@ console.log(TransactionController.txData);
         form.$setPristine();
         form.$setUntouched();
 
+        //get user name - save it so we can add it back
+        var userName = TransactionController.txData.user_name;
+
         //reset properties/data
         TransactionController.txData = {};
+        TransactionController.txData.user_name = userName;
+        TransactionController.txData.tx_status_name = null;
         TransactionController.txData.items = [];
         TransactionController.SearchSelectProduct.clear(); //clear out product select box
         TransactionController.txData.txSetting = txSetting;

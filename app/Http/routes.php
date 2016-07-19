@@ -50,9 +50,10 @@ Route::controller('/user-function-category', 'UserFunctionCategoryController');
 Route::get('/user-function-categories', 'UserFunctionCategoryController@getListView');
 
 /* CUSTOMER */
-Route::get('/customer/list-by-wc', 'CustomerController@getListByWarehouseClient');
+//Route::get('/customer/list-by-wc', 'CustomerController@getListByWarehouseClient');
 Route::get('/customers', 'CustomerController@getListView');
 Route::get('/customer/new-popup', 'CustomerController@getNewPopup');
+Route::get('/customer/client-warehouses/{customer_id}', 'CustomerController@getClientWarehouse');
 Route::controller('/customer', 'CustomerController');
 
 /* WAREHOUSE */
@@ -127,3 +128,11 @@ Route::get('/transaction/ship/pick-list/{tx_id}', 'ShipController@getPickList');
 Route::get('/transaction/ship/shipping-memo{tx_id}', 'ShipController@getShippingMemo');
 Route::get('/transaction/ship/pick-and-pack/{tx_ids}', 'ShipController@getPickAndPack');
 Route::controller('/transaction/ship', 'ShipController');
+
+/* TRANSACTION EMAIL TEST PAGE */
+Route::get('/transaction/test-email/{tx_type}/{tx_id}/', 'TransactionController@testTransactionEmail');
+Route::get('/transaction/test-email-css/{tx_type}/{tx_id}/', 'TransactionController@testTransactionEmailCss');
+Route::get('/tx-email', function()
+{
+    return view('emails.transaction-html');
+});
