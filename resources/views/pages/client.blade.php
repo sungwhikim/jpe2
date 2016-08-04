@@ -61,6 +61,10 @@
                                                                              'name' => 'show_barcode_client',
                                                                              'required' => false,
                                                                              'default' => 'false'])
+                                        @include('forms.new-toggle-button', ['title' => 'Attach CSV to transaction confirmation emails',
+                                                                             'name' => 'tx_email_csv',
+                                                                             'required' => false,
+                                                                             'default' => 'false'])
                                         @include('forms.divider', ['style' => 'margin-top:30px;'])
                                         @include('forms.new-checkbox-list', ['title' => 'Warehouses',
                                                                              'name' => 'warehouses',
@@ -124,6 +128,10 @@
                                         @include('forms.filo-lifo')
                                         @include('forms.toggle-button', ['title' => 'Show client barcode in receiving screen',
                                                                          'name' => 'show_barcode_client',
+                                                                         'required' => false,
+                                                                         'default' => 'false'])
+                                        @include('forms.toggle-button', ['title' => 'Attach CSV to transaction confirmation emails',
+                                                                         'name' => 'tx_email_csv',
                                                                          'required' => false,
                                                                          'default' => 'false'])
 

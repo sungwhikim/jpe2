@@ -124,18 +124,4 @@ class Inventory extends Model
                             ->sum('inventory.quantity');
         return $result;
     }
-
-    /* Not used right now.  We are doing an ajax call to get the total in the method above as when there are multiple variants, the combo gets a bit complicated.
-    public function getProductInventoryByVariant($product_id)
-    {
-        $result = Inventory::select('product.id', DB::raw('SUM(inventory.quantity) as total'),
-                                     'inventory.variant1_id', 'inventory.variant2_id', 'inventory.variant3_id', 'inventory.variant4_id')
-                            ->join('bin', 'inventory.bin_id', '=', 'bin.id')
-                            ->join('product', 'bin.product_id', '=', 'product.id')
-                            ->where('bin.product_id', '=', $product_id)
-                            ->groupBy('bin.product_id', 'inventory.variant1', 'inventory.variant2', 'inventory.variant3', 'inventory.variant4')
-                            ->get();
-
-        return $result;
-    } */
 }

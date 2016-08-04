@@ -25,7 +25,12 @@
                         <button type="button" class="btn btn-default"
                                 ng-show="txCtrl.txSetting.new == false && txCtrl.txSetting.edit == true"
                                 ng-click="txCtrl.voidTransaction();">Void</button>
+                        @if( !empty($main_data->converted_tx_id) )
+                        <a class="btn btn-primary" href="/transaction/{{ $tx_setting['direction'] }}/{{ $main_data->converted_tx_id }}">View Converted Transaction</a>
+                        @endif
+
                         @yield('tx-buttons')
+
                         <div class="tx-status-container pull-right text-right">
                             <span class="label label-primary label-status">@{{ txCtrl.txData.tx_status_name }}</span><br>
                             <span class="label label-default label-user">@{{ txCtrl.txData.user_name }}</span>

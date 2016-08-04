@@ -115,6 +115,7 @@ class ClientController extends Controller
         $client->show_barcode_client    = ( request()->json('show_barcode_client') == 'true' ) ? true : false;
         $client->product_type_id = request()->json('product_type_id');
         $client->invoice_attachment_type = request()->json('invoice_attachment_type');
+        $client->tx_email_csv    = ( request()->json('tx_email_csv') == 'true' ) ? true : false;
         $client->save();
         $client_id = $client->id;
 

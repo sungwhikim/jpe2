@@ -596,7 +596,7 @@ console.log(TransactionController.txData);
         /* Set differently whether it is a new transaction or a date is already set */
         //date not set
         if( txDate == null ) {
-            TransactionController.txData.tx_date = datePickerService.setInitialDate();
+            TransactionController.txData.tx_date = new Date();
         }
 
         //date set so init as date object

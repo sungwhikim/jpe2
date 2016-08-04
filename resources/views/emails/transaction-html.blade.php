@@ -2,9 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sample Invoice</title>
-    <link rel="stylesheet" href="/css/bootstrap.css">
+    <title>Sample Transaction</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <style>
+
+        .header-image {
+            margin: 20px 0 40px 0;
+        }
+
+        .tags {
+            padding: 0;
+        }
+        .tags li {
+            float: left;
+            display: table-cell;
+            vertical-align: middle;
+            padding: 0 10px;
+            border-radius: 4px;
+            margin: 0 15px 10px 0;
+        }
+        .tag-default {
+            color: #fff;
+            background-color: #777;
+            white-space: nowrap;
+        }
+        .tags .tag-variant {
+            padding: 0 10px;
+            margin: 5px 10px 5px 0;
+        }
+
+        .table > tbody > tr > td{
+            vertical-align: middle !important;
+        }
+
+        footer {
+            margin-top: 50px;
+        }
+
+        .panel-heading {
+            padding: 1px 15px;
+        }
+        .panel-body {
+            min-height: 110px;
+        }
+
+        .panel {
+            width: 350px;
+            margin-right: 15px;
+            float: left;
+        }
+
 
     </style>
 </head>
@@ -12,144 +59,122 @@
 <body>
 <div class="container">
     <div class="row">
-        <div class="col-xs-6">
-            <h1>
-                <a href="http://jpent.com">
-                    <img src="/image/jpe-logo-popup.jpg">
-                </a>
-            </h1>
+        <div class="col-xs-12">
+            <a href="http://jpent.com">
+                <img src="/image/jpe-logo-popup.jpg" class="header-image">
+            </a>
         </div>
-        <div class="col-xs-6 text-right">
-            <h1>ASN Shipping</h1>
+        <div class="col-xs-12" style="padding-right: 20px;">
+            <div class="alert alert-info">The transaction was created</div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-xs-5">
-            <div class="panel panel-default">
+    <div class="row" style="padding-left: 15px;">
+            <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h4>From: <a href="#">Your Name</a></h4>
+                    <h4>ASN Shipping</h4>
                 </div>
                 <div class="panel-body">
-                    <p>
-                        Address <br>
-                        details <br>
-                        more <br>
-                    </p>
+                    <p>Transaction Date: 6-1-2016</p>
+                    <p>PO Number: aaa000</p>
+                    Status: Active
                 </div>
             </div>
-        </div>
-        <div class="col-xs-5 col-xs-offset-2 text-right">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h4>To : <a href="#">Client Name</a></h4>
+                    <h4>Ship From Warehouse</h4>
                 </div>
                 <div class="panel-body">
-                    <p>
-                        Address <br>
-                        details <br>
-                        more <br>
-                    </p>
+                    <p>1290</p>
+                    123 any street<br>
+                    Mississauga, ON 000AAA
                 </div>
             </div>
-        </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Ship To Customer</h4>
+                </div>
+                <div class="panel-body">
+                    <p>Walmart</p>
+                    123 any street<br>
+                    Mississauga, ON 000AAA
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Client</h4>
+                </div>
+                <div class="panel-body">
+                    <p>Dave & Co</p>
+                    123 any street<br>
+                    Mississauga, ON 000AAA
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Carrier & Note</h4>
+                </div>
+                <div class="panel-body">
+                    <p>Carrier: Jones Shipping</p>
+                    <p>Tracking Number: 998888ZZZZ11111</p>
+                    Notes: My Note
+                </div>
+            </div>
     </div>
     <!-- / end client details section -->
-    <table class="table table-bordered">
+    <table class="table table-striped" id="items">
         <thead>
         <tr>
             <th>
-                <h4>Service</h4>
+                <h4>SKU</h4>
             </th>
             <th>
-                <h4>Description</h4>
+                <h4>Name</h4>
             </th>
             <th>
-                <h4>Hrs/Qty</h4>
+                <h4>Variants</h4>
             </th>
             <th>
-                <h4>Rate/Price</h4>
+                <h4>Quantity</h4>
             </th>
             <th>
-                <h4>Sub Total</h4>
+                <h4>Inventory</h4>
             </th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td>Article</td>
-            <td><a href="#">Title of your article here</a></td>
-            <td class="text-right">-</td>
-            <td class="text-right">$200.00</td>
-            <td class="text-right">$200.00</td>
+            <td>AAA000</td>
+            <td>Test1</td>
+            <td>
+                <ul class="tags">
+                    <li class="tag-default tag-variant">
+                        <strong>DLOT : </strong>5555
+                    </li>
+                </ul>
+            </td>
+            <td>5</td>
+            <td>10</td>
         </tr>
         <tr>
-            <td>Template Design</td>
-            <td><a href="#">Details of project here</a></td>
-            <td class="text-right">10</td>
-            <td class="text-right">75.00</td>
-            <td class="text-right">$750.00</td>
+            <td>BBB111</td>
+            <td>Test2</td>
+            <td></td>
+            <td>10300</td>
+            <td>45000</td>
         </tr>
         <tr>
-            <td>Development</td>
-            <td><a href="#">WordPress Blogging theme</a></td>
-            <td class="text-right">5</td>
-            <td class="text-right">50.00</td>
-            <td class="text-right">$250.00</td>
+            <td>CCC222</td>
+            <td>Test2</td>
+            <td></td>
+            <td>1000</td>
+            <td>3200</td>
         </tr>
         </tbody>
     </table>
-    <div class="row text-right">
-        <div class="col-xs-2 col-xs-offset-8">
-            <p>
-                <strong>
-                    Sub Total : <br>
-                    TAX : <br>
-                    Total : <br>
-                </strong>
-            </p>
-        </div>
-        <div class="col-xs-2">
-            <strong>
-                $1200.00 <br>
-                N/A <br>
-                $1200.00 <br>
-            </strong>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-5">
-            <div class="panel panel-info">
-                <div class="panel-heading">
-                    <h4>Bank details</h4>
-                </div>
-                <div class="panel-body">
-                    <p>Your Name</p>
-                    <p>Bank Name</p>
-                    <p>SWIFT : --------</p>
-                    <p>Account Number : --------</p>
-                    <p>IBAN : --------</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-7">
-            <div class="span7">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <h4>Contact Details</h4>
-                    </div>
-                    <div class="panel-body">
-                        <p>
-                            Email : you@example.com <br><br>
-                            Mobile : -------- <br> <br>
-                            Twitter : <a href="https://twitter.com/tahirtaous">@TahirTaous</a>
-                        </p>
-                        <h4>Payment should be made by Bank Transfer</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
+<footer>
+        <p class="text-muted text-center">JP Enterprises, 2016</p>
+</footer>
 </body>
 </html>

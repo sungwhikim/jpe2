@@ -57,7 +57,6 @@ angular.module('warehouseClientSelectService', [])
                 //set alert
                 //sendAlert('danger', getAlertMsg(curItem.name, 'updated', response.statusText));
                 alert('Changing warehouse and client failed');
-                console.log(response);
             });
         }
 

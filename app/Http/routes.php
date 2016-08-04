@@ -11,11 +11,6 @@
 |
 */
 
-/*Route::get('/', function()
-{
-    return view('welcome');
-});*/
-
 /* HOME PAGE AND ROUTE TO LOGIN/LOGOUT PAGES */
 Route::get('/', 'Auth\AuthController@getIndex');
 Route::get('/login', 'Auth\AuthController@getIndex');
@@ -50,7 +45,7 @@ Route::controller('/user-function-category', 'UserFunctionCategoryController');
 Route::get('/user-function-categories', 'UserFunctionCategoryController@getListView');
 
 /* CUSTOMER */
-//Route::get('/customer/list-by-wc', 'CustomerController@getListByWarehouseClient');
+Route::get('/customer/list-by-wc', 'CustomerController@getListByWarehouseClient');
 Route::get('/customers', 'CustomerController@getListView');
 Route::get('/customer/new-popup', 'CustomerController@getNewPopup');
 Route::get('/customer/client-warehouses/{customer_id}', 'CustomerController@getClientWarehouse');
@@ -131,8 +126,3 @@ Route::controller('/transaction/ship', 'ShipController');
 
 /* TRANSACTION EMAIL TEST PAGE */
 Route::get('/transaction/test-email/{tx_type}/{tx_id}/', 'TransactionController@testTransactionEmail');
-Route::get('/transaction/test-email-css/{tx_type}/{tx_id}/', 'TransactionController@testTransactionEmailCss');
-Route::get('/tx-email', function()
-{
-    return view('emails.transaction-html');
-});

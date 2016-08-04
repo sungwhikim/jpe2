@@ -8,6 +8,11 @@ class Customer extends Model
 {
     protected $table = 'customer';
 
+    public function province()
+    {
+        return $this->hasOne('App\Models\Province', 'id', 'province_id');
+    }
+
     public function getUserCustomerList()
     {
         $data = Customer::select('customer.id', 'name')

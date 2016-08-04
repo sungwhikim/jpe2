@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enum\TransactionEmailActivity;
 use App\Enum\TransactionLogActivityType;
 use Illuminate\Database\Eloquent\Model;
+use App\User;
 use DB;
 use Log;
 use Exception;
@@ -25,13 +27,14 @@ class Transaction extends Model
         $user_id = auth()->user()->id;
         $tx = new $classes['transaction'];
         $transaction = $tx::select($tx_type . '.*', 'warehouse.name AS warehouse_name', 'client.short_name AS client_short_name',
-                                   'tx_status.name AS tx_status_name', 'user.name AS user_name')
+                                   'tx_status.name AS tx_status_name', 'user.name AS user_name', 'carrier.name AS carrier_name')
                           ->join('warehouse', $tx_type . '.warehouse_id', '=', 'warehouse.id')
                           ->join('client', $tx_type . '.client_id', '=', 'client.id')
                           ->join('user_warehouse', $tx_type . '.warehouse_id', '=', 'user_warehouse.warehouse_id')
                           ->join('user_client', $tx_type . '.client_id', '=', 'user_client.client_id')
                           ->join('tx_status', $tx_type . '.tx_status_id', '=', 'tx_status.id')
                           ->join('user', $tx_type . '.user_id', '=', 'user.id')
+                          ->leftJoin('carrier', $tx_type . '.carrier_id', '=', 'carrier.id')
                           ->where('user_warehouse.user_id', '=', $user_id)
                           ->where('user_client.user_id', '=', $user_id)
                           ->where($tx_type . '.id', '=', $tx_id)->take(1)->get()[0];
@@ -175,12 +178,13 @@ class Transaction extends Model
                 }
             }
 
-            //if it was a converted transaction, update the status and log
+            //if it was a converted transaction, update the status and log and add corresponding transaction id
             if( $request->json('txSetting')['convert'] === true )
             {
                 DB::table('asn_' . $tx_type)
                   ->where('id', '=', $request->json('id'))
-                  ->update(['tx_status_id' => TxStatus::converted]);
+                  ->update(['tx_status_id' => TxStatus::converted,
+                            'converted_tx_id' => $transaction->id]);
 
                 //log the converted transaction
                 $this->addTransactionLog($request->json('id'), 'asn_' . $tx_type, TransactionLogActivityType::convert, $request->json()->all());
@@ -208,6 +212,9 @@ class Transaction extends Model
 
         //if we got here, then everything worked!
         DB::commit();
+
+        //send confirmation email
+        $this->sendConfirmationEmail($tx_type, $transaction, TransactionEmailActivity::created, $classes);
 
         return ['tx_id' => $transaction->id];
     }
@@ -332,7 +339,7 @@ class Transaction extends Model
         DB::commit();
 
         //send confirmation email
-        $this->sendConfirmationEmail($tx_type, $transaction);
+        $this->sendConfirmationEmail($tx_type, $transaction, TransactionEmailActivity::updated, $classes);
     }
 
     /**
@@ -425,6 +432,9 @@ class Transaction extends Model
 
         //if we got here, then everything worked!
         DB::commit();
+
+        //send confirmation email
+        $this->sendConfirmationEmail($tx_type, $transaction, TransactionEmailActivity::voided, $classes);
     }
 
     /**
@@ -950,7 +960,7 @@ class Transaction extends Model
         }
     }
 
-    private function sendConfirmationEmail($tx_type, $tx_data)
+    private function sendConfirmationEmail($tx_type, $tx_data, $action, $classes)
     {
         /* WE MAY NEED TO VERIFY IF THIS TYPE OF TRANSACTION FOR THIS PARTICULAR WAREHOUSE/CLIENT SHOULD BE SENT OR NOT
            DEPENDING ON THE USER ACCOUNT SETTINGS AND THE TX ACTIVITY TYPE.  FOR EXAMPLE, SHOULD THERE BE CONFIRMATIONS
@@ -963,18 +973,174 @@ class Transaction extends Model
                  'admin_email' => 'dev.transactions@jpent.com',
                  'admin_name' => 'Jpent Admin'];
 
-        $tx_data->tx_title = $this->convertTxTypeToTitle($tx_type);
+        //get transaction detail
+        $tx_data->items = $this->getEmailTransactionDetail($tx_type, $tx_data->id, $classes['transaction_detail']);
 
-        Mail::send('emails.transaction', ['data' => $tx_data], function ($m) use($tx_type, $site)
+        //set addresses
+        $this->setEmailTemplateAddress($tx_data);
+
+        //set template properties
+        $this->setEmailTemplateProperty($tx_data, $tx_type, $action);
+
+        //get to email addresses - only send to current user in debug mode to prevent mass sending of emails
+        $to_emails = env('APP_CONFIRM_EMAIL_DEV') ? auth()->user()->email :
+                        $this->getConfirmationEmailAddress($tx_data->warehouse_id, $tx_data->client_id, $tx_type, $action);
+
+        //set the host for the images.  The reason is that on a local host server, we need to set it to a public location
+        $tx_data->host = strpos(url('/'), 'local') ? 'http://jpent.01digitalmarketing.com' : url('/');
+        debugbar()->info($tx_data);
+        Mail::send('emails.transaction', ['data' => $tx_data], function ($m) use($tx_type, $site, $tx_data, $to_emails)
         {
             //set email addresses
             $m->from($site['admin_email'], $site['admin_name']);
-            $m->to(auth()->user()->email, auth()->user()->name);
+            $m->to($to_emails);
             $m->cc($site['admin_email']);
 
             //set subject
-            $m->subject($this->convertTxTypeToTitle($tx_type) . ' confirmation from ' . $site['site_title']);
+            $m->subject($tx_data->tx_title . ' confirmation from ' . $site['site_title']);
         });
+    }
+
+    private function getConfirmationEmailAddress($warehouse_id, $client_id, $tx_type, $action)
+    {
+        /* WE WILL JUST GET THE EMAIL ADDRESSES FROM ALL USERS WHO BELONG TO THE CURRENT WAREHOUSE/CLIENT
+           BUT IT NEEDS TO BE CHANGED SO IT ACCOUNTS FOR USER PREFERENCES OF RECEIVING THE TX TYPE AND THE ACTION
+        */
+        $emails = User::join('user_warehouse', 'user.id', '=', 'user_warehouse.user_id')
+                      ->join('user_client', 'user.id', '=', 'user_client.user_id')
+                      ->where('warehouse_id', '=', $warehouse_id)
+                      ->where('client_id', '=', $client_id)
+                      ->where('user.active', '=', true)
+                      ->whereNotNull('email')
+                      ->where('email', '!=', '')
+                      ->distinct()->lists('email')->toArray();
+
+        return $emails;
+    }
+
+    /**
+     * This method adds the addresses for the email template
+     *
+     * @param $tx_data
+     */
+    public function setEmailTemplateAddress(&$tx_data)
+    {
+        //get addresses of warehouse, client, carrier, and customer
+        $tx_data->warehouse = Warehouse::find($tx_data->warehouse_id);
+        $tx_data->client = Client::find($tx_data->client_id);
+        $tx_data->carrier = Carrier::find($tx_data->carrier_id);
+        if( isset($tx_data->customer_id) ) { $tx_data->customer = Customer::find($tx_data->customer_id); }
+    }
+
+    /**
+     * This method adds the email template properties
+     *
+     * @param $tx_data
+     * @param $tx_type
+     * @param $action
+     */
+    public function setEmailTemplateProperty(&$tx_data, $tx_type, $action)
+    {
+        //add tx_type to data
+        $tx_data->tx_type = $tx_type;
+
+        //get transaction status name if not set as it won't be if it is a new transaction
+        if( empty($tx_data->tx_status_name) )
+        {
+            $tx_data->tx_status_name = \App\Models\TxStatus::where('id', '=', $tx_data->tx_status_id)->pluck('name');
+        }
+
+        //reformat tx_date
+        $date = date_create($tx_data->tx_date);
+        $tx_data->tx_date = $date->format('m-d-Y');
+
+        //set the tx title and warehouse heading
+        switch( $tx_type )
+        {
+            case 'asn_receive':
+                $tx_data->tx_title = 'ASN Receiving';
+                $tx_data->warehouse_title = 'Ship To';
+                break;
+            case 'receive';
+                $tx_data->tx_title = 'Receiving';
+                $tx_data->warehouse_title = 'Ship To';
+                break;
+            case 'asn_ship';
+                $tx_data->tx_title = 'ASN Shipping';
+                $tx_data->warehouse_title = 'Ship From';
+                break;
+            case 'ship';
+                $tx_data->tx_title = 'Shipping';
+                $tx_data->warehouse_title = 'Ship From';
+                break;
+        }
+
+        //set tx status message for created status
+        if( $action == TransactionEmailActivity::created )
+        {
+            $tx_data->tx_status_message = 'A new transaction was created';
+        }
+
+        //tx status message for all other statuses
+        else
+        {
+            $tx_data->tx_status_message = 'The transaction was ' . $action;
+        }
+    }
+
+    public function getEmailTransactionDetail($tx_type, $tx_id, $tx_detail_class)
+    {
+        //add line items
+        $tx_detail = new $tx_detail_class;
+        $table_detail = $tx_type . '_detail';
+
+        //get detail line item
+        $transaction_details = $tx_detail::select($table_detail . '.id',
+                                                  $table_detail . '.product_id',
+                                                  'product.sku',
+                                                  'product.name',
+                                                  $table_detail . '.quantity',
+                                                  $table_detail . '.uom_multiplier',
+                                                  $table_detail . '.uom_name',
+                                                  $table_detail . '.variant1_id',
+                                                  $table_detail . '.variant2_id',
+                                                  $table_detail . '.variant3_id',
+                                                  $table_detail . '.variant4_id',
+                                                  'product_variant1.value AS variant1_value',
+                                                  'product_variant2.value AS variant2_value',
+                                                  'product_variant3.value AS variant3_value',
+                                                  'product_variant4.value AS variant4_value',
+                                                  'product_variant1.name AS variant1_name',
+                                                  'product_variant2.name AS variant2_name',
+                                                  'product_variant3.name AS variant3_name',
+                                                  'product_variant4.name AS variant4_name')
+                                        ->leftJoin('product_variant1', $table_detail . '.variant1_id', '=', 'product_variant1.id')
+                                        ->leftJoin('product_variant2', $table_detail . '.variant2_id', '=', 'product_variant2.id')
+                                        ->leftJoin('product_variant3', $table_detail . '.variant3_id', '=', 'product_variant3.id')
+                                        ->leftJoin('product_variant4', $table_detail . '.variant4_id', '=', 'product_variant4.id')
+                                        ->join('product', $table_detail . '.product_id', '=', 'product.id')
+                                        ->where($tx_type . '_id', '=', $tx_id)
+                                        ->orderBy($table_detail . '.id')->get();
+
+        //if it is a ASN ship or shipping transaction, add inventory numbers
+        if( $tx_type == 'asn_ship' || $tx_type == 'ship' )
+        {
+            //get inventory model object
+            $inventory_model = new Inventory();
+
+            //calculate inventory for each item
+            foreach( $transaction_details as $item )
+            {
+                //get inventory
+                $inventory = $inventory_model->getVariantInventoryTotal($item->product_id, $item->variant1_id,
+                                        $item->variant2_id, $item->variant3_id, $item->variant4_id);
+
+                //convert numbers to uom and don't divide if inventory is zero
+                $item->inventory = $inventory > 0 ? $inventory / $item->uom_multiplier : $inventory;
+            }
+        }
+
+        return $transaction_details;
     }
 
     /**
@@ -1027,35 +1193,9 @@ class Transaction extends Model
                 break;
         }
 
+        //do an error check here in case the wrong tx_type or no tx_type was sent in
+        if( !isset($classes) ) { throw new Exception('Invalid transaction type: ' . $tx_type); }
+
         return $classes;
-    }
-
-
-    /**
-     * Converts the transaction type to display friendly title
-     *
-     * @param $tx_type
-     *
-     * @return string
-     */
-    public function convertTxTypeToTitle($tx_type)
-    {
-        switch( $tx_type )
-        {
-            case 'asn_receive':
-                $tx_title = 'ASN Receiving';
-                break;
-            case 'receive';
-                $tx_title = 'Receiving';
-                break;
-            case 'asn_ship';
-                $tx_title = 'ASN Shipping';
-                break;
-            case 'ship';
-                $tx_title = 'Shipping';
-                break;
-        }
-
-        return $tx_title;
     }
 }

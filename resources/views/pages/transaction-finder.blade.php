@@ -12,6 +12,7 @@
             </div>
             @include('layouts.search-bar', ['criterias' => ['tx_date' => 'Date', 'po_number' => 'PO Number', 'tx_status' => 'Status']])
         </div>
+
         <div class="status-row">
             <div class="col-lg-12">
                 <div class="alert alert-processing text-center" ng-hide="mainList"><strong>Loading Data...</strong></div>

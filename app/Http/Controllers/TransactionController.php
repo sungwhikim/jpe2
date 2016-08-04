@@ -189,20 +189,15 @@ class TransactionController extends Controller
         //get transaction data
         $tx_data = $this->transaction_model->getTransaction($tx_type, $tx_id, false);
 
-        //set title of transaction
-        $tx_data->tx_title = $this->transaction_model->convertTxTypeToTitle($tx_type);
+        //get transaction detail
+        $tx_data->items = $this->transaction_model->getEmailTransactionDetail($tx_type, $tx_data->id, 'App\Models\ShipDetail');
+
+        //set addresses
+        $this->transaction_model->setEmailTemplateAddress($tx_data);
+
+        //set transaction properties
+        $this->transaction_model->setEmailTemplateProperty($tx_data, $tx_type, 'created');
 
         return view('emails.transaction', ['data' => $tx_data]);
-    }
-
-    public function testTransactionEmailCss($tx_type, $tx_id)
-    {
-        //get transaction data
-        $tx_data = $this->transaction_model->getTransaction($tx_type, $tx_id, false);
-
-        //set title of transaction
-        $tx_data->tx_title = $this->transaction_model->convertTxTypeToTitle($tx_type);
-
-        return view('emails.transaction-css', ['data' => $tx_data]);
     }
 }
