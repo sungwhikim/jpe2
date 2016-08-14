@@ -5,13 +5,13 @@
 @stop
 
 @section('body')
-    <div class="container main-content" ng-controller="TxFinderController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
+    <div class="container main-content" ng-controller="ReportController as mainList" st-table="mainList.displayItems" st-safe-src="mainList.items">
         <div class="row content-header">
-            <div class="col-lg-7 col-md-6 col-sm-5">
-                <h1>Transaction Finder</h1>
+            <div class="col-lg-12">
+                <h1>@yield('title')</h1>
             </div>
-            @include('layouts.search-bar', ['criterias' => ['tx_date' => 'Date', 'po_number' => 'PO Number', 'tx_status' => 'Status']])
         </div>
+
         <div class="status-row">
             <div class="col-lg-12">
                 <div class="alert alert-processing text-center" ng-hide="mainList"><strong>Loading Data...</strong></div>
@@ -22,6 +22,7 @@
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col-lg-12">
                 <div class="panel panel-default">
@@ -54,45 +55,18 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        @include('layouts.no-items-found')
-                        <table class="table table-striped table-hover" ng-show="mainList.displayItems.length > 0" ng-cloak>
-                            <thead>
-                            <tr>
-                                <th class="col-lg-2 col-md-2 col-sm-2"></th>
-                                {{--<th class="sort-header" st-sort="tx_type">Type</th>--}}
-                                <th class="sort-header" st-sort="tx_date" st-sort-default="reverse">Date</th>
-                                <th class="sort-header" st-sort="po_number">PO Number</th>
-                                <th class="sort-header" st-sort="tx_status">Status</th>
-                                <th ng-show="mainList.txType == 'ship'" style="text-align: center" class="col-lg-2 col-md-2 col-sm-2">
-                                    <button type="button" class="btn btn-info btn-sm" ng-click="mainList.pickAndPack();">Pick & Pack</button>
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody dir-paginate="item in mainList.displayItems | itemsPerPage: 10" class="tbody-form">
-                            <tr>
-                                <td>
-                                    <a class="btn btn-primary btn-sm" href="{{ $url }}/@{{ item.tx_type | UnderScoreToForwardSlash }}/@{{ item.id }}">View / Edit</a>
-                                </td>
-                                {{--<td ng-bind="item.tx_type"></td>--}}
-                                <td ng-bind="item.tx_date | date : 'longDate'"></td>
-                                <td ng-bind="item.po_number"></td>
-                                <td><span ng-bind="item.tx_status" ng-class="{ 'label label-default' : item.tx_status == 'active' }" style="font-size: 12px;"></span></td>
-                                <td ng-show="mainList.txType == 'ship'" style="text-align: center">
-                                    <input type="checkbox" name="tx_id" style="transform: scale(2, 2);"
-                                           ng-click="mainList.toggleCheckBox(mainList.pick_pack_tx_ids, item.id)"
-                                           ng-show="item.tx_status == 'active'">
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+
                     </div>
+                </div>
+                <div id="main-data">
+                    <h2>No Data Found!</h2>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="text-center pagination-container">
-        <dir-pagination-controls boundary-links="true"></dir-pagination-controls>
+
     </div>
 @stop
 

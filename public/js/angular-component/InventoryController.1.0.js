@@ -141,6 +141,8 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
             //set label
             InventoryController.selectedProduct = product;
+
+            console.log(InventoryController.selectedProduct);
         }, function errorCallback(response) {
             //put data back
             InventoryController.displayItems = [].concat(InventoryController.items);

@@ -99,7 +99,7 @@ Route::post('/transaction/check-po-number/{transaction_type}', 'TransactionContr
 
 /* TRANSACTION FINDER */
 Route::get('/transaction-finder', 'TransactionFinderController@getTransactionFinder');
-Route::get('/transaction/find-type/{tx_type}', 'TransactionFinderController@getTxFinderData');
+Route::get('/transaction/find-tx/{tx_type}/{all_dates}/{all_status}', 'TransactionFinderController@getTxFinderData');
 
 /* ASN - RECEIVE */
 Route::get('/transaction/asn/receive/new', 'AsnReceiveController@getNew');

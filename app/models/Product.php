@@ -17,13 +17,35 @@ class Product extends Model
 {
     protected $table = 'product';
 
+    /**
+     * Get basic list of products for the current user's warehouse and client selection
+     *
+     * @return mixed
+     */
     public function getUserProductList()
     {
         return Product::select('product.id', 'product.sku', 'product.name', 'product.barcode', 'product.barcode_client', 'product.active')
-                      ->where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
-                      ->where('product.client_id', '=', auth()->user()->current_client_id)
-                      ->where('product.active', '=', true)
-                      ->get();
+                        ->where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
+                        ->where('product.client_id', '=', auth()->user()->current_client_id)
+                        ->where('product.active', '=', true)
+                        ->get();
+
+    }
+
+    /**
+     * Get list of products with variant data for the current user's warehouse and client selection
+     *
+     * @return mixed
+     */
+    public function getUserProductListWithVariant()
+    {
+        return Product::select('product.id', 'product.sku', 'product.name', 'product.barcode', 'product.barcode_client', 'product.active',
+                                'variant1', 'variant2', 'variant3', 'variant4', 'variant1_active', 'variant2_active', 'variant3_active', 'variant4_active')
+                        ->join('product_type', 'product.product_type_id', '=', 'product_type.id')
+                        ->where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
+                        ->where('product.client_id', '=', auth()->user()->current_client_id)
+                        ->where('product.active', '=', true)
+                        ->get();
     }
 
     public function getTxVariant($product_id, $only_in_stock = false)

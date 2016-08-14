@@ -102,9 +102,7 @@ class UserController extends Controller
 
     public function getCheckDuplicate($username)
     {
-        $users = User::where('username', 'ILIKE', $username)->get();
-
-        return $users;
+        return User::where('username', 'ILIKE', $username)->get();
     }
 
     public function postNew()
@@ -150,6 +148,10 @@ class UserController extends Controller
         $user->email                = request()->json('email');
         $user->user_group_id        = request()->json('user_group_id');
         $user->active               = ( !empty(request()->json('active')) ) ? true : false;
+        $user->tx_email_asn_receive = ( !empty(request()->json('tx_email_asn_receive')) ) ? true : false;
+        $user->tx_email_asn_ship    = ( !empty(request()->json('tx_email_asn_ship')) ) ? true : false;
+        $user->tx_email_receive     = ( !empty(request()->json('tx_email_receive')) ) ? true : false;
+        $user->tx_email_ship        = ( !empty(request()->json('tx_email_ship')) ) ? true : false;
 
         //Only update/add password if it was set
         if( !empty(request()->json('password')) )

@@ -246,6 +246,14 @@ input[type='radio'] {
     margin: 0 0 15px 15px;
 }
 
+/* TRANSACTION EMAIL CHECKBOX GROUP */
+.checkbox-group {
+    margin-bottom: 20px;
+}
+.checkbox-group > div {
+    margin-bottom: 20px;
+}
+
 /* UOM */
 .uom-container {
     margin-bottom: 35px;

@@ -69,7 +69,7 @@ class Inventory extends Model
                         ->orderBy('bin.aisle')->orderBy('bin.section')->orderBy('bin.tier')->orderBy('bin.position')
                         ->get();
 
-        //now add the variants and items from each receive date
+        //now add the variants and items from each receive date and only show bins with positive quantities
         foreach( $bins as $bin )
         {
             $bin_data = Inventory::select('inventory.receive_date',
@@ -85,13 +85,14 @@ class Inventory extends Model
                                 ->leftJoin('product_variant3', 'inventory.variant3_id', '=', 'product_variant3.id')
                                 ->leftJoin('product_variant4', 'inventory.variant4_id', '=', 'product_variant4.id')
                                 ->where('inventory.bin_id', '=', $bin->id)
+                                ->where('inventory.quantity', '>', 0)
                                 ->groupBy('inventory.bin_id', 'inventory.receive_date', 'product_variant1.value',
                                     'product_variant2.value', 'product_variant3.value', 'product_variant4.value', 'bin.default')
                                 ->orderBy('product_variant1.value')
                                 ->orderBy('product_variant2.value')
                                 ->orderBy('product_variant3.value')
                                 ->orderBy('product_variant4.value')
-                                ->orderBy('inventory.receive_date')
+                                ->orderBy('inventory.receive_date', 'DESC')
                                 ->get();
 
             $bin->bin_items = $bin_data;

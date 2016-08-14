@@ -9,7 +9,7 @@ use App\Enum\InventoryActivityType;
 
 use DB;
 use Log;
-use Illuminate\Http\Exception;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
 class InventoryController extends Controller
@@ -30,7 +30,7 @@ class InventoryController extends Controller
     public function getIndex()
     {
         //get the list data with the default sort set the same as in the angular table
-        $product_data = $this->product_model->getUserProductList();
+        $product_data = $this->product_model->getUserProductListWithVariant();
 
         //we need to send the url to do Ajax queries back here
         $url = url('/inventory');
@@ -44,6 +44,11 @@ class InventoryController extends Controller
         return view('pages.inventory', $params);
     }
 
+    /**
+     * This is meant to be used as a pass through function for Ajax calls
+     *
+     * @return mixed
+     */
     public function getProductList()
     {
         return $this->product_model->getUserProductList();
@@ -67,6 +72,14 @@ class InventoryController extends Controller
         return $data;
     }
 
+    /**
+     * Save the inventory data
+     *
+     * @param $product_id
+     *
+     * @return \Illuminate\Http\JsonResponse|mixed
+     * @throws Exception
+     */
     public function postSave($product_id)
     {
         //get the data and parse
@@ -99,6 +112,9 @@ class InventoryController extends Controller
                         {
                             //prevent negative values
                             if( $bin_item['quantity_new'] < 0 ) { throw new Exception('Bin quantity cannot be negative'); }
+
+                            //prevent decimals
+                            if( fmod($bin_item['quantity_new'], 1) != 0 ) { throw new Exception('Bin quantity must be a whole number'); }
 
                             //set quantity to raw quantity
                             $bin_item['quantity_new'] = $bin_item['quantity_new'] * $uom_multiplier;

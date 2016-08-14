@@ -40,19 +40,22 @@ app.controller('TxFinderController', function($http, ListService, alertService, 
     TxFinderController.alerts = ListService.alerts;
     TxFinderController.txType = txType;
     TxFinderController.pick_pack_tx_ids = [];
+    TxFinderController.showAllStatus = showFlag.status;
+    TxFinderController.showAllDates = showFlag.dates;
 
     /* SET MEMBER METHODS */
-    TxFinderController.changeTxType = changeTxType;
+    TxFinderController.updateData = updateData;
     TxFinderController.pickAndPack = pickAndPack;
+    TxFinderController.changeToggle = changeToggle;
 
     /* OVERLOAD REFRESH DATA FUNCTION IN WAREHOUSE CLIENT SELECTOR TO REFRESH THE PAGE WHEN WAREHOUSE/CLIENT IS CHANGED */
-    warehouseClientSelectService.refreshData = changeTxType;
+    warehouseClientSelectService.refreshData = updateData;
 
-    function changeTxType() {
+    function updateData() {
         //make ajax call to refresh transaction list
         $http({
             method: 'GET',
-            url: ListService.appUrl + '/find-type/' + TxFinderController.txType
+            url: ListService.appUrl + '/find-tx/' + TxFinderController.txType + '/' + TxFinderController.showAllDates + '/' + TxFinderController.showAllStatus
         }).then(function successCallback(response) {
             //Captured error in processing
             if( response.data.errorMsg ) {
@@ -83,5 +86,14 @@ app.controller('TxFinderController', function($http, ListService, alertService, 
 
         //open window
         popupWindow(url, 'Pack & Pick', 925, 600);
+    }
+
+    function changeToggle(model)
+    {
+        //toggle model
+        model !== true;
+console.log(model);
+        //refresh data
+        TxFinderController.updateData();
     }
 });
