@@ -2,14 +2,14 @@
     <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4">
         <div class="checkbox checkbox-slider--b checkbox-slider-md">
             <label>
-                <input type="checkbox" name="asn_receive" value="true" ng-model="{{ $model }}.tx_email_asn_receive"><span>ASN - Receiving</span>
+                <input type="checkbox" name="asn" value="true" ng-model="{{ $model }}.tx_email_asn"><span>ASN</span>
             </label>
         </div>
     </div>
     <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4">
         <div class="checkbox checkbox-slider--b checkbox-slider-md">
             <label>
-                <input type="checkbox" name="asn_ship" value="true" ng-model="{{ $model }}.tx_email_asn_ship"><span>ASN - Shipping</span>
+                <input type="checkbox" name="csr" value="true" ng-model="{{ $model }}.tx_email_csr"><span>CSR</span>
             </label>
         </div>
     </div>

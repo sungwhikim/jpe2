@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class AsnReceiveDetail extends Model
+class CsrDetail extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'asn_receive_detail';
+    protected $table = 'csr_detail';
 }

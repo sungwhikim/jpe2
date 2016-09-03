@@ -150,11 +150,11 @@ class CarrierController extends Controller
     {
         /* check to see if this carrier has been used, if so, it cannot be deleted.  The database constraint will
            prevent it too, but this is friendlier than a general server error. */
-        $asn_receive = AsnReceive::select('id')->where('carrier_id', '=', $id)->get();
+        $asn = Asn::select('id')->where('carrier_id', '=', $id)->get();
         $receive = Receive::select('id')->where('carrier_id', '=', $id)->get();
 
         //usage in transaction found
-        if( count($asn_receive) > 0 || count($receive) > 0 )
+        if( count($asn) > 0 || count($receive) > 0 )
         {
             $error_message = array('errorMsg' => 'This carrier cannot be deleted as it has been used in a transaction.
                                                   Please set it to inactive instead if you do not want it to show up in lists.');

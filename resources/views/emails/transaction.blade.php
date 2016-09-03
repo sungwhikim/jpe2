@@ -31,7 +31,7 @@
             {{ $data->warehouse->city }}, {{ $data->warehouse->province->code }} {{ $data->warehouse->postal_code }}
         </div>
     </div>
-    @if( $data->tx_type == 'ship' || $data->tx_type == 'asn_ship')
+    @if( $data->tx_type == 'ship' || $data->tx_type == 'csr')
     <div style="margin-bottom: 20px;border: 1px solid transparent;border-radius: 4px;width: 335px;margin-right: 15px;float: left;border-color: #ddd;">
         <div style="padding: 1px 15px;border-bottom: 1px solid transparent;border-top-left-radius: 3px;border-top-right-radius: 3px;color: #333;background-color: #f5f5f5;border-color: #ddd;">
             <h4 style="font-weight: 500;line-height: 1.1;color: inherit;margin-top: 10px;margin-bottom: 10px;font-size: 18px;">Ship To Customer</h4>
@@ -84,7 +84,7 @@
             <th style="padding: 8px;text-align: left;line-height: 1.42857143;vertical-align: bottom;border-top: 0;border-bottom: 2px solid #ddd;">
                 <h4 style="font-weight: 500;line-height: 1.1;color: inherit;margin-top: 10px;margin-bottom: 10px;font-size: 18px;">Quantity</h4>
             </th>
-            @if( $data->tx_type == 'ship' || $data->tx_type == 'asn_ship')
+            @if( $data->tx_type == 'ship' || $data->tx_type == 'csr')
             <th style="padding: 8px;text-align: left;line-height: 1.42857143;vertical-align: bottom;border-top: 0;border-bottom: 2px solid #ddd;">
                 <h4 style="font-weight: 500;line-height: 1.1;color: inherit;margin-top: 10px;margin-bottom: 10px;font-size: 18px;">Inventory</h4>
             </th>
@@ -123,7 +123,7 @@
                 </td>
                 <td style="padding: 8px;line-height: 1.42857143;vertical-align: middle;border-top: 1px solid #ddd;text-transform: capitalize;">{{ $item->uom_name }}</td>
                 <td style="padding: 8px;line-height: 1.42857143;vertical-align: middle;border-top: 1px solid #ddd;">{{ $item->quantity / $item->uom_multiplier }}</td>
-                @if( $data->tx_type == 'ship' || $data->tx_type == 'asn_ship')
+                @if( $data->tx_type == 'ship' || $data->tx_type == 'csr')
                 <td style="padding: 8px;line-height: 1.42857143;vertical-align: middle;border-top: 1px solid #ddd;">{{ $item->inventory }}</td>
                 @endif
             </tr>

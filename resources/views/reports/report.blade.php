@@ -29,8 +29,8 @@
                     <div class="panel-heading" style="height: 54px;">
                         <div class="col-xs-3">
                             <select class="form-control" name="tx_type" ng-change="mainList.updateData()" ng-model="mainList.txType">
-                                <option value="asn_receive" ng-selected="mainList.txType == 'asn_receive'">ASN - Receiving</option>
-                                <option value="asn_ship" ng-selected="mainList.txType == 'asn_ship'">ASN - Shipping</option>
+                                <option value="asn" ng-selected="mainList.txType == 'asn'">ASN - Advanced Shipping Notice</option>
+                                <option value="csr" ng-selected="mainList.txType == 'csr'">CSR - Client Stock Release</option>
                                 <option value="receive" ng-selected="mainList.txType == 'receive'">Receiving</option>
                                 <option value="ship" ng-selected="mainList.txType == 'ship'">Shipping</option>
                             </select>

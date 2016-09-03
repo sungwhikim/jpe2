@@ -1,6 +1,7 @@
 @extends('main')
 
 @section('css-head')
+    <link href="/css/select.min.css" rel="stylesheet">
 @stop
 
 @section('nav')

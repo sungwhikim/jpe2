@@ -233,7 +233,7 @@ class ProductController extends Controller
         }
 
         //get total inventory only for shipping transactions
-        if( $tx_type == 'asn_ship' || $tx_type == 'ship' )
+        if( $tx_type == 'csr' || $tx_type == 'ship' )
         {
             $inventory_model = new Inventory();
             $data['inventoryTotal'] = $inventory_model->getProductInventoryTotal($product_id);

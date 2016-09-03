@@ -19,8 +19,8 @@
 
 @section('tx-product-input')
     @include('forms.tx-product-search-select')
-    @include('forms.tx-product-quantity-ship', ['controller' => 'txCtrl'])
     @include('forms.tx-product-variant-ship', ['controller' => 'txCtrl'])
+    @include('forms.tx-product-quantity-ship', ['controller' => 'txCtrl'])
 @endsection
 
 @section('tx-product-table-header')
@@ -35,7 +35,7 @@
     <td ng-bind="item.product.name"></td>
     <td>@include('forms.tx-product-variant-list')</td>
     <td style="white-space: nowrap; padding-left: 25px;">
-        @include('forms.tx-product-quantity-ship-raw',['model_object' => 'item', 'controller' => 'txCtrl'])
+        @include('forms.tx-product-quantity-ship-raw',['model_object' => 'item', 'controller' => 'txCtrl', 'show_ship_bin' => true])
         @include('forms.tx-delete-button')
     </td>
 @endsection

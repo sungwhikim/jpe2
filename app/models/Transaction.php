@@ -18,10 +18,14 @@ class Transaction extends Model
 {
     public function getTransaction($tx_type, $tx_id, $convert = false)
     {
+        //for converted transactions, we need to change the transaction type
+        if( $convert === true )
+        {
+            $tx_type = $this->getConvertTxType($tx_type);
+        }
+
         //get classes
         $classes = $this->getClasses($tx_type);
-        $product_model = new Product();
-        $inventory_model = new Inventory();
 
         //get main transaction
         $user_id = auth()->user()->id;
@@ -48,50 +52,8 @@ class Transaction extends Model
         if( $tx->tx_status_id == TxStatus::converted )
         { throw new Exception('This transaction was already converted.'); }
 
-        //get transaction detail
-        $transaction_detail = $this->getTransactionDetail($tx_type, $tx_id, $classes['transaction_detail']);
-
-        //loop and add product object and variants and detail to each line item
-        foreach( $transaction_detail as $line_item)
-        {
-            $product_id = $line_item->product_id;
-            $uom_multiplier = $line_item->selectedUomMultiplierTotal;
-
-            //update quantity
-            $line_item->quantity = $line_item->quantity / $uom_multiplier;
-
-            //get details and data
-            $line_item['uoms'] = $product_model->getUomList($product_id, false)['uoms'];
-            $line_item['product'] = Product::findOrFail($product_id);
-            $line_item['variants'] = $product_model->getTxVariant($product_id);
-
-            //get bins for receiving transactions
-            if( $tx_type == 'receive' )
-            {
-                $line_item['bins'] = $this->getTransactionBin($tx_type, $uom_multiplier, $product_id, $line_item->id);
-            }
-
-            //get bin list if the transaction is being converted because there are not bins set yet
-            if( $convert === true) { $line_item['bins'] = $product_model->getInventoryBin($product_id); }
-
-            //for shipping transactions, add the inventory total and uom multiplier
-            if( $tx_type == 'asn_ship' || $tx_type == 'ship' )
-            {
-                //get current inventory total
-                $line_item['inventoryTotal'] = $inventory_model->getVariantInventoryTotal($line_item->product_id, $line_item->variant1_id,
-                        $line_item->variant2_id, $line_item->variant3_id, $line_item->variant4_id);
-
-                //if it is a shipping transaction, add back the quantity to correct the base inventory level.
-                //the front end dynamically calculates the inventory total so we need to add it back to zero out the difference.
-                if( $tx_type == 'ship') { $line_item['inventoryTotal'] += $line_item->quantity * $uom_multiplier; }
-
-                //set UOM multiplier
-                $line_item['selectedUomMultiplierTotal'] = $uom_multiplier;
-            }
-        }
-
         //add detail list to transaction
-        $transaction['items'] = $transaction_detail;
+        $transaction['items'] = $this->getTransactionDetailComplete($tx_type, $tx_id, $classes, $convert);
 
         return $transaction;
     }
@@ -128,6 +90,63 @@ class Transaction extends Model
                         ->leftJoin('product_variant4', $table_detail . '.variant4_id', '=', 'product_variant4.id')
                         ->where($tx_type . '_id', '=', $tx_id)
                         ->orderBy($table_detail . '.id')->get();
+    }
+
+    public function getTransactionDetailComplete($tx_type, $tx_id, $classes, $convert)
+    {
+        //set classes
+        $product_model = new Product();
+        $inventory_model = new Inventory();
+
+        //get transaction detail
+        $transaction_detail = $this->getTransactionDetail($tx_type, $tx_id, $classes['transaction_detail']);
+
+        //loop and add product object and variants and detail to each line item
+        foreach( $transaction_detail as $line_item)
+        {
+            $product_id = $line_item->product_id;
+            $uom_multiplier = $line_item->selectedUomMultiplierTotal;
+
+            //update quantity
+            $line_item->quantity = $line_item->quantity / $uom_multiplier;
+
+            //get details and data
+            $line_item['uoms'] = $product_model->getUomList($product_id, false)['uoms'];
+            $line_item['product'] = Product::findOrFail($product_id);
+            $line_item['variants'] = $product_model->getTxVariant($product_id);
+
+            //get bins for receiving transactions
+            if( $tx_type == 'receive' )
+            {
+                $line_item['bins'] = $this->getTransactionBin($tx_type, $uom_multiplier, $product_id, $line_item->id);
+            }
+
+            //get bins for shipping transactions
+            if( $tx_type == 'ship' )
+            {
+                $line_item['bins'] = $this->getTransactionBinShip($uom_multiplier, $line_item);
+            }
+
+            //get bin list if the transaction is being converted because there are no bins set yet
+            if( $convert === true) { $line_item['bins'] = $product_model->getInventoryBin($product_id); }
+
+            //for shipping transactions, add the inventory total and uom multiplier
+            if( $tx_type == 'csr' || $tx_type == 'ship' )
+            {
+                //get current inventory total
+                $line_item['inventoryTotal'] = $inventory_model->getVariantInventoryTotal($line_item->product_id, $line_item->variant1_id,
+                    $line_item->variant2_id, $line_item->variant3_id, $line_item->variant4_id);
+
+                //if it is a shipping transaction, add back the quantity to correct the base inventory level.
+                //the front end dynamically calculates the inventory total so we need to add it back to zero out the difference.
+                if( $tx_type == 'ship') { $line_item['inventoryTotal'] += $line_item->quantity * $uom_multiplier; }
+
+                //set UOM multiplier
+                $line_item['selectedUomMultiplierTotal'] = $uom_multiplier;
+            }
+        }
+
+        return $transaction_detail;
     }
 
     public function newTransaction($request, $tx_type)
@@ -181,13 +200,17 @@ class Transaction extends Model
             //if it was a converted transaction, update the status and log and add corresponding transaction id
             if( $request->json('txSetting')['convert'] === true )
             {
-                DB::table('asn_' . $tx_type)
+                //get converted tx type
+                $tx_type_converted = $this->getConvertTxType($tx_type);
+
+                //update converted table
+                DB::table($tx_type_converted)
                   ->where('id', '=', $request->json('id'))
                   ->update(['tx_status_id' => TxStatus::converted,
                             'converted_tx_id' => $transaction->id]);
 
                 //log the converted transaction
-                $this->addTransactionLog($request->json('id'), 'asn_' . $tx_type, TransactionLogActivityType::convert, $request->json()->all());
+                $this->addTransactionLog($request->json('id'), $tx_type_converted, TransactionLogActivityType::convert, $request->json()->all());
             }
 
             //log activity
@@ -216,7 +239,13 @@ class Transaction extends Model
         //send confirmation email
         $this->sendConfirmationEmail($tx_type, $transaction, TransactionEmailActivity::created, $classes);
 
-        return ['tx_id' => $transaction->id];
+        //set return array
+        $return_data = ['tx_id' => $transaction->id];
+
+        //send back items data with bins if it was a shipping or receiving transaction.  This is because of the bin updates.
+        if( $tx_type == 'ship' || $tx_type == 'receive' ) { $return_data['items'] = $this->getTransactionDetailComplete($tx_type, $transaction->id, $classes, false); }
+
+        return $return_data;
     }
 
     public function updateTransaction($request, $tx_type, $tx_id)
@@ -289,16 +318,16 @@ class Transaction extends Model
                             $tx_type, $transaction->tx_date);
                     }
 
-                    /* for shipping, since the fifo and lifo has to be re-calculated, just back out all the bins and
-                       inventory and recalculate and re-add */
+                    /* for shipping, back out old bin data first, then either add back what the user has selected,
+                       or, recalculate FIFO/LIFO */
                     //shipping
                     if ( $tx_type == 'ship' )
                     {
-                        //delete the bins
+                        //delete the existing bins
                         $this->deleteTxBin($tx_type, [$transaction_detail], $classes);
 
-                        //add all the bin items
-                        $this->addShippingBin($transaction, $transaction_detail, $classes);
+                        //update the transaction bin
+                        $this->updateTxBinShip($item, $transaction, $transaction_detail, $classes);
                     }
                 }
             }
@@ -340,6 +369,9 @@ class Transaction extends Model
 
         //send confirmation email
         $this->sendConfirmationEmail($tx_type, $transaction, TransactionEmailActivity::updated, $classes);
+
+        //send back items data with bins if it was a shipping transaction.  This is because of the bin updates.
+        if( $tx_type == 'ship' || $tx_type == 'receive' ) { return ['items' => $this->getTransactionDetailComplete($tx_type, $tx_id, $classes, false)]; }
     }
 
     /**
@@ -452,7 +484,7 @@ class Transaction extends Model
                     ->take(1);
 
         //we need to account for when this is an update and the user changes the po number
-        if( is_null($tx_id) === false ) { $result->where('id', '!=', $tx_id); }
+        if( is_null($tx_id) === false && $tx_id != 'null' ) { $result->where('id', '!=', $tx_id); }
 
         return ( count($result->get()) == 0) ? true : false;
     }
@@ -484,7 +516,7 @@ class Transaction extends Model
         }
 
         /* check for customer id in shipping transactions */
-        if( ($tx_type == 'asn_ship' || $tx_type == 'ship') && is_numeric($request->json('customer_id')) === false )
+        if( ($tx_type == 'csr' || $tx_type == 'ship') && is_numeric($request->json('customer_id')) === false )
         {
             return array('errorMsg' => 'Please select a customer.');
         }
@@ -502,7 +534,7 @@ class Transaction extends Model
     private function setTransactionProperty(&$transaction, $request, $status)
     {
         $transaction->tx_status_id = $status;
-        $transaction->tx_date = $request->json('tx_date');
+        $transaction->tx_date = $request->json('tx_date_clean'); //we use the tx_date_clean because of the way js date is parsed
         $transaction->po_number = $request->json('po_number');
         $transaction->carrier_id = $request->json('carrier_id', null);
         $transaction->client_id = $request->json('client_id');
@@ -634,6 +666,9 @@ class Transaction extends Model
      */
     public function addTxBinReceive($transaction_item, $bins, $tx_bin, $tx_type, $tx_date)
     {
+        /* don't add bins if quantity is zero.  They can set a zero quantity if item was supposed to be sent, but not received */
+        if( $transaction_item->quantity == 0 ) { return; }
+
         //set variables
         $total = $transaction_item->quantity;
         $tx_detail_id = $transaction_item->id;
@@ -751,7 +786,7 @@ class Transaction extends Model
             //check to make sure we are not somehow adding too many items
             if( $total - $subtotal < 0 ) { throw new Exception('Too many quantities assigned in the bins.'); }
 
-            //if this transaction bin exists, then update it if the quantity is difference
+            //if this transaction bin exists, then update it if the quantity is different
             if( isset($bin['tx_bin_id']) && $bin['tx_bin_id'] !== null )
             {
                 //get tx bin
@@ -812,6 +847,59 @@ class Transaction extends Model
         }
     }
 
+    private function updateTxBinShip($item, $transaction, $transaction_detail, $classes)
+    {
+        //set local class instance
+        $inventory_model = new Inventory();
+
+        //if bin is not set, then it is a new item so just add bins
+        if( empty($item['bins']) )
+        {
+            $this->addShippingBin($transaction, $transaction_detail, $classes);
+            return;
+        }
+
+        //get quantity total of the bin items so we can see if the user has set the bins or not.  Also, if the
+        //numbers don't match for some reason, we can disregard the user entered bins and reset it from scratch.
+        $bin_total = 0;
+        $bin_list = [];
+
+        foreach( $item['bins'] as $bin )
+        {
+            if( is_numeric($bin['quantity']) && $bin['quantity'] > 0 )
+            {
+                //increment total
+                $bin_total += $bin['quantity'];
+
+                //add to array to be used later to add the line items so we don't have to loop through the entire array again.
+                $bin_list[] = $bin;
+            }
+        }
+
+        //check to see if the bin quantity total matches the item total.  If so, then we just add them in sequence
+        if( $bin_total == $item['quantity'] )
+        {
+            foreach( $bin_list as $bin )
+            {
+                $quantity = $bin['quantity'] * $item['selectedUomMultiplierTotal'];
+
+                //add to the transaction bin table
+                $tx_bin_id = $this->addTxBin($classes['transaction_bin'], 'ship', $transaction_detail->id, $bin['id'], $quantity, $bin['receive_date']);
+
+                //update the inventory
+                $inventory_model->addInventoryItem($quantity * -1, $bin['id'], $bin['receive_date'], $transaction_detail->variant1_id,
+                    $transaction_detail->variant2_id, $transaction_detail->variant3_id, $transaction_detail->variant4_id,
+                    InventoryActivityType::SHIP, 'ship_bin', $tx_bin_id);
+            }
+        }
+
+        //since the quantities doesn't match or bins were not set, just generate all new bins
+        else
+        {
+            $this->addShippingBin($transaction, $transaction_detail, $classes);
+        }
+    }
+
     /**
      * Add a transaction bin item
      */
@@ -838,6 +926,10 @@ class Transaction extends Model
      */
     private function addShippingBin($transaction, $transaction_detail, $classes)
     {
+        /* don't process if the quantity is zero.  Quantity can be zero due to back ordered items, but we don't want to
+           set a bin */
+        if( $transaction_detail->quantity == 0 ) { return; }
+
         //get the inventory management type and set query order
         $query_order = ( Client::findOrFail($transaction->client_id)->fifo_lifo == 'fifo' ) ? 'ASC' : 'DESC';
 
@@ -851,7 +943,9 @@ class Transaction extends Model
                    ->where('inventory.variant4_id', '=', $transaction_detail->variant4_id)
                    ->groupBy('bin.product_id', 'bin.id', 'inventory.receive_date')
                    ->havingRaw('SUM(inventory.quantity) > 0')
-                   ->orderBy('inventory.receive_date', $query_order)->get();
+                   ->orderBy('inventory.receive_date', $query_order)
+                   ->orderBy('quantity')
+                   ->get();
 
         /* If somehow no bins are returned, then inventory is off so stop processing */
         if( count($bins) == 0 ) { throw new Exception('Cannot find the inventory needed in the bins.'); }
@@ -888,7 +982,7 @@ class Transaction extends Model
     }
 
     /**
-     * This returns the transaction bin data
+     * This returns the transaction bin data for receiving transactions
      *
      * @return mixed
      */
@@ -908,11 +1002,54 @@ class Transaction extends Model
                         ON " . $tx_bin_table . ".bin_id = bin.id
                             AND " . $tx_bin_table . "." . $tx_type . "_detail_id = ?
                 WHERE bin.product_id = ?
+                  AND " . $tx_bin_table . ".deleted_at IS NULL
                 GROUP BY bin.id, bin.aisle, bin.section, bin.tier, bin.position, bin.default, " .
                          $tx_bin_table . ".quantity, " . $tx_bin_table . ".id
                 ORDER BY bin.aisle ASC, bin.section ASC, bin.tier ASC, bin.position ASC";
 
         return DB::select($sql, [$tx_detail_id, $product_id]);
+    }
+
+    /**
+     * This returns the transaction bin data for shipping transactions
+     *
+     * @return mixed
+     */
+    public function getTransactionBinShip($uom_multiplier, $line_item)
+    {
+        //set variants here
+        $variant1_id = ( empty($line_item->variant1_id) ) ? 'IS NULL' : ' = ' . $line_item->variant1_id;
+        $variant2_id = ( empty($line_item->variant2_id) ) ? 'IS NULL' : ' = ' . $line_item->variant2_id;
+        $variant3_id = ( empty($line_item->variant3_id) ) ? 'IS NULL' : ' = ' . $line_item->variant3_id;
+        $variant4_id = ( empty($line_item->variant4_id) ) ? 'IS NULL' : ' = ' . $line_item->variant4_id;
+
+        /* We are using raw sql here due to limitations of eloquent and join statements with passing in variables
+           into multiple join on statements */
+        $sql = "SELECT bin.id, bin.aisle, bin.section, bin.tier, bin.position, bin.default, inventory.receive_date,
+                       CASE WHEN (ship_bin.quantity IS NULL)
+                                THEN SUM(inventory.quantity)
+                                ELSE SUM(inventory.quantity) + ship_bin.quantity
+                            END AS inventory,
+                       ship_bin.id AS tx_bin_id,
+                       ship_bin.quantity /" . $uom_multiplier . " AS quantity
+                FROM inventory
+                    INNER JOIN bin
+                        ON inventory.bin_id = bin.id
+                    LEFT OUTER JOIN ship_bin
+                        ON ship_bin.bin_id = inventory.bin_id
+                            AND ship_bin.receive_date = inventory.receive_date
+                            AND ship_bin.deleted_at IS NULL
+                            AND ship_bin.ship_detail_id = ?
+                WHERE bin.product_id = ?
+                  AND inventory.variant1_id " . $variant1_id . "
+                  AND inventory.variant2_id " . $variant2_id . "
+                  AND inventory.variant3_id " . $variant3_id . "
+                  AND inventory.variant4_id " . $variant4_id . "
+                GROUP BY bin.id, bin.aisle, bin.section, bin.tier, bin.position, bin.default, inventory.receive_date, ship_bin.quantity, ship_bin.id
+                HAVING SUM(inventory.quantity) + ship_bin.quantity > 0 OR SUM(inventory.quantity) > 0
+                ORDER BY bin.aisle ASC, bin.section ASC, bin.tier ASC, bin.position ASC, inventory.receive_date";
+
+        return DB::select($sql, [$line_item->id, $line_item->product_id]);
     }
 
     /**
@@ -966,6 +1103,9 @@ class Transaction extends Model
            DEPENDING ON THE USER ACCOUNT SETTINGS AND THE TX ACTIVITY TYPE.  FOR EXAMPLE, SHOULD THERE BE CONFIRMATIONS
            FOR VOIDS AND CONVERSIONS?  OR, JUST NEW AND UPDATES? */
 
+        /* DON'T SEND EMAILS IF THE FLAG IS SET IN THE .env FILE. THIS IS FOR LOCAL DEBUGGING AND TESTING */
+        if( env('APP_CONFIRM_EMAIL_DO_NOT_SEND') === true ) { return; }
+
         /* NEED TO ACCOUNT FOR WHITE LABEL SITES HERE
              Email, From, Image, Subject, Outbound Server, etc */
         //use temp object for now
@@ -988,7 +1128,7 @@ class Transaction extends Model
 
         //set the host for the images.  The reason is that on a local host server, we need to set it to a public location
         $tx_data->host = strpos(url('/'), 'local') ? 'http://jpent.01digitalmarketing.com' : url('/');
-        debugbar()->info($tx_data);
+
         Mail::send('emails.transaction', ['data' => $tx_data], function ($m) use($tx_type, $site, $tx_data, $to_emails)
         {
             //set email addresses
@@ -1003,17 +1143,20 @@ class Transaction extends Model
 
     private function getConfirmationEmailAddress($warehouse_id, $client_id, $tx_type, $action)
     {
-        /* WE WILL JUST GET THE EMAIL ADDRESSES FROM ALL USERS WHO BELONG TO THE CURRENT WAREHOUSE/CLIENT
-           BUT IT NEEDS TO BE CHANGED SO IT ACCOUNTS FOR USER PREFERENCES OF RECEIVING THE TX TYPE AND THE ACTION
-        */
+        //find all active users with this warehouse/client and has current tx_type email set to true
         $emails = User::join('user_warehouse', 'user.id', '=', 'user_warehouse.user_id')
                       ->join('user_client', 'user.id', '=', 'user_client.user_id')
                       ->where('warehouse_id', '=', $warehouse_id)
                       ->where('client_id', '=', $client_id)
+                      ->where('tx_email_' . $tx_type, '=', true)
                       ->where('user.active', '=', true)
                       ->whereNotNull('email')
                       ->where('email', '!=', '')
                       ->distinct()->lists('email')->toArray();
+
+        /* There could be a situation where no one wants the emails.  In this case, always send a confirmation
+           to the person completing the transaction */
+        if( count($emails) == 0 ) { $emails[] = auth()->user()->email; }
 
         return $emails;
     }
@@ -1057,16 +1200,16 @@ class Transaction extends Model
         //set the tx title and warehouse heading
         switch( $tx_type )
         {
-            case 'asn_receive':
-                $tx_data->tx_title = 'ASN Receiving';
+            case 'asn':
+                $tx_data->tx_title = 'ASN - Advanced Shipping Notice';
                 $tx_data->warehouse_title = 'Ship To';
                 break;
             case 'receive';
                 $tx_data->tx_title = 'Receiving';
                 $tx_data->warehouse_title = 'Ship To';
                 break;
-            case 'asn_ship';
-                $tx_data->tx_title = 'ASN Shipping';
+            case 'csr';
+                $tx_data->tx_title = 'CSR - Client Stock Release';
                 $tx_data->warehouse_title = 'Ship From';
                 break;
             case 'ship';
@@ -1123,7 +1266,7 @@ class Transaction extends Model
                                         ->orderBy($table_detail . '.id')->get();
 
         //if it is a ASN ship or shipping transaction, add inventory numbers
-        if( $tx_type == 'asn_ship' || $tx_type == 'ship' )
+        if( $tx_type == 'csr' || $tx_type == 'ship' )
         {
             //get inventory model object
             $inventory_model = new Inventory();
@@ -1162,6 +1305,21 @@ class Transaction extends Model
                                        'transaction_data' => json_encode($tx_data)]);
     }
 
+    public function getConvertTxType($tx_type)
+    {
+        switch( $tx_type )
+        {
+            case 'receive':
+                return 'asn';
+                break;
+            case 'ship':
+                return 'csr';
+                break;
+            default:
+                throw new Exception('Invalid transaction type for conversion');
+        }
+    }
+
     /**
      * This sets up the transaction model classes
      *
@@ -1173,18 +1331,18 @@ class Transaction extends Model
     {
         switch( $tx_type )
         {
-            case 'asn_receive':
-                $classes['transaction'] = 'App\Models\AsnReceive';
-                $classes['transaction_detail'] = 'App\Models\AsnReceiveDetail';
+            case 'asn':
+                $classes['transaction'] = 'App\Models\Asn';
+                $classes['transaction_detail'] = 'App\Models\AsnDetail';
                 break;
             case 'receive';
                 $classes['transaction'] = 'App\Models\Receive';
                 $classes['transaction_detail'] = 'App\Models\ReceiveDetail';
                 $classes['transaction_bin'] = 'App\Models\ReceiveBin';
                 break;
-            case 'asn_ship';
-                $classes['transaction'] = 'App\Models\AsnShip';
-                $classes['transaction_detail'] = 'App\Models\AsnShipDetail';
+            case 'csr';
+                $classes['transaction'] = 'App\Models\Csr';
+                $classes['transaction_detail'] = 'App\Models\CsrDetail';
                 break;
             case 'ship';
                 $classes['transaction'] = 'App\Models\Ship';

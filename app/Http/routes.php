@@ -95,21 +95,21 @@ Route::controller('/inventory', 'InventoryController');
 
 /* COMMON TO ALL TRANSACTIONS */
 Route::get('/transaction/product-list', 'TransactionController@getUserProductList');
-Route::post('/transaction/check-po-number/{transaction_type}', 'TransactionController@checkPoNumber');
+Route::post('/transaction/check-po-number/{transaction_type}/{tx_id}', 'TransactionController@checkPoNumber');
 
 /* TRANSACTION FINDER */
 Route::get('/transaction-finder', 'TransactionFinderController@getTransactionFinder');
 Route::get('/transaction/find-tx/{tx_type}/{all_dates}/{all_status}', 'TransactionFinderController@getTxFinderData');
 
-/* ASN - RECEIVE */
-Route::get('/transaction/asn/receive/new', 'AsnReceiveController@getNew');
-Route::get('/transaction/asn/receive/{tx_id}', 'AsnReceiveController@getIndex');
-Route::controller('/transaction/asn/receive', 'AsnReceiveController');
+/* ASN */
+Route::get('/transaction/asn/new', 'AsnController@getNew');
+Route::get('/transaction/asn/{tx_id}', 'AsnController@getIndex');
+Route::controller('/transaction/asn', 'AsnController');
 
-/* ASN - SHIP */
-Route::get('/transaction/asn/ship/new', 'AsnShipController@getNew');
-Route::get('/transaction/asn/ship/{tx_id}', 'AsnShipController@getIndex');
-Route::controller('/transaction/asn/ship', 'AsnShipController');
+/* CSR */
+Route::get('/transaction/csr/new', 'CsrController@getNew');
+Route::get('/transaction/csr/{tx_id}', 'CsrController@getIndex');
+Route::controller('/transaction/csr', 'CsrController');
 
 /* RECEIVE */
 Route::get('/transaction/receive/new', 'ReceiveController@getNew');

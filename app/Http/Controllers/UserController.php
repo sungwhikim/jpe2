@@ -148,8 +148,8 @@ class UserController extends Controller
         $user->email                = request()->json('email');
         $user->user_group_id        = request()->json('user_group_id');
         $user->active               = ( !empty(request()->json('active')) ) ? true : false;
-        $user->tx_email_asn_receive = ( !empty(request()->json('tx_email_asn_receive')) ) ? true : false;
-        $user->tx_email_asn_ship    = ( !empty(request()->json('tx_email_asn_ship')) ) ? true : false;
+        $user->tx_email_asn         = ( !empty(request()->json('tx_email_asn')) ) ? true : false;
+        $user->tx_email_csr         = ( !empty(request()->json('tx_email_csr')) ) ? true : false;
         $user->tx_email_receive     = ( !empty(request()->json('tx_email_receive')) ) ? true : false;
         $user->tx_email_ship        = ( !empty(request()->json('tx_email_ship')) ) ? true : false;
 

@@ -1,0 +1,38 @@
+<div class="modal fade">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="cancel()" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Set Bin</h4>
+            </div>
+            <div class="modal-body bin-container">
+                <table class="table table-striped table-form" style="margin-bottom: 5px;">
+                    <thead>
+                        <tr>
+                            <th>Bin</th>
+                            <th>Receive Date</th>
+                            <th>Inventory</th>
+                            <th style="width: 75px;">Quantity</th>
+                            <th class="bin-quantity-header">
+                                <!--<span class="label label-default bin-total-pill"><span ng-bind="item.quantity"></span></span>-->
+                                <div class="label label-success bin-total-pill">Remaining  <span class="badge" ng-bind="remainingQuantity"></span></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="bin in bins">
+                            <td class="text-nowrap">{{ bin.aisle }} {{ bin.section | numberFixedLen:2 }} {{ bin.tier | numberFixedLen:2 }} {{ bin.position | numberFixedLen:2 }}</td>
+                            <td>{{ bin.receive_date }}</td>
+                            <td>{{ bin.inventory / item.selectedUomMultiplierTotal }}</td>
+                            <td colspan="2"><input type="number" class="form-control" ng-model="bin.quantity" ng-keyup="calculateQuantity()"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ng-click="close()" class="btn btn-primary" data-dismiss="modal" ng-disabled="remainingQuantity != 0">Save</button>
+                <button type="button" ng-click="cancel()" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

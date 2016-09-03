@@ -22,14 +22,14 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" ng-cloak>
             <div class="col-lg-12">
                 <div class="panel panel-default">
                     <div class="panel-heading" style="height: 54px;">
                         <div class="col-xs-3">
                             <select class="form-control" name="tx_type" ng-change="mainList.updateData()" ng-model="mainList.txType">
-                                <option value="asn_receive" ng-selected="mainList.txType == 'asn_receive'">ASN - Receiving</option>
-                                <option value="asn_ship" ng-selected="mainList.txType == 'asn_ship'">ASN - Shipping</option>
+                                <option value="asn" ng-selected="mainList.txType == 'asn'">ASN - Advanced Shipping Notice</option>
+                                <option value="csr" ng-selected="mainList.txType == 'csr'">CSR - Client Stock Release</option>
                                 <option value="receive" ng-selected="mainList.txType == 'receive'">Receiving</option>
                                 <option value="ship" ng-selected="mainList.txType == 'ship'">Shipping</option>
                             </select>
@@ -55,14 +55,14 @@
                     </div>
                     <div class="panel-body">
                         @include('layouts.no-items-found')
-                        <table class="table table-striped table-hover" ng-show="mainList.displayItems.length > 0" ng-cloak>
+                        <table class="table table-striped table-hover" ng-show="mainList.displayItems.length > 0">
                             <thead>
                             <tr>
                                 <th class="col-lg-2 col-md-2 col-sm-2"></th>
                                 {{--<th class="sort-header" st-sort="tx_type">Type</th>--}}
-                                <th class="sort-header" st-sort="tx_date" st-sort-default="reverse">Date</th>
-                                <th class="sort-header" st-sort="po_number">PO Number</th>
-                                <th class="sort-header" st-sort="tx_status">Status</th>
+                                <th class="sort-header" st-sort="tx_date" st-sort-default="reverse"><span>Transaction Date</span></th>
+                                <th class="sort-header" st-sort="po_number"><span>PO Number</span></th>
+                                <th class="sort-header" st-sort="tx_status"><span>Status</span></th>
                                 <th ng-show="mainList.txType == 'ship'" style="text-align: center" class="col-lg-2 col-md-2 col-sm-2">
                                     <button type="button" class="btn btn-info btn-sm" ng-click="mainList.pickAndPack();">Pick & Pack</button>
                                 </th>

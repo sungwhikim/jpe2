@@ -10,8 +10,8 @@
             </li>
         </ul>
     </div>
-    <input type="number" class="form-control" placeholder="Quantity" style="width: 100px;"
-           ng-model="{{ $model_object }}.quantity" min="1">
+    <input type="number" class="form-control" placeholder="Quantity" style="width: 100px;" ng-change="txCtrl.changeQty({{ $model_object }})"
+           ng-model="{{ $model_object }}.quantity" min="0">
     <div class="input-group-btn">
         <button type="button" class="btn btn-default" ng-click="txCtrl.showBin({{ $model_object }})">
             <span class="glyphicon glyphicon-download-alt"></span>

@@ -54,11 +54,13 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     TransactionController.resetTransaction = resetTransaction;
     TransactionController.clearProductInput = clearProductInput;
     TransactionController.showBin = showBin;
+    TransactionController.showShipBin = showShipBin;
     TransactionController.checkBarcodeClient = checkBarcodeClient;
     TransactionController.selectVariantShip = selectVariantShip;
     TransactionController.pickList = pickList;
     TransactionController.shippingMemo = shippingMemo;
     TransactionController.newCustomer = newCustomer;
+    TransactionController.changeQty = changeQty;
 
     /* ASSIGN SERVICES TO ALLOW DIRECT ACCESS FROM TEMPLATE TO SERVICE */
     TransactionController.modalService = modalService;
@@ -160,10 +162,13 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
         var sendData = getWarehouseClientId();
         sendData.po_number = po_number;
 
+        //we need to replace 'undefined' with 'null' when it is a new transaction
+        var tx_id = ( TransactionController.txData.id ) ? TransactionController.txData.id : 'null';
+
         //make ajax call
         $http({
             method: 'POST',
-            url: TransactionController.baseUrl + '/transaction/check-po-number/' + TransactionController.txSetting.type,
+            url: TransactionController.baseUrl + '/transaction/check-po-number/' + TransactionController.txSetting.type + '/' + tx_id,
             data: sendData
         }).then(function successCallback(response) {
             //Captured error in processing
@@ -225,15 +230,15 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
 
         var newItem = TransactionController.newItem;
 
-        //don't add if product and quantity was not selected or less than 0
-        if( isNaN(newItem.product_id) === true || isNaN(newItem.quantity) === true || newItem.quantity < 1 ) {
+        //don't add if product and quantity was not selected or invalid
+        if( isNaN(newItem.product_id) === true || validateQuantity(newItem.quantity) !== true ) {
             modalMessageService.showModalMessage('info', 'Please select a product and enter a valid quantity');
             return;
         }
 
         //add to model
         TransactionController.txData.items.push(TransactionController.newItem);
-console.log(TransactionController.txData);
+
         //reset
         resetNewItem();
         TransactionController.SearchSelectProduct.clear();
@@ -262,6 +267,10 @@ console.log(TransactionController.txData);
         //validate data manually again to prevent bad data being sent to the back end.(although another check will be done in the back end)
         if( validateData() !== true ) { return false; }
 
+        //set a clean transaction date due to issues with JS and time zones, etc. when sending back a date object
+        var txDate = TransactionController.txData.tx_date;
+        TransactionController.txData.tx_date_clean = txDate.getFullYear() + '-' + (txDate.getMonth() + 1) + '-' + txDate.getDate();
+
         //set route for new or update
         var route = ( TransactionController.txSetting.new === true ) ? 'new' : 'update/' + TransactionController.txData.id;
 
@@ -278,8 +287,22 @@ console.log(TransactionController.txData);
                 //set success message
                 modalMessageService.showModalMessage('info', 'The transaction has been saved');
 
+                /* -- if this was a converted transaction, reroute the user to the saved transaction --
+                  NEED TO RECONFIGURE THE MODAL MESSAGE TO REDIRECT ON DISMISS
+                if( TransactionController.txSetting.convert == true ) {
+                    window.location.href = getTransactionUrl(response.data.tx_id);
+                }
+                 */
+                //just set the convert to false for now
+                TransactionController.txSetting.convert = false;
+
                 //set id
                 if( response.data.tx_id ) { TransactionController.txData.id = response.data.tx_id; }
+
+                //if it was a shipping or receiving transaction, we need to reload the items to set/reset the bins
+                if( TransactionController.txSetting.type == 'ship' || TransactionController.txSetting.type == 'receive' ) {
+                    TransactionController.txData.items = response.data.items;
+                }
 
                 //reset transaction
                 if( reset === true ) { resetTransaction(form); }
@@ -287,9 +310,6 @@ console.log(TransactionController.txData);
                 //if on a new transaction, it wasn't set to reset, then we want to change the status so any future
                 //saves the existing transaction and not create a new one;
                 else{ TransactionController.txSetting.new = false; }
-
-                //set the convert flag since if it was saved, then it was already converted
-                TransactionController.txSetting.convert = false;
 
                 //update status name to active only if the user wants to stay on the current transaction
                 if( reset !== true ) { TransactionController.txData.tx_status_name = 'active'; }
@@ -398,7 +418,7 @@ console.log(TransactionController.txData);
         resetNewItem();
     }
 
-    /* Brings up the bin popup */
+    /* Brings up the receive bin popup */
     function showBin(item) {
         //don't allow bin dialog if they haven't selected a product yet
         if( !item.product_id ) {
@@ -407,7 +427,7 @@ console.log(TransactionController.txData);
         }
 
         //don't allow bin dialog if the quantity is not set
-        if( !item.quantity || isNaN(item.quantity) === true ) {
+        if( validateQuantityForBin(item.quantity) !== true ) {
             modalMessageService.showModalMessage('danger', 'Please enter a quantity first.');
             return;
         }
@@ -424,6 +444,36 @@ console.log(TransactionController.txData);
             modal.close.then(function(result) {
             });
         });
+    }
+
+    /* Brings up the ship bin popup */
+    function showShipBin(item) {
+        //don't allow bin dialog if the quantity is not set
+        if( validateQuantityForBin(item.quantity) !== true ) {
+            modalMessageService.showModalMessage('danger', 'Please enter a quantity first.');
+            return;
+        }
+
+        //show bin dialog box
+        modalService.showModal({
+            templateUrl: "/js/angular-component/modalService-ship-bin.html",
+            controller: "ShipBinController",
+            inputs: {
+                item: item
+            }
+        }).then(function(modal) {
+                modal.element.modal();
+                modal.close.then(function(result) {
+            });
+        });
+    }
+
+    /* Validates quantity before showing bin screen */
+    function validateQuantityForBin(quantity) {
+        if( !quantity || isNaN(quantity) === true || quantity == 0 ) { return false; }
+
+        //passed test
+        else { return true; }
     }
 
     /* Selects the unit of measure(uom) */
@@ -444,8 +494,8 @@ console.log(TransactionController.txData);
 
         //check additional items by tx type
         switch( TransactionController.txSetting.type) {
-            //asn shipping
-            case 'asn_ship':
+            //csr
+            case 'csr':
                 break;
 
             //receiving
@@ -529,7 +579,7 @@ console.log(TransactionController.txData);
         var items = TransactionController.txData.items;
         for( i = 0; i < items.length; i++ ) {
             //check for valid quantity
-            if( items[i].quantity == '' || isNaN(items[i].quantity) === true ) {
+            if( validateQuantity(items[i].quantity) !== true ) {
                 modalMessageService.showModalMessage('danger', 'Please verify that all items have a valid quantity.');
                 return false;
             }
@@ -543,6 +593,18 @@ console.log(TransactionController.txData);
         }
 
         //if we got here, everything checked out
+        return true;
+    }
+
+    /* Used to verify that the quantity entered is a valid number and set to the correct min value */
+    function validateQuantity(quantity) {
+        //set min value
+        var min = ( TransactionController.txSetting.type == 'ship' || TransactionController.txSetting.type == 'receive') ? 0 : 1;
+
+        //check for valid quantity.
+        if( quantity === null || isNaN(quantity) === true || quantity < min || quantity % 1 != 0 ) { return false; }
+
+        //test passed so return true
         return true;
     }
 
@@ -590,6 +652,7 @@ console.log(TransactionController.txData);
         modalMessageService.showModalMessage('danger', 'The client barcode was not found.');
     }
 
+    /* We need to conver the transaction date to a JS date object for the calendar component to work properly */
     function initTxDate() {
         var txDate = TransactionController.txData.tx_date;
 
@@ -601,7 +664,9 @@ console.log(TransactionController.txData);
 
         //date set so init as date object
         else {
-            TransactionController.txData.tx_date = new Date(txDate);
+            var cleanDateArray = txDate.split('-');
+            var cleanDate = cleanDateArray[1] + '/' + cleanDateArray[2] + '/' + cleanDateArray[0];
+            TransactionController.txData.tx_date = new Date(cleanDate);
         }
     }
 
@@ -648,9 +713,19 @@ console.log(TransactionController.txData);
         });
     }
 
+    /* on changing quantity in a line item, clear out the assigned bins transactions */
+    function changeQty(item) {
+        /* Only do something if the bins exist*/
+        if( item.bins ) {
+            for( i = 0; i < item.bins.length; i++ ) {
+                item.bins[i].quantity = null;
+            }
+        }
+    }
+
     /* builds the transaction route */
     function getTransactionUrl(route) {
-        return TransactionController.baseUrl + '/transaction/' + TransactionController.txSetting.type.replace('_', '/') + '/' + route;
+        return TransactionController.baseUrl + '/transaction/' + TransactionController.txSetting.type + '/' + route;
     }
 
     /* pick list popup */

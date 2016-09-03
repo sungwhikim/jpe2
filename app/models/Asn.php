@@ -3,7 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AsnShip extends Model
+class Asn extends Model
 {
-    protected $table = 'asn_ship';
+    protected $table = 'asn';
 }

@@ -500,6 +500,20 @@ input[type='radio'] {
 .btn-new-customer {
     margin: -5px 0 5px 5px;
 }
+.btn-ship-bin {
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 
 /* SEARCH SELECT COMPONENT */
 .search-select-dropdown {
@@ -521,6 +535,9 @@ input[type='radio'] {
 }
 .st-sort-descent:after{
     content: ' \25BC';
+}
+.sort-header span {
+    cursor: pointer;
 }
 
 /* INVENTORY QUANTITY BADGE */

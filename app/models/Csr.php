@@ -3,7 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AsnReceive extends Model
+class Csr extends Model
 {
-    protected $table = 'asn_receive';
+    protected $table = 'csr';
 }

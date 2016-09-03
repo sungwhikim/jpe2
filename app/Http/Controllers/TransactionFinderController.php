@@ -21,7 +21,7 @@ class TransactionFinderController extends Controller
     public function getTransactionFinder()
     {
         //use the last tx_type used.  If none set, then use ASN receive.
-        $tx_type = ( !empty(auth()->user()->tx_finder_tx_type) ) ? auth()->user()->tx_finder_tx_type : 'asn_receive';
+        $tx_type = ( !empty(auth()->user()->tx_finder_tx_type) ) ? auth()->user()->tx_finder_tx_type : 'asn';
 
         //set the dates and statuses flags
         $show_all_dates = auth()->user()->tx_finder_show_all_dates;

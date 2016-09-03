@@ -3,6 +3,7 @@
 <script src="/js/angular-library/angular-animate.js"></script>
 <script src="/js/angular-library/angular-message.min.js"></script>
 <script src="/js/angular-library/angular-touch.min.js"></script>
+<script src="/js/angular-library/angular-sanitize.min.js"></script>
 
 <!-- load components and services -->
 <script src="/js/angular-component/myApp.js"></script>
@@ -18,4 +19,5 @@
 <script src="/js/spin-min.js"></script>
 <script src="/js/angular-library/angular-spinner.min.js"></script>
 <script src="/js/angular-library/angular-loading-spinner.js"></script>
+<script src="/js/angular-library/select.min.js"></script>
 <script src="/js/angular-component/searchSelectService.1.0.js"></script>

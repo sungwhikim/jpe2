@@ -54,6 +54,7 @@ class ShipController extends TransactionController
                         ->leftJoin('product_variant4', 'ship_detail.variant4_id', '=', 'product_variant4.id')
                         ->whereIn('ship.id', explode(',', $tx_ids))
                         ->where('ship_bin.quantity', '>', 0)
+                        ->whereNull('ship_bin.deleted_at')
                         ->orderBy('bin.aisle')->orderBy('bin.section')->orderBy('bin.tier')->orderBy('bin.position')
                         ->orderBy('ship_bin.receive_date')->orderBy('ship_bin.quantity')
                         ->get();

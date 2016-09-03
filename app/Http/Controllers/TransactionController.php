@@ -64,7 +64,7 @@ class TransactionController extends Controller
     public function getConvert($tx_id)
     {
         //get data
-        $tx_data = $this->transaction_model->getTransaction('asn_' . $this->tx_type, $tx_id, true);
+        $tx_data = $this->transaction_model->getTransaction($this->tx_type, $tx_id, true);
 
         //set tx settings
         $tx_setting = $this->getTxSettings($this->tx_type, $this->tx_direction, true, true, true);
@@ -176,10 +176,10 @@ class TransactionController extends Controller
      *
      * @return JSON - True if not a duplicate
      */
-    public function checkPoNumber($tx_type, Request $request)
+    public function checkPoNumber($tx_type, $tx_id, Request $request)
     {
         $result['valid_po_number'] = $this->transaction_model->checkPoNumber($tx_type, $request->json('warehouse_id'),
-            $request->json('client_id'), $request->json('po_number'));
+            $request->json('client_id'), $request->json('po_number'), $tx_id);
 
         return $result;
     }

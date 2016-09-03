@@ -14,8 +14,8 @@
 
 @section('tx-product-input')
     @include('forms.tx-product-search-select')
-    @include('forms.tx-product-quantity-ship', ['controller' => 'txCtrl'])
     @include('forms.tx-product-variant-ship', ['controller' => 'txCtrl'])
+    @include('forms.tx-product-quantity-ship', ['controller' => 'txCtrl'])
 @endsection
 
 @section('tx-product-table-header')

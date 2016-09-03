@@ -10,12 +10,16 @@
             </li>
         </ul>
     </div>
-    <input type="number" class="form-control" placeholder="Qty" style="width: 75px;"
-           ng-model="{{ $model_object }}.quantity" min="1">
+    <input type="number" class="form-control" placeholder="Qty" style="width: 75px;" ng-change="txCtrl.changeQty({{ $model_object }})"
+           ng-model="{{ $model_object }}.quantity" min="0">
     <div class="input-group-btn">
-        <button class="inventory-quantity-container">
-            <span id="item-total" class="badge-inventory"
-                  ng-bind="({{ $model_object }}.inventoryTotal / {{ $model_object }}.selectedUomMultiplierTotal) - {{ $model_object }}.quantity | rounded:1"></span>
-        </button>
+        <div class="inventory-quantity-container">
+            <div id="item-total" class="badge-inventory"
+                  ng-bind="({{ $model_object }}.inventoryTotal / {{ $model_object }}.selectedUomMultiplierTotal) - {{ $model_object }}.quantity | rounded:1"></div>
+            @if( isset($show_ship_bin) )
+                <div class="glyphicon glyphicon-download-alt btn-ship-bin" ng-show="txCtrl.txSetting.new == false"
+                     ng-click="txCtrl.showShipBin({{ $model_object }})"></div>
+            @endif
+        </div>
     </div>
 </div>

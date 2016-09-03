@@ -11,5 +11,5 @@
         </ul>
     </div>
     <input type="number" class="form-control" placeholder="Quantity" style="width: 100px;"
-           ng-model="{{ $model_object }}.quantity" min="1">
+           ng-model="{{ $model_object }}.quantity" min="0">
 </div>
