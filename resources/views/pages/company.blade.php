@@ -34,11 +34,11 @@
                     <thead>
                     <tr>
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
-                        <th class="sort-header" st-sort="short_name" st-sort-default="true">Short Name</th>
-                        <th class="sort-header" st-sort="name">Name</th>
-                        <th class="sort-header" st-sort="city">City</th>
-                        <th class="sort-header" st-sort="province_name">Province/State</th>
-                        <th class="sort-header" st-sort="active">Active</th>
+                        <th class="sort-header" st-sort="short_name" st-sort-default="true"><span>Short Name</span></th>
+                        <th class="sort-header" st-sort="name"><span>Name</span></th>
+                        <th class="sort-header" st-sort="city"><span>City</span></th>
+                        <th class="sort-header" st-sort="province_name"><span>Province/State</span></th>
+                        <th class="sort-header" st-sort="active"><span>Active</span></th>
                     </tr>
                     <tr>
                         <td colspan="6" class="td-form">
@@ -70,7 +70,7 @@
                         <td ng-bind="item.name"></td>
                         <td ng-bind="item.city"></td>
                         <td ng-bind="item.province_name"></td>
-                        <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
+                        <td><span ng-bind="item.active" ng-class="{ 'tag-status-list' : item.active === true}"></span></td>
                     </tr>
                     <tr>
                         <td colspan="6" class="td-form">

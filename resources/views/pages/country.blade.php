@@ -30,8 +30,8 @@
                     <thead>
                     <tr>
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
-                        <th class="sort-header" st-sort="code" st-sort-default="true">Code</th>
-                        <th class="sort-header" st-sort="name">Name</th>
+                        <th class="sort-header" st-sort="code" st-sort-default="true"><span>Code</span></th>
+                        <th class="sort-header" st-sort="name"><span>Name</span></th>
                     </tr>
                     <tr>
                         <td colspan="3" class="td-form">

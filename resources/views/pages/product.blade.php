@@ -34,10 +34,10 @@
                     <thead>
                     <tr>
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
-                        <th class="sort-header" st-sort="sku" st-sort-default="true">SKU</th>
-                        <th class="sort-header" st-sort="name">Name</th>
-                        <th class="sort-header" st-sort="barcode">Barcode</th>
-                        <th class="sort-header" st-sort="active">Active</th>
+                        <th class="sort-header" st-sort="sku" st-sort-default="true"><span>SKU</span></th>
+                        <th class="sort-header" st-sort="name"><span>Name</span></th>
+                        <th class="sort-header" st-sort="barcode"><span>Barcode</span></th>
+                        <th class="sort-header" st-sort="active"><span>Active</span></th>
                     </tr>
                     <tr>
                         <td colspan="5" class="td-form">
@@ -92,7 +92,7 @@
                         <td ng-bind="item.sku"></td>
                         <td ng-bind="item.name"></td>
                         <td ng-bind="item.barcode"></td>
-                        <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
+                        <td><span ng-bind="item.active" ng-class="{ 'tag-status-list' : item.active === true}"></span></td>
                     </tr>
                     <tr>
                         <td colspan="5" class="td-form">

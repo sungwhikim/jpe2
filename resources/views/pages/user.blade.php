@@ -30,10 +30,10 @@
                     <thead>
                     <tr>
                         <th class="td-button"><button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#new-item">New</button></th>
-                        <th class="sort-header" st-sort="name" st-sort-default="true">Name</th>
-                        <th class="sort-header" st-sort="username">User Name</th>
-                        <th class="sort-header" st-sort="email">Email</th>
-                        <th class="sort-header" st-sort="active">Active</th>
+                        <th class="sort-header" st-sort="name" st-sort-default="true"><span>Name</span></th>
+                        <th class="sort-header" st-sort="username"><span>User Name</span></th>
+                        <th class="sort-header" st-sort="email"><span>Email</span></th>
+                        <th class="sort-header col-lg-1 col-md-1 col-sm-1 col-xs-1" st-sort="active"><span>Active</span></th>
                     </tr>
                     <tr>
                         <td colspan="5" class="td-form">
@@ -75,7 +75,7 @@
                         <td ng-bind="item.name"></td>
                         <td ng-bind="item.username"></td>
                         <td ng-bind="item.email"></td>
-                        <td><span ng-bind="item.active" ng-class="{'badge': item.active===true}"></span></td>
+                        <td><span ng-bind="item.active" ng-class="{ 'tag-status-list' : item.active === true}"></span></td>
                     </tr>
                     <tr>
                         <td colspan="5" class="td-form">

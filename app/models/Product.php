@@ -184,4 +184,32 @@ class Product extends Model
 
         return $bins;
     }
+
+    /**
+     * Used to get the list filtered by sku, name, sku_client
+     *
+     * @param $warehouse_id
+     * @param $client_id
+     * @param $search_term
+     *
+     * @return mixed
+     */
+    public function getListSearch($search_term)
+    {
+        //fix search term
+        $search_term = '%' . urldecode($search_term) . '%';
+
+        $data = Product::select('product.id', 'product.sku', 'product.name', 'product.barcode', 'product.barcode_client', 'product.active')
+                        ->where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
+                        ->where('product.client_id', '=', auth()->user()->current_client_id)
+                        ->where('product.active', '=', true)
+                        ->where(function ($query) use ($search_term) {
+                            $query->orWhere('sku', 'ILIKE', $search_term);
+                            $query->orWhere('name', 'ILIKE', $search_term);
+                        })
+                        ->orderBy('sku')
+                        ->get();
+
+        return $data;
+    }
 }

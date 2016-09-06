@@ -3,10 +3,10 @@
     <div class="col-lg-12 col-md-12 no-float">
         <div class="input-group">
             <input type="text" class="form-control" id="search-select-product" ng-value="txCtrl.SearchSelectProduct.selectedItem.sku"
-                   ng-model="txCtrl.SearchSelectProduct.searchTerm" ng-keyup="txCtrl.SearchSelectProduct.search()" placeholder="-- select a product --"
-                   onkeyup="document.getElementById('search-select-container').className += ' open';" ng-focus="txCtrl.SearchSelectProduct.search();">
+                   ng-model="txCtrl.SearchSelectProduct.searchTerm" ng-change="txCtrl.SearchSelectProduct.search()" placeholder="-- select a product --"
+                   onkeyup="document.getElementById('search-select-container').className += ' open';" ng-focus="txCtrl.SearchSelectProduct.clear();">
             <div class="input-group-btn search-select-container" id="search-select-container">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-click="txCtrl.SearchSelectProduct.loadDefaultList();">
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu search-select-dropdown">

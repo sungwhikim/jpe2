@@ -79,6 +79,7 @@ Route::get('/carriers', 'CarrierController@getListView');
 /* PRODUCT */
 Route::get('/products', 'ProductController@getListView');
 Route::get('/product/tx-detail/{product_id}/{get_inventory}', 'ProductController@getTxDetail');
+Route::get('/products/search/{search_term}', 'ProductController@getListSearch');
 Route::controller('/product', 'ProductController');
 
 /* PRODUCT TYPE */

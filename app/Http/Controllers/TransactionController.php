@@ -63,6 +63,12 @@ class TransactionController extends Controller
 
     public function getConvert($tx_id)
     {
+        /* check to see if the transaction was already converted, if so, redirect to original transaction page */
+        if( $this->transaction_model->checkConverted($this->tx_type, $tx_id) !== null )
+        {
+            return redirect('/transaction/' . $this->transaction_model->getConvertTxType($this->tx_type) . '/' . $tx_id);
+        }
+
         //get data
         $tx_data = $this->transaction_model->getTransaction($this->tx_type, $tx_id, true);
 

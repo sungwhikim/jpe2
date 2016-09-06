@@ -105,7 +105,6 @@ class ProductController extends Controller
         DB::beginTransaction();
         try
         {
-            debugbar()->info(request()->json('product_type')['default_uom']);
             $product = !empty(request()->json('id')) ? Product::find(request()->json('id')) : new Product();
             $product->client_id = auth()->user()->current_client_id;
             $product->warehouse_id = auth()->user()->current_warehouse_id;
@@ -240,5 +239,12 @@ class ProductController extends Controller
         }
 
         return $data;
+    }
+
+    /* This is used as an ajax call to filter the product list */
+    public function getListSearch($search_term)
+    {
+        $product_model = new Product();
+        return $product_model->getListSearch($search_term);
     }
 }

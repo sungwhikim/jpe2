@@ -20,7 +20,6 @@ class Country extends Model
             $country->provinces = ( count($provinces) > 0 ? $provinces->toArray() : array(0 => ['id' => 1,
                                                                                                 'code' => '--',
                                                                                                 'name' => '-- None --']) );
-            debugbar()->info($country->provinces);
         }
 
         return $countries;

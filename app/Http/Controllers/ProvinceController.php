@@ -27,7 +27,6 @@ class ProvinceController extends Controller
     public function getCheckDuplicate($provincename)
     {
         $provinces = Province::where('provincename', 'ILIKE', $provincename)->get();
-        debugbar()->info($provinces);
         return $provinces;
     }
 
@@ -38,7 +37,7 @@ class ProvinceController extends Controller
 
         //set provincename to a variable
         $provincename = request()->json('provincename');
-        debugbar()->info($provincename);
+
         //first check to make sure this is not a duplicate
         $provinces = $this->getCheckDuplicate($provincename);
         if( count($provinces) > 0 )

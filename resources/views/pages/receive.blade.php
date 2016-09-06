@@ -13,8 +13,8 @@
 @section('tx-product-input')
     @include('forms.tx-barcode')
     @include('forms.tx-product-search-select')
-    @include('forms.tx-product-quantity-bin', ['model_object' => 'txCtrl.newItem'])
     @include('forms.tx-product-variant', ['controller' => 'txCtrl'])
+    @include('forms.tx-product-quantity-bin', ['model_object' => 'txCtrl.newItem'])
 @endsection
 
 @section('tx-product-table-header')

@@ -1305,6 +1305,21 @@ class Transaction extends Model
                                        'transaction_data' => json_encode($tx_data)]);
     }
 
+    public function checkConverted($tx_type, $tx_id)
+    {
+        //get original transaction type that was converted
+        $original_tx_type = $this->getConvertTxType($tx_type);
+
+        //get class
+        $classes = $this->getClasses($original_tx_type);
+
+        //check to see if this was converted
+        $transaction = new $classes['transaction'];
+        $data = $transaction::where('id', '=', $tx_id)->pluck('converted_tx_id');
+
+        return $data;
+    }
+
     public function getConvertTxType($tx_type)
     {
         switch( $tx_type )

@@ -76,7 +76,7 @@
                                 {{--<td ng-bind="item.tx_type"></td>--}}
                                 <td ng-bind="item.tx_date | date : 'longDate'"></td>
                                 <td ng-bind="item.po_number"></td>
-                                <td><span ng-bind="item.tx_status" ng-class="{ 'label label-default' : item.tx_status == 'active' }" style="font-size: 12px;"></span></td>
+                                <td><span ng-bind="item.tx_status" ng-class="{ 'tag-status-list' : item.tx_status == 'active' }"></span></td>
                                 <td ng-show="mainList.txType == 'ship'" style="text-align: center">
                                     <input type="checkbox" name="tx_id" style="transform: scale(2, 2);"
                                            ng-click="mainList.toggleCheckBox(mainList.pick_pack_tx_ids, item.id)"

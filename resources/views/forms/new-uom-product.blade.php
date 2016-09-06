@@ -7,7 +7,7 @@
                 <span class="required-field glyphicon glyphicon-asterisk" ng-show="mainList.newItem.product_type.{{ $name }}_active == true"></span>
             </label>
             <div class="uom">
-                <input type="number" class="form-control" name="{{ $name }}"
+                <input type="number" class="form-control" name="{{ $name }}" min="1"
                        placeholder="" ng-model="mainList.newItem.{{ $name }}" ng-required="mainList.newItem.product_type.{{ $name }}_active"
                        @if($key == 1 ) disabled="disabled" ng-init="mainList.newItem.{{ $name }} = 1" value="1" @endif>
                 <!-- ngMessages goes here -->

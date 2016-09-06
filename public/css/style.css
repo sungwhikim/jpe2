@@ -262,6 +262,21 @@ input[type='radio'] {
     width: 100px;
 }
 
+/* TAGS IN LIST FOR STATUS */
+.tag-status-list {
+    background-color: #777;
+    display: inline;
+    padding: .3em .6em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+    font-size: 12px;
+}
+
 /* TAGS */
 .tags {
     padding: 0;
@@ -339,9 +354,9 @@ input[type='radio'] {
     margin-bottom: 15px;
     left: 10px;
 }
-.modal-body .bin-container {
+.bin-container {
     min-height: 150px;
-    max-height:600px;
+    max-height: 600px;
     overflow-y: auto
 }
 #new-bin {
@@ -467,14 +482,7 @@ input[type='radio'] {
     left: 10px;
     width: 100%;
 }
-.tx-container .new-variant-container-ship {
-    white-space: nowrap;
-    margin-left: 5px;
-    position: relative;
-    left: 65px;
-    width: 100%;
-}
-.new-variant-container-ship input {
+.new-variant-container input {
     background-color: #fff !important;
 }
 .tx-container .variant-container {

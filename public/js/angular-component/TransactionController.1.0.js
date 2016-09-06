@@ -35,6 +35,7 @@ app.controller('TransactionController', function($http, checkBoxService, modalMe
     TransactionController.SearchSelectProduct.selectCallBack = selectProduct;
     TransactionController.SearchSelectProduct.clear = searchSelectService.clear;
     TransactionController.SearchSelectProduct.searchTerm = searchSelectService.searchTerm;
+    TransactionController.SearchSelectProduct.baseUrl = TransactionController.baseUrl;
 
     /* ---- SET DATA TO BE USED FOR SELECT LISTS---- */
     if( typeof warehouseClientData != "undefined" ) { TransactionController.warehouse_client = warehouseClientData; }

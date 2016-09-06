@@ -1,4 +1,4 @@
-<div class="new-variant-container-ship">
+<div class="new-variant-container">
     <div class="col-lg-2 col-md-2 col-sm-2 form-group variant-container" ng-class="{ 'has-error': txCtrl.newItem.variant1_error }"
          ng-show="txCtrl.newItem.variants.variant1_active == true">
         <label class="col-lg-3 control-label">@{{ txCtrl.newItem.variants.variant1_name }} <span class="required-field glyphicon glyphicon-asterisk"></span></label>

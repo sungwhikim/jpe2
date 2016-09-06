@@ -20,7 +20,6 @@ class UserController extends Controller
 
     public function getDashboard()
     {
-        debugbar()->info(auth()->user()->warehouseClientList());
         //this validates that the user has access to this user function
         //User::validateRoute();
 
