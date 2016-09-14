@@ -612,6 +612,15 @@ input[type='radio'] {
     margin-bottom: 10px;
 }
 
+/* REPORTS */
+.report-criteria-container {
+
+}
+.report-data-container {
+    position: relative;
+    top: 50px;
+}
+
 /* ALERT MESSAGES ICONS - REMAP CLASS TO MATCH ALERT CLASSES */
 .glyphicon-success:before {
     content: "\e013";
@@ -652,7 +661,7 @@ input[type='radio'] {
     vertical-align: middle;
 }
 
-/* DATE PICKER ANGULAR-UI OVER LOADES */
+/* DATE PICKER ANGULAR-UI OVER LOADS */
 .uib-datepicker-popup {
     padding-bottom: 15px;
 }
@@ -683,7 +692,7 @@ input[type='radio'] {
     vertical-align: top !important;
 }
 
-/* OVER RIDE STYLING FOR INITTOGGLE */
+/* OVER RIDE STYLING FOR INIT TOGGLE */
 .checkbox.checkbox-slider--b {
     padding: 0;
 }

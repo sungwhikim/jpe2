@@ -1,8 +1,14 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\UserWarehouse;
 use App\Models\Warehouse;
 use App\Models\Country;
+use App\User;
+
+use DB;
+use Log;
+use Exception;
 
 class WarehouseController extends Controller
 {
@@ -55,15 +61,44 @@ class WarehouseController extends Controller
             return response()->json($error_message);
         }
 
-        //create new item
-        $warehouse_id = $this->saveItem();
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            //create new item
+            $warehouse_id = $this->saveItem();
+
+            /* add warehouse for all admins */
+            //get user model and call function to update warehouse/client list
+            $user_model = new User();
+            $user_model->addAllWarehouseClientAdmin(true, false);
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The client was not saved. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
 
         return response()->json(['id' => $warehouse_id]);
     }
 
     public function postUpdate()
     {
-        $this->saveItem();
+        return $this->saveItem();
     }
 
     private function saveItem()
@@ -85,7 +120,37 @@ class WarehouseController extends Controller
 
     public function putDelete($id)
     {
-        Warehouse::find($id)->delete();
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            //delete all references in the user table
+            UserWarehouse::where('warehouse_id', '=', $id)->delete();
+
+            //delete the warehouse
+            Warehouse::find($id)->delete();
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The client was not saved. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
+
+        return true;
     }
 }
 ?>

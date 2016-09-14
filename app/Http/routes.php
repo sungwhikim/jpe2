@@ -127,3 +127,7 @@ Route::controller('/transaction/ship', 'ShipController');
 
 /* TRANSACTION EMAIL TEST PAGE */
 Route::get('/transaction/test-email/{tx_type}/{tx_id}/', 'TransactionController@testTransactionEmail');
+
+/* REPORTS */
+Route::get('/report/{report_name}', 'ReportController@getIndex');
+Route::get('/report/{report_name}/{action}', 'ReportController@getReport');

@@ -9,6 +9,10 @@ use App\Models\Client;
 use App\Models\UserWarehouse;
 use App\Models\UserClient;
 
+use DB;
+use Log;
+use Exception;
+
 class UserController extends Controller
 {
     protected $my_name = 'user';
@@ -128,7 +132,7 @@ class UserController extends Controller
 
     public function postUpdate()
     {
-        $this->saveItem();
+        return $this->saveItem();
     }
 
     public function setWarehouseClient($warehouse_id, $client_id)
@@ -141,62 +145,88 @@ class UserController extends Controller
 
     private function saveItem()
     {
-        $user = ( !empty(request()->json('id')) ) ? User::find(request()->json('id')) : new User();
-        $user->username             = request()->json('username');
-        $user->name                 = request()->json('name');
-        $user->email                = request()->json('email');
-        $user->user_group_id        = request()->json('user_group_id');
-        $user->active               = ( !empty(request()->json('active')) ) ? true : false;
-        $user->tx_email_asn         = ( !empty(request()->json('tx_email_asn')) ) ? true : false;
-        $user->tx_email_csr         = ( !empty(request()->json('tx_email_csr')) ) ? true : false;
-        $user->tx_email_receive     = ( !empty(request()->json('tx_email_receive')) ) ? true : false;
-        $user->tx_email_ship        = ( !empty(request()->json('tx_email_ship')) ) ? true : false;
-
-        //Only update/add password if it was set
-        if( !empty(request()->json('password')) )
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
         {
-            //first make sure they are the same
-            $this->validatePassword();
+            $user = ( !empty(request()->json('id')) ) ? User::find(request()->json('id')) : new User();
+            $user->username             = request()->json('username');
+            $user->name                 = request()->json('name');
+            $user->email                = request()->json('email');
+            $user->user_group_id        = request()->json('user_group_id');
+            $user->active               = ( !empty(request()->json('active')) ) ? true : false;
+            $user->tx_email_asn         = ( !empty(request()->json('tx_email_asn')) ) ? true : false;
+            $user->tx_email_csr         = ( !empty(request()->json('tx_email_csr')) ) ? true : false;
+            $user->tx_email_receive     = ( !empty(request()->json('tx_email_receive')) ) ? true : false;
+            $user->tx_email_ship        = ( !empty(request()->json('tx_email_ship')) ) ? true : false;
 
-            //set password
-            $user->password = bcrypt(request()->json('password'));
+            //Only update/add password if it was set
+            if( !empty(request()->json('password')) )
+            {
+                //first make sure they are the same
+                $this->validatePassword();
+
+                //set password
+                $user->password = bcrypt(request()->json('password'));
+            }
+
+            $user->save();
+
+            /* Update warehouses */
+            //delete all current data
+            UserWarehouse::where('user_id', '=', $user->id)->delete();
+
+            //add warehouses
+            $warehouses = request()->json('warehouses', []);
+            foreach( $warehouses as $key => $warehouse_id )
+            {
+                $object = new UserWarehouse();
+                $object->user_id = $user->id;
+                $object->warehouse_id = $warehouse_id;
+                $object->save();
+            }
+
+            /* Update clients */
+            //delete all current data
+            UserClient::where('user_id', '=', $user->id)->delete();
+
+            //add clients
+            $clients = request()->json('clients', []);
+            foreach( $clients as $key => $client_id )
+            {
+                $object = new UserClient();
+                $object->user_id = $user->id;
+                $object->client_id = $client_id;
+                $object->save();
+            }
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The client was not saved. Error: ' . $err_msg);
+            return response()->json($error_message);
         }
 
-        $user->save();
-
-        /* Update warehouses */
-        //delete all current data
-        UserWarehouse::where('user_id', '=', $user->id)->delete();
-
-        //add warehouses
-        $warehouses = request()->json('warehouses', []);
-        foreach( $warehouses as $key => $warehouse_id )
-        {
-            $object = new UserWarehouse();
-            $object->user_id = $user->id;
-            $object->warehouse_id = $warehouse_id;
-            $object->save();
-        }
-
-        /* Update clients */
-        //delete all current data
-        UserClient::where('user_id', '=', $user->id)->delete();
-
-        //add clients
-        $clients = request()->json('clients', []);
-        foreach( $clients as $key => $client_id )
-        {
-            $object = new UserClient();
-            $object->user_id = $user->id;
-            $object->client_id = $client_id;
-            $object->save();
-        }
+        //if we got here, then everything worked!
+        DB::commit();
 
         return $user->id;
     }
 
     public function putDelete($id)
     {
+        /* WE NEED TO CASCADE DELETE OTHER TABLES IF THE USER HASN'T DONE ANY TRANSACTIONS */
+
         User::find($id)->delete();
     }
 

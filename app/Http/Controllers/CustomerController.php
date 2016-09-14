@@ -9,6 +9,7 @@ use App\Models\CustomerClientWarehouse;
 
 use DB;
 use Log;
+use Exception;
 
 class CustomerController extends Controller
 {
@@ -91,7 +92,7 @@ class CustomerController extends Controller
 
     public function postUpdate()
     {
-        $this->saveItem();
+        return $this->saveItem();
     }
 
     private function saveItem()
@@ -162,14 +163,15 @@ class CustomerController extends Controller
             $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
 
             //send back error
-            $error_message = array('errorMsg' => 'The customer was not saved. Error: ' . $err_msg);
+            $error_message = ['errorMsg' => 'The customer was not saved. Error: ' . $err_msg];
+
             return response()->json($error_message);
         }
 
         //if we got here, then everything worked!
         DB::commit();
-        
-        return $customer_id;
+
+        return response()->json($customer_id);
     }
 
     public function putDelete($id)

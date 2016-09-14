@@ -133,16 +133,21 @@ angular.module('listService',  ['alertService',
             method: 'PUT',
             url: ListService.appUrl + '/delete/' + ListService.mainCtl.displayItems[index].id
         }).then(function successCallback(response) {
-            //set alert
-            sendAlert('success', getAlertMsg(ListService.mainCtl.displayItems[index].name, 'deleted', ''));
+            if( response.data.errorMsg ) {
+                //set alert
+                sendAlert('danger', getAlertMsg(ListService.mainCtl.displayItems[index].name, 'deleted', response.data.errorMsg));
+            } else {
+                //set alert
+                sendAlert('success', getAlertMsg(ListService.mainCtl.displayItems[index].name, 'deleted', ''));
 
-            //remove item from model
-            //ListService.displayItems.splice(index, 1);
-            ListService.mainCtl.displayItems.splice(index, 1);
-            ListService.mainCtl.items = angular.copy(ListService.mainCtl.displayItems);
+                //remove item from model
+                //ListService.displayItems.splice(index, 1);
+                ListService.mainCtl.displayItems.splice(index, 1);
+                ListService.mainCtl.items = angular.copy(ListService.mainCtl.displayItems);
 
-            //reset original model
-            ListService.resetModel();
+                //reset original model
+                ListService.resetModel();
+            }
         }, function errorCallback(response) {
             //set alert
             sendAlert('danger', getAlertMsg(ListService.mainCtl.displayItems[index].name, 'deleted', response.statusText));

@@ -3,11 +3,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Country;
+use App\Models\UserClient;
 use App\Models\Warehouse;
 use App\Models\Company;
 use App\Models\ClientWarehouse;
 use App\Models\ProductType;
+use App\User;
+
 use DB;
+use Log;
+use Exception;
 
 class ClientController extends Controller
 {
@@ -81,63 +86,125 @@ class ClientController extends Controller
         //create new item
         $client_id = $this->saveItem();
 
+        /* add client for all admins */
+        //get user model and call function to update warehouse/client list
+        $user_model = new User();
+        $user_model->addAllWarehouseClientAdmin(false, true);
+
         return response()->json(['id' => $client_id]);
     }
 
     public function postUpdate()
     {
-        $this->saveItem();
+       return $this->saveItem();
     }
 
     private function saveItem()
     {
-        $client = ( !empty(request()->json('id')) ) ? Client::find(request()->json('id')) : new Client();
-        $client->short_name      = request()->json('short_name');
-        $client->name            = request()->json('name');
-        $client->contact         = request()->json('contact');
-        $client->email           = request()->json('email');
-        $client->phone           = request()->json('phone');
-        $client->fax             = request()->json('fax');
-        $client->address1        = request()->json('address1');
-        $client->address2        = request()->json('address2');
-        $client->city            = request()->json('city');
-        $client->postal_code     = request()->json('postal_code');
-        $client->province_id     = request()->json('province_id');
-        $client->country_id      = request()->json('country_id');
-        $client->billing_contact = request()->json('billing_contact');
-        $client->billing_email   = request()->json('billing_email');
-        $client->terms           = request()->json('terms');
-        $client->company_id      = request()->json('company_id');
-        $client->billing_country_id = request()->json('billing_country_id');
-        $client->taxable         = ( request()->json('taxable') == 'true' ) ? true : false;
-        $client->active          = ( !empty(request()->json('active')) ) ? true : false;
-        $client->fifo_lifo       = request()->json('fifo_lifo');
-        $client->show_barcode_client    = ( request()->json('show_barcode_client') == 'true' ) ? true : false;
-        $client->product_type_id = request()->json('product_type_id');
-        $client->invoice_attachment_type = request()->json('invoice_attachment_type');
-        $client->tx_email_csv    = ( request()->json('tx_email_csv') == 'true' ) ? true : false;
-        $client->save();
-        $client_id = $client->id;
-
-        /* Update warehouses */
-        //delete all current data
-        ClientWarehouse::where('client_id', '=', $client_id)->delete();
-
-        //add warehouses
-        $warehouses = request()->json('warehouses', []);
-        foreach( $warehouses as $key => $warehouse_id )
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
         {
-            $object = new ClientWarehouse();
-            $object->client_id = $client_id;
-            $object->warehouse_id = $warehouse_id;
-            $object->save();
+            $client = ( !empty(request()->json('id')) ) ? Client::find(request()->json('id')) : new Client();
+            $client->short_name      = request()->json('short_name');
+            $client->name            = request()->json('name');
+            $client->contact         = request()->json('contact');
+            $client->email           = request()->json('email');
+            $client->phone           = request()->json('phone');
+            $client->fax             = request()->json('fax');
+            $client->address1        = request()->json('address1');
+            $client->address2        = request()->json('address2');
+            $client->city            = request()->json('city');
+            $client->postal_code     = request()->json('postal_code');
+            $client->province_id     = request()->json('province_id');
+            $client->country_id      = request()->json('country_id');
+            $client->billing_contact = request()->json('billing_contact');
+            $client->billing_email   = request()->json('billing_email');
+            $client->terms           = request()->json('terms');
+            $client->company_id      = request()->json('company_id');
+            $client->billing_country_id = request()->json('billing_country_id');
+            $client->taxable         = ( request()->json('taxable') == 'true' ) ? true : false;
+            $client->active          = ( !empty(request()->json('active')) ) ? true : false;
+            $client->fifo_lifo       = request()->json('fifo_lifo');
+            $client->show_barcode_client    = ( request()->json('show_barcode_client') == 'true' ) ? true : false;
+            $client->product_type_id = request()->json('product_type_id');
+            $client->invoice_attachment_type = request()->json('invoice_attachment_type');
+            $client->tx_email_csv    = ( request()->json('tx_email_csv') == 'true' ) ? true : false;
+            $client->save();
+            $client_id = $client->id;
+
+            /* Update warehouses */
+            //delete all current data
+            ClientWarehouse::where('client_id', '=', $client_id)->delete();
+
+            //add warehouses
+            $warehouses = request()->json('warehouses', []);
+            foreach( $warehouses as $key => $warehouse_id )
+            {
+                $object = new ClientWarehouse();
+                $object->client_id = $client_id;
+                $object->warehouse_id = $warehouse_id;
+                $object->save();
+            }
         }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The client was not saved. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
 
         return $client_id;
     }
 
     public function putDelete($id)
     {
-        Client::find($id)->delete();
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            //delete from user client table
+            UserClient::where('client_id', '=', $id)->delete();
+
+            //delete warehouses
+            ClientWarehouse::where('client_id', '=', $id)->delete();
+
+            //delete client
+            Client::find($id)->delete();
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The client was not saved. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
+
+        return true;
     }
 }

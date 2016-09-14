@@ -88,7 +88,7 @@ class CarrierController extends Controller
 
     public function postUpdate()
     {
-        $this->saveItem();
+        return $this->saveItem();
     }
 
     private function saveItem()

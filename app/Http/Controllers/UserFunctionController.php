@@ -33,11 +33,6 @@ class UserFunctionController extends Controller
                                                         'category_data' => $user_function_categories]);
     }
 
-    public function getListMenu()
-    {
-
-    }
-
     public function getById($id)
     {
         return UserFunction::where('id', '=', $id)->get();
@@ -70,7 +65,7 @@ class UserFunctionController extends Controller
 
     public function postUpdate()
     {
-        $this->saveItem();
+        return $this->saveItem();
     }
 
     private function saveItem()

@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Models\UserClient;
+use App\Models\UserWarehouse;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -13,6 +15,10 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use App\Models\UserGroup;
 use App\Models\Warehouse;
 use App\Models\Client;
+
+use DB;
+use Log;
+use Exception;
 
 class User extends Model implements AuthenticatableContract,
                                     AuthorizableContract,
@@ -138,6 +144,121 @@ class User extends Model implements AuthenticatableContract,
                             ->orderBy('user_function_category.sort_order')->orderBy('user_function.sort_order')->get();
 
         return $result->groupBy('user_function_category_name');
+    }
+
+    public function addAllWarehouseClientAdmin($add_warehouses, $add_clients)
+    {
+        //get list of all the admins
+        $admins = User::select('id')->where('user_group_id', '=', 1)->get();
+
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            //loop through and update each user
+            foreach( $admins as $admin )
+            {
+                $message = $this->addWarehouseClient($admin->id, $add_warehouses, $add_clients);
+
+                //check for error and bubble it up
+                if( $message !== true ) { throw new Exception('Adding warehouse/client failed for ' . $admin->name); }
+            }
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The item was not saved. Error: ' . $err_msg);
+            return response()->json($error_message);
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
+
+        return true;
+    }
+
+    /**
+     * Adds all warehouse and/or clients for a give user id
+     *
+     * @param $user_id
+     * @param $add_warehouses
+     * @param $add_clients
+     *
+     * @return bool|\Illuminate\Http\JsonResponse
+     */
+    public function addWarehouseClient($user_id, $add_warehouses, $add_clients)
+    {
+        //get all warehouses and clients
+        $warehouses = Warehouse::select('id')->get();
+        $clients = Client::select('id')->get();
+
+        //wrap the entire process in a transaction
+        DB::beginTransaction();
+        try
+        {
+            //update warehouses
+            if( $add_warehouses )
+            {
+                //delete first
+                UserWarehouse::where('user_id', '=', $user_id)->delete();
+
+                //add
+                foreach( $warehouses as $warehouse)
+                {
+                    $user_warehouse = new UserWarehouse();
+                    $user_warehouse->user_id = $user_id;
+                    $user_warehouse->warehouse_id = $warehouse->id;
+                    $user_warehouse->save();
+                }
+            }
+
+            //update clients
+            if( $add_clients )
+            {
+                //delete first
+                UserClient::where('user_id', '=', $user_id)->delete();
+
+                //add
+                foreach( $clients as $client )
+                {
+                    $user_client = new UserClient();
+                    $user_client->user_id = $user_id;
+                    $user_client->client_id = $client->id;
+                    $user_client->save();
+                }
+            }
+        }
+        catch(\Exception $e)
+        {
+            //rollback since something failed
+            DB::rollback();
+
+            //log error so we can trace it if need be later
+            Log::info(auth()->user());
+            Log::error($e);
+
+            //set error message.  Don't send verbose error if not in debug mode
+            $err_msg = ( env('APP_DEBUG') === true ) ? $e->getMessage() : 'SQL error. Please try again or report the issue to the admin.';
+
+            //send back error
+            $error_message = array('errorMsg' => 'The admin user warehouses/clients. Error: ' . $err_msg);
+            return $error_message;
+        }
+
+        //if we got here, then everything worked!
+        DB::commit();
+
+        return true;
     }
 
     /**

@@ -209,8 +209,6 @@ app.controller('InventoryController', function($http, ListService, alertService,
             return false;
         }
 
-        //validate the data
-
         //build return data
         var data = {};
         data.bins = InventoryController.items;
@@ -389,33 +387,40 @@ app.controller('InventoryController', function($http, ListService, alertService,
 
     /* Selects the unit of measure(uom) */
     function selectUom(uom) {
-        var uomMultiplierOld = InventoryController.uomMultiplier;
+        //show modal dialog to confirm change of uom as it will clear out all entered quantities
+        modalService.showModal({
+            templateUrl: "/js/angular-component/modalService-change-uom.html",
+            controller: "YesNoController"
+        }).then(function(modal) {
+            modal.element.modal();
+            modal.close.then(function(result) {
+                if( result === true ) {
+                    //set selected Uom
+                    InventoryController.selectedUom = uom.key;
+                    InventoryController.uomMultiplier = uom.multiplier_total;
 
-        //set selected Uom
-        InventoryController.selectedUom = uom.key;
-        InventoryController.uomMultiplier = uom.multiplier_total;
+                    //clear out input amounts
+                    for( var i = 0; i < InventoryController.items.length; i++ ) {
+                        var bin = InventoryController.items[i];
 
-        //recalculate input amounts
-        for( var i = 0; i < InventoryController.items.length; i++ ) {
-            var bin = InventoryController.items[i];
+                        //we need to check for bin items first
+                        var bin_items = bin.bin_items;
+                        if( bin_items ) {
+                            for( var k = 0; k < bin_items.length; k++ ) {
+                                var bin_item = bin_items[k];
 
-            //we need to check for bin items first
-            var bin_items = bin.bin_items;
-            if( bin_items ) {
-                for( var k = 0; k < bin_items.length; k++ ) {
-                    var bin_item = bin_items[k];
+                                //check to see if new quantity is set and non-zero
+                                if( bin_item.quantity_new && bin_item.quantity_new > 0 ) {
 
-                    //check to see if new quantity is set and non-zero
-                    if( bin_item.quantity_new && bin_item.quantity_new > 0 ) {
-                        //convert to base
-                        var quantity_base = bin_item.quantity_new * uomMultiplierOld;
-
-                        //convert to current UOM
-                        bin_item.quantity_new = roundNumber(quantity_base / InventoryController.uomMultiplier, 2);
+                                    /* don't convert to uom, clear it out instead. save convert code in case we want to revert */
+                                    bin_item.quantity_new = null;
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        }
+            });
+        });
     }
 
     /* Helper function to get object by id value */
