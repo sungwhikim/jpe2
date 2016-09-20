@@ -2,27 +2,41 @@
 <project version="4">
   <component name="dataSourceStorageLocal">
     <data-source name="PostgreSQL - jpent_master@localhost" uuid="c984734c-0137-4d65-b000-a7b6ff77c5c4">
+      <database-info product="PostgreSQL" version="9.5.3" jdbc-version="4.0" driver-name="PostgreSQL Native Driver" driver-version="PostgreSQL 9.4 JDBC4 (build 1201)">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
       <user-name>jpent_admin</user-name>
-      <schema-pattern>postgres.pg_catalog postgres.public</schema-pattern>
-      <default-schemas>postgres.public</default-schemas>
+      <introspection-scope>postgres:pg_catalog,public</introspection-scope>
+      <resolve-scope>postgres:public</resolve-scope>
     </data-source>
     <data-source name="SQL Server - New Windows Server JpentDEV" uuid="c5da5adb-ca4b-4803-b0d2-35dc3de0ef0a">
+      <database-info product="Microsoft SQL Server" version="10.50.4000" jdbc-version="4.0" driver-name="Microsoft JDBC Driver 4.0 for SQL Server" driver-version="4.0.2206.100">
+        <extra-name-characters>$#@</extra-name-characters>
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
       <secret-storage>master_key</secret-storage>
       <user-name>larkin</user-name>
-      <schema-pattern>jpentDEV.*</schema-pattern>
-      <default-schemas>jpentDEV.*</default-schemas>
+      <introspection-scope>jpentDEV:*</introspection-scope>
+      <resolve-scope>jpentDEV:*</resolve-scope>
     </data-source>
     <data-source name="PostgreSQL - Linux Dev server" uuid="bfeb48e6-023d-41db-a613-95baad7f935b">
+      <database-info product="PostgreSQL" version="8.4.20" jdbc-version="4.0" driver-name="PostgreSQL Native Driver" driver-version="PostgreSQL 9.4 JDBC4 (build 1201)">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
       <user-name>jpent_admin</user-name>
     </data-source>
     <data-source name="SQL Server - New Windows Server Jpent" uuid="fcf25f7b-6e9f-4bde-8620-67c91be20e85">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" />
       <secret-storage>master_key</secret-storage>
       <first-sync>true</first-sync>
       <user-name>larkin</user-name>
-      <schema-pattern>jpentDEV.*</schema-pattern>
-      <default-schemas>jpentDEV.*</default-schemas>
+      <introspection-scope>jpentDEV:*</introspection-scope>
+      <resolve-scope>jpentDEV:*</resolve-scope>
     </data-source>
   </component>
 </project>

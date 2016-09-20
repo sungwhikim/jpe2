@@ -613,12 +613,42 @@ input[type='radio'] {
 }
 
 /* REPORTS */
+.table-report {
+    font-size: 12px;
+}
 .report-criteria-container {
 
 }
 .report-data-container {
     position: relative;
     top: 50px;
+    margin-bottom: 50px;
+}
+.report-control {
+    margin-bottom: 20px;
+}
+.report-date {
+    float: left;
+    margin-left: 15px;
+}
+.btn-date {
+    height: 34px;
+}
+.report-toggle {
+    float: left;
+    margin-left: 30px;
+}
+.report-action-buttons {
+    position: relative;
+    top: 10px;
+    left: 15px;
+    width: 100%;
+    float: left;
+}
+.tags .tag-variant-report {
+    padding: 2px 10px;
+    margin: 0;
+    font-size: 10px;
 }
 
 /* ALERT MESSAGES ICONS - REMAP CLASS TO MATCH ALERT CLASSES */

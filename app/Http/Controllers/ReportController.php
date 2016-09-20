@@ -22,18 +22,21 @@ class ReportController extends Controller
         return response()->view('reports.' . $report_name, ['report' => $data]);
     }
 
-    public function getReport(Request $request, $action, $report_name)
+    public function getReport(Request $request, $report_name, $action)
     {
-        //get data
+        //get data and criteria
         $report_model = new Report();
         $report_method = $this->changeToMethodName($report_name);
-        $data = $report_model->$report_method($request);
+        $criteria = $report_model->getCriteria();
+        $report_data['body'] = $report_model->$report_method($request);
+        $report_data['criteria'] = $criteria;
 
-        //get report title
-        $data['title'] = $this->getReportTitle($report_name);
-
+        //set report title
+        $report_data['title'] = $this->getReportTitle($report_name);
+debugbar()->info($report_data['body']->uom_data);
+debugbar()->info($report_data['body']);
         //generate view
-        return response()->view('reports.' . $report_name . '-' . $action, ['report' => $data]);
+        return response()->view('reports.' . $report_name . '-' . $action, ['report' => $report_data]);
     }
 
     private function getReportTitle($report_name)

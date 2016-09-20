@@ -92,7 +92,7 @@ app.controller('TxFinderController', function($http, ListService, alertService, 
     {
         //toggle model
         model !== true;
-console.log(model);
+
         //refresh data
         TxFinderController.updateData();
     }
