@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\TransactionEmailActivity;
 use App\Enum\TransactionLogActivityType;
+use App\Enum\TransactionTypeName;
 use Illuminate\Database\Eloquent\Model;
 use App\User;
 use DB;
@@ -1201,19 +1202,19 @@ class Transaction extends Model
         switch( $tx_type )
         {
             case 'asn':
-                $tx_data->tx_title = 'ASN - Advanced Shipping Notice';
+                $tx_data->tx_title = TransactionTypeName::asn;
                 $tx_data->warehouse_title = 'Ship To';
                 break;
             case 'receive';
-                $tx_data->tx_title = 'Receiving';
+                $tx_data->tx_title = TransactionTypeName::receive;
                 $tx_data->warehouse_title = 'Ship To';
                 break;
             case 'csr';
-                $tx_data->tx_title = 'CSR - Client Stock Release';
+                $tx_data->tx_title = TransactionTypeName::csr;
                 $tx_data->warehouse_title = 'Ship From';
                 break;
             case 'ship';
-                $tx_data->tx_title = 'Shipping';
+                $tx_data->tx_title = TransactionTypeName::ship;
                 $tx_data->warehouse_title = 'Ship From';
                 break;
         }
@@ -1342,7 +1343,7 @@ class Transaction extends Model
      *
      * @return mixed
      */
-    public function getClasses($tx_type)
+    public static function getClasses($tx_type)
     {
         switch( $tx_type )
         {

@@ -194,14 +194,14 @@ class Product extends Model
      *
      * @return mixed
      */
-    public function getListSearch($search_term)
+    public function getListSearch($search_term, $warehouse_id, $client_id)
     {
         //fix search term
         $search_term = '%' . urldecode($search_term) . '%';
 
         $data = Product::select('product.id', 'product.sku', 'product.name', 'product.barcode', 'product.barcode_client', 'product.active')
-                        ->where('product.warehouse_id', '=', auth()->user()->current_warehouse_id)
-                        ->where('product.client_id', '=', auth()->user()->current_client_id)
+                        ->where('product.warehouse_id', '=', $warehouse_id)
+                        ->where('product.client_id', '=', $client_id)
                         ->where('product.active', '=', true)
                         ->where(function ($query) use ($search_term) {
                             $query->orWhere('sku', 'ILIKE', $search_term);

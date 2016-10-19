@@ -1,15 +1,11 @@
-{{-- The reason this is in php and not in blade is that blade doesn't allow explicit assignment of variables and
-     we need to assign the name of the column as we loop through it. --}}
-<?php $uom_multiplier = 1; ?>
-<?php for( $i = 2; $i <= count($report['body']->uom_data); $i++ ) { ?>
+<ul class="tags tags-report-quantity">
+    <?php $uom_multiplier = 1; ?>
+    @for( $i = 1; $i <= 8; $i++ )
 
-    <?php $name = 'uom' . $i . '_multiplier'; ?>
+        @if( $row['uom' . $i] != null && $row['uom' . $i . '_multiplier'] != null  )
+            <?php $uom_multiplier *= $row['uom' . $i . '_multiplier'] ?>
+            <li class="tag-report-quantity">{{ ucwords($row['uom' . $i]) }}: {{ number_format(ceil($row->quantity / $uom_multiplier)) }}</li>
+        @endif
 
-    <?php if( $row[$name] != null ) { ?>
-        <?php $uom_multiplier *= $row[$name] ?>
-        <td>{{ ceil($row->quantity / $uom_multiplier) }}</td>
-    <?php } else { ?>
-        <td></td>
-    @<?php } ?>
-
-<?php } ?>
+    @endfor
+</ul>

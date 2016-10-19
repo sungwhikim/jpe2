@@ -1,18 +1,27 @@
 angular.module('searchSelectService', [])
     .factory('searchSelectService', function ($http) {
         var service = {
+                //methods
                 selectItem: selectItem,
                 search: search,
                 selectCallBack: selectCallBack,
                 clear: clear,
-                loadDefaultList: loadDefaultList
-            },
-            isRunningSearch = false;
-            baseUrl = '',
-            items = [],
-            displayItems = [],
-            selectedItem = {},
-            searchTerm = '';
+                loadDefaultList: loadDefaultList,
+                initList: initList,
+                getData: getData,
+                getDataCallBack: getDataCallback,
+
+                //properties
+                isRunningSearch: false,
+                baseUrl: '',
+                items: [],
+                displayItems: [],
+                selectedItem: {},
+                searchTerm: '',
+                warehouse_id: null,
+                client_id: null
+        };
+
         return service;
 
         function selectItem(item) {
@@ -21,6 +30,12 @@ angular.module('searchSelectService', [])
 
             //run the callback for processing
             service.selectCallBack(item);
+        }
+
+        /* load the full list - used only for reports or where the warehouse/client selection is not linked to the one in the nav bar */
+        function initList() {
+            service.searchTerm = '';
+            service.getData(true);
         }
 
         /* loads the full list of products again */
@@ -34,7 +49,7 @@ angular.module('searchSelectService', [])
 
         /* Go get the updated list of products based on search term */
         function search() {
-            //don't do if nothing is entered or if the lock is set
+            //don't do if the lock is set
             if( service.isRunningSearch ) { return; }
 
             //set running search flag so no other ajax call can be make while waiting for this one
@@ -42,7 +57,6 @@ angular.module('searchSelectService', [])
 
             //set a delay to finish the typing before submitting search
             setTimeout(function() {
-                console.log(service.searchTerm);
                 //if the search term is blank now, the user just wants the full list loaded
                 if( !service.searchTerm ) {
                     //load the full list
@@ -56,25 +70,39 @@ angular.module('searchSelectService', [])
                 }
 
                 //make ajax call to get new data
-                $http({
-                    method: 'GET',
-                    url: service.baseUrl + '/products/search/' + encodeURI(service.searchTerm)
-                }).then(function successCallback(response) {
-                    //replace data
-                    service.displayItems.length = 0;
-                    service.displayItems = response.data;
-                }, function errorCallback(response) {
-                    //set alert
-                    alert('The following error occurred in loading the data: ' + response.statusText);
-                });
+                service.getData(false);
 
                 //reset search flag
                 service.isRunningSearch = false;
             }, 600);
         }
 
+        /* This is the AJAX call the get the data */
+        function getData(init) {
+            $http({
+                method: 'GET',
+                url: service.baseUrl + '/products/search/?warehouse_id=' + service.warehouse_id + '&client_id=' + service.client_id + '&search_term=' + encodeURI(service.searchTerm)
+            }).then(function successCallback(response) {
+                //if init, then load the data into the main list
+                if( init ) { service.items = response.data; }
+
+                //replace data
+                service.displayItems.length = 0;
+                service.displayItems = response.data;
+
+                //go to callback
+                service.getDataCallBack(response.data, init);
+            }, function errorCallback(response) {
+                //set alert
+                alert('The following error occurred in loading the data: ' + response.statusText);
+            });
+        }
+
         /* THIS IS MEANT TO BE OVERLOADED FOR ADDITIONAL PROCESSING AFTER AN ITEM IS SELECTED IN THE CONTROLLER */
         function selectCallBack(item) {}
+
+        /* THIS FUNCTION IS MEANT TO BE OVERLOADED AFTER DATA IS BROUGHT BACK */
+        function getDataCallback(data, init) {}
 
         function clear() {
             service.selectedItem = {};

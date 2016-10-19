@@ -24,19 +24,21 @@ class ReportController extends Controller
 
     public function getReport(Request $request, $report_name, $action)
     {
+        //set report title
+        $report['title'] = $this->getReportTitle($report_name);
+
         //get data and criteria
         $report_model = new Report();
         $report_method = $this->changeToMethodName($report_name);
-        $criteria = $report_model->getCriteria();
-        $report_data['body'] = $report_model->$report_method($request);
-        $report_data['criteria'] = $criteria;
+        $paginate = ( $action == 'view' ) ? true : false; //we only need to paginate for display
+        $report_data = $report_model->$report_method($request, $paginate);
+        $report['criteria'] = $report_model->getCriteria();
 
-        //set report title
-        $report_data['title'] = $this->getReportTitle($report_name);
-debugbar()->info($report_data['body']->uom_data);
-debugbar()->info($report_data['body']);
+        //if it is anything other than view, then get the display friendly criteria
+        if( $action != 'view' ) { $report['criteria_display'] = $report_model->getCriteriaDisplay($report['criteria']); }
+debugbar()->info($report_data);
         //generate view
-        return response()->view('reports.' . $report_name . '-' . $action, ['report' => $report_data]);
+        return response()->view('reports.' . $report_name . '-' . $action, ['report' => $report, 'report_data' => $report_data]);
     }
 
     private function getReportTitle($report_name)

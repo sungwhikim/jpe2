@@ -26,10 +26,9 @@
             <form class="form-horizontal" id="reportForm" name="reportForm" novalidate>
                 @yield('report-criteria')
                 <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12 report-action-buttons">
-                    <button type="submit" class="btn btn-success" ng-click="ctrl.submit(reportForm, 'view')">Submit</button>
+                    <button type="button" class="btn btn-success" ng-click="ctrl.submit(reportForm, 'view')">View</button>
                     <button type="button" class="btn btn-info" ng-click="ctrl.submit(reportForm, 'print')" style="margin-left: 30px;">Print</button>
-                    <button type="button" class="btn btn-warning" ng-click="ctrl.submit(reportForm, 'xls')">Excel</button>
-                    <button type="button" class="btn btn-warning" ng-click="ctrl.submit(reportForm, 'pdf')">PDF</button>
+                    <button type="button" class="btn btn-warning" ng-click="ctrl.submit(reportForm, 'excel')">Excel</button>
                 </div>
             </form>
         </div>

@@ -1,0 +1,1 @@
+@if( $row->active === true) True @else False @endif

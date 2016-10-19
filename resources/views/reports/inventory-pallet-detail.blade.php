@@ -12,7 +12,7 @@
 
 @section('js-data')
     <script>
-        var reportCriteria = { name : 'inventory-warehouse',
+        var reportCriteria = { name : 'inventory-pallet-detail',
                                warehouse_id : null,
                                client_id : null,
                                product_id: null,

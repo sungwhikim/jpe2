@@ -1,8 +1,8 @@
 <div class="col-lg-2 col-md-2 col-sm-2 col-xs-3 report-control form-group"
      ng-class="{ 'has-error': (reportForm.client_id.$touched || reportForm.$submitted) && reportForm.client_id.$invalid }">
     <label class="control-label">Client <span class="required-field glyphicon glyphicon-asterisk" /></label>
-    <select class="form-control" name="client_id" ng-model="ctrl.criteria.client_id" ng-change="ctrl.clientSelected();"
-            ng-options="client.id as client.short_name for client in (ctrl.wcList | filter:{id:ctrl.criteria.warehouse_id})[0].clients">
+    <select class="form-control" name="client_id" ng-model="ctrl.criteria.client_id" ng-change="ctrl.selectClient();"
+            ng-options="client.id as client.short_name for client in (ctrl.wcList | filter:{id:ctrl.criteria.warehouse_id})[0].clients" required>
         <option value="">-- select --</option>
     </select>
     <!-- ngMessages goes here -->

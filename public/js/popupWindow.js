@@ -8,7 +8,7 @@ function popupWindow(url, title, w, h) {
 
     var left = ((width / 2) - (w / 2)) + dualScreenLeft;
     var top = ((height / 2) - (h / 2)) + dualScreenTop;
-    var settings = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,';
+    var settings = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no,';
     var newWindow = window.open(url, title, settings + 'width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
 
     // Puts focus on the newWindow

@@ -1,4 +1,4 @@
-@extends('reports.inventory-warehouse');
+@extends('reports.report-print')
 
 @section('report-data')
     <table class="table table-responsive table-striped table-report">
@@ -26,15 +26,8 @@
                 </tr>
             @endforeach
 
-            @include('reports.parts.quantity-total-view', ['colspan1' => 4, 'colspan2' => 2])
+            @include('reports.parts.quantity-total', ['colspan1' => 4, 'colspan2' => 2])
         </tbody>
     </table>
-
-    @include('reports.parts.pagination')
 @stop
 
-@section('js-data')
-    <script>
-        var reportCriteria = {!! collect($report['criteria']) !!}
-    </script>
-@stop

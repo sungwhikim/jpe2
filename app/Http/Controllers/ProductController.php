@@ -220,8 +220,6 @@ class ProductController extends Controller
         //set flag to whether to bring back only variants with inventory quantities
         $only_in_stock = ( $tx_type == 'ship' ) ? true : false;
 
-       //$only_in_stock = false;
-
         //now get the variants
         $data['variants'] = $product_model->getTxVariant($product_id, $only_in_stock);
 
@@ -242,9 +240,14 @@ class ProductController extends Controller
     }
 
     /* This is used as an ajax call to filter the product list */
-    public function getListSearch($search_term)
+    public function getListSearch()
     {
+        //set warehouse and client id
+        $warehouse_id = ( !is_numeric(request()->get('warehouse_id')) ) ? auth()->user()->current_warehouse_id : request()->get('warehouse_id');
+        $client_id = ( !is_numeric(request()->get('client_id')) ) ? auth()->user()->current_client_id : request()->get('client_id');
+
+        //instantiate model and run search
         $product_model = new Product();
-        return $product_model->getListSearch($search_term);
+        return $product_model->getListSearch(request()->get('search_term'), $warehouse_id, $client_id);
     }
 }
