@@ -661,7 +661,7 @@ input[type='radio'] {
 }
 .tags .tag-variant-report {
     padding: 2px 10px;
-    margin: 0;
+    margin: 2px 0;
     font-size: 11px;
 }
 .table-report-quantity {

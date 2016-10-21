@@ -2,68 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8b9ea3d5-e855-400c-b43a-5e66d44853ac" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/enum/TransactionTypeName.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/report-date-2.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/report-product-search-select.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/report-tx-type.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/report-warehouse-sole.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/forms/report-year.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/bin-location-detail-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/bin-location-detail-view.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/bin-location-detail.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/csr-open-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/csr-open-view.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/csr-open.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-pallet-detail-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-pallet-detail-view.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-pallet-detail.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-warehouse-excel.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-warehouse-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-zero-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-zero-view.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-zero.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/active-flag.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/bin-location-detail-data.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/inventory-pallet-detail-data.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/inventory-zero-data.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/pagination.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/quantity-total-view.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/quantity-total.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/shipping-data.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/transaction-chronological-data.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/transaction-yearly-data.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/parts/uom-multiplier.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/report-excel.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/report-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/shipping-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/shipping-view.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/shipping.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/transaction-chronological-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/transaction-chronological-view.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/transaction-chronological.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/transaction-yearly-print.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/transaction-yearly-view.blade.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/resources/views/reports/transaction-yearly.blade.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/ProductController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/ProductController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/ReportController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/ReportController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/routes.php" afterPath="$PROJECT_DIR$/app/Http/routes.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/Product.php" afterPath="$PROJECT_DIR$/app/models/Product.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/Report.php" afterPath="$PROJECT_DIR$/app/models/Report.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/Transaction.php" afterPath="$PROJECT_DIR$/app/models/Transaction.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/composer.json" afterPath="$PROJECT_DIR$/composer.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/composer.lock" afterPath="$PROJECT_DIR$/composer.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/app.php" afterPath="$PROJECT_DIR$/config/app.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/css/style.css" afterPath="$PROJECT_DIR$/public/css/style.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/js/angular-component/ReportController.1.0.js" afterPath="$PROJECT_DIR$/public/js/angular-component/ReportController.1.0.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/js/angular-component/SearchSelectService.1.0.js" afterPath="$PROJECT_DIR$/public/js/angular-component/SearchSelectService.1.0.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/js/popupWindow.js" afterPath="$PROJECT_DIR$/public/js/popupWindow.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/forms/report-client.blade.php" afterPath="$PROJECT_DIR$/resources/views/forms/report-client.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/forms/report-warehouse.blade.php" afterPath="$PROJECT_DIR$/resources/views/forms/report-warehouse.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/inventory-warehouse-view.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-warehouse-view.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/inventory-warehouse.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/inventory-warehouse.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/parts/uom-quantities.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/parts/uom-quantities.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/report.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/report.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/parts/shipping-data.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/parts/shipping-data.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/parts/transaction-yearly-data.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/parts/transaction-yearly-data.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/shipping-print.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/shipping-print.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/shipping-view.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/shipping-view.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/transaction-yearly-print.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/transaction-yearly-print.blade.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/reports/transaction-yearly-view.blade.php" afterPath="$PROJECT_DIR$/resources/views/reports/transaction-yearly-view.blade.php" />
     </list>
     <ignored path="jpe2.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -95,9 +42,11 @@
       <file leaf-file-name="ReportController.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/Http/Controllers/ReportController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
+            <state relative-caret-position="612">
               <caret line="38" column="31" selection-start-line="38" selection-start-column="31" selection-end-line="38" selection-end-column="31" />
-              <folding />
+              <folding>
+                <element signature="e#39#67#0#PHP" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -105,8 +54,8 @@
       <file leaf-file-name="Report.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/Models/Report.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="562">
-              <caret line="481" column="0" selection-start-line="481" selection-start-column="0" selection-end-line="481" selection-end-column="0" />
+            <state relative-caret-position="-577">
+              <caret line="600" column="0" selection-start-line="600" selection-start-column="0" selection-end-line="600" selection-end-column="0" />
               <folding>
                 <element signature="e#29#62#0#PHP" expanded="true" />
               </folding>
@@ -118,27 +67,29 @@
         <entry file="file://$PROJECT_DIR$/public/css/style.css">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="204">
-              <caret line="629" column="23" selection-start-line="629" selection-start-column="23" selection-end-line="629" selection-end-column="23" />
+              <caret line="663" column="17" selection-start-line="663" selection-start-column="17" selection-end-line="663" selection-end-column="17" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="shipping-data.blade.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/shipping-data.blade.php">
+      <file leaf-file-name="transaction-yearly-data.blade.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/transaction-yearly-data.blade.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="610">
-              <caret line="78" column="56" selection-start-line="78" selection-start-column="56" selection-end-line="78" selection-end-column="56" />
-              <folding />
+            <state relative-caret-position="185">
+              <caret line="81" column="52" selection-start-line="81" selection-start-column="52" selection-end-line="81" selection-end-column="52" />
+              <folding>
+                <element signature="n#style#0;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#!!top" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="shipping-view.blade.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/views/reports/shipping-view.blade.php">
+      <file leaf-file-name="variant-list.blade.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/variant-list.blade.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="40" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -184,7 +135,6 @@
         <option value="$PROJECT_DIR$/resources/views/reports/inventory-warehouse.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/bin-location-detail.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/parts/bin-location-detail-data.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/reports/shipping-print.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/forms/report-year.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/shipping.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/forms/report-date-2.blade.php" />
@@ -196,10 +146,8 @@
         <option value="$PROJECT_DIR$/resources/views/reports/transaction-chronological-print.blade.php" />
         <option value="$PROJECT_DIR$/app/Enum/TransactionTypeName.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/transaction-yearly.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/reports/transaction-yearly-view.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/forms/report-product-search-select.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/forms/report-tx-type.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/reports/transaction-yearly-print.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/inventory-pallet-zero.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/inventory-zero-print.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/inventory-zero-view.blade.php" />
@@ -207,10 +155,13 @@
         <option value="$PROJECT_DIR$/resources/views/reports/parts/transaction-chronological-data.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/parts/inventory-zero-data.blade.php" />
         <option value="$PROJECT_DIR$/resources/views/reports/shipping-view.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/reports/shipping-print.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/reports/parts/shipping-data.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/reports/transaction-yearly-view.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/reports/transaction-yearly-print.blade.php" />
+        <option value="$PROJECT_DIR$/public/css/style.css" />
         <option value="$PROJECT_DIR$/resources/views/reports/parts/transaction-yearly-data.blade.php" />
         <option value="$PROJECT_DIR$/app/Models/Report.php" />
-        <option value="$PROJECT_DIR$/public/css/style.css" />
-        <option value="$PROJECT_DIR$/resources/views/reports/parts/shipping-data.blade.php" />
       </list>
     </option>
   </component>
@@ -278,11 +229,11 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane />
       </pane>
       <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -471,12 +422,13 @@
       <workItem from="1475079921694" duration="2383000" />
       <workItem from="1475322518161" duration="13134000" />
       <workItem from="1475857204847" duration="57393000" />
-      <workItem from="1476730205544" duration="14017000" />
+      <workItem from="1476730205544" duration="14629000" />
+      <workItem from="1476910539535" duration="4811000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="137671000" />
+    <option name="totallyTimeSpent" value="143094000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1615" height="1027" extended-state="6" />
@@ -488,6 +440,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.50256413" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27399874" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3262032" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32550693" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24984106" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Mongo Explorer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.32948717" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -503,7 +456,6 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Database Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.4974359" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3262032" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
@@ -584,10 +536,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
           <caret line="85" column="62" selection-start-line="85" selection-start-column="62" selection-end-line="85" selection-end-column="81" />
-          <folding>
-            <marker date="1473164696000" expanded="true" signature="9412:9784" ph="..." />
-            <marker date="1473164696000" expanded="true" signature="9434:9783" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -630,12 +578,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
           <caret line="8" column="78" selection-start-line="8" selection-start-column="78" selection-end-line="8" selection-end-column="78" />
-          <folding>
-            <marker date="1476378143000" expanded="true" signature="212:321" ph="..." />
-            <marker date="1476378143000" expanded="true" signature="234:320" ph="..." />
-            <marker date="1476378143000" expanded="true" signature="340:478" ph="..." />
-            <marker date="1476378143000" expanded="true" signature="364:477" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -646,18 +588,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/bin-location-detail-data.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="746">
-          <caret line="49" column="61" selection-start-line="49" selection-start-column="61" selection-end-line="49" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/reports/bin-location-detail-view.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
           <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -665,7 +599,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
           <caret line="14" column="34" selection-start-line="14" selection-start-column="34" selection-end-line="14" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -683,20 +616,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/variant-list.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/quantity-total-view.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/quantity-total.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -711,18 +630,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/shipping-print.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/reports/transaction-chronological-print.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
           <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -730,7 +641,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
           <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -754,10 +664,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="15" column="49" selection-start-line="15" selection-start-column="49" selection-end-line="15" selection-end-column="49" />
-          <folding>
-            <marker date="1476378279000" expanded="true" signature="212:350" ph="..." />
-            <marker date="1476378279000" expanded="true" signature="236:349" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -765,7 +671,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
           <caret line="11" column="38" selection-start-line="11" selection-start-column="38" selection-end-line="11" selection-end-column="55" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -790,22 +695,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/transaction-yearly-print.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/transaction-yearly-view.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="51" selection-start-line="3" selection-start-column="51" selection-end-line="3" selection-end-column="51" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/reports/transaction-yearly.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
@@ -817,7 +706,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="71" selection-start-line="3" selection-start-column="71" selection-end-line="3" selection-end-column="71" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -825,7 +713,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="48" selection-start-line="3" selection-start-column="48" selection-end-line="3" selection-end-column="48" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -833,7 +720,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="510">
           <caret line="30" column="12" selection-start-line="3" selection-start-column="4" selection-end-line="30" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -841,12 +727,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
           <caret line="19" column="33" selection-start-line="19" selection-start-column="33" selection-end-line="19" selection-end-column="33" />
-          <folding>
-            <marker date="1476718282000" expanded="true" signature="253:360" ph="..." />
-            <marker date="1476718282000" expanded="true" signature="275:359" ph="..." />
-            <marker date="1476718282000" expanded="true" signature="379:488" ph="..." />
-            <marker date="1476718282000" expanded="true" signature="403:487" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -854,7 +734,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="9" column="53" selection-start-line="9" selection-start-column="53" selection-end-line="9" selection-end-column="53" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -862,7 +741,51 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
           <caret line="11" column="5" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/inventory-zero-data.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="19" column="97" selection-start-line="19" selection-start-column="97" selection-end-line="19" selection-end-column="97" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/ReportController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="612">
+          <caret line="38" column="31" selection-start-line="38" selection-start-column="31" selection-end-line="38" selection-end-column="31" />
+          <folding>
+            <element signature="e#39#67#0#PHP" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/uom-quantities.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="141" selection-start-line="6" selection-start-column="12" selection-end-line="6" selection-end-column="141" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/quantity-total-view.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/shipping-print.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/shipping-view.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
         </state>
       </provider>
     </entry>
@@ -874,42 +797,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/inventory-zero-data.blade.php">
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/bin-location-detail-data.blade.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="19" column="97" selection-start-line="19" selection-start-column="97" selection-end-line="19" selection-end-column="97" />
+        <state relative-caret-position="330">
+          <caret line="23" column="16" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="54" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/ReportController.php">
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/transaction-yearly-view.blade.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="38" column="31" selection-start-line="38" selection-start-column="31" selection-end-line="38" selection-end-column="31" />
+        <state relative-caret-position="51">
+          <caret line="3" column="73" selection-start-line="3" selection-start-column="73" selection-end-line="3" selection-end-column="73" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/transaction-yearly-data.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="64" selection-start-line="21" selection-start-column="12" selection-end-line="22" selection-end-column="64" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/uom-quantities.blade.php">
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/transaction-yearly-print.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
-          <caret line="6" column="141" selection-start-line="6" selection-start-column="12" selection-end-line="6" selection-end-column="141" />
+          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/shipping-view.blade.php">
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/variant-list.blade.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="40" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/shipping-data.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="850">
+          <caret line="50" column="92" selection-start-line="50" selection-start-column="92" selection-end-line="50" selection-end-column="92" />
           <folding />
         </state>
       </provider>
@@ -917,23 +840,25 @@
     <entry file="file://$PROJECT_DIR$/public/css/style.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
-          <caret line="629" column="23" selection-start-line="629" selection-start-column="23" selection-end-line="629" selection-end-column="23" />
+          <caret line="663" column="17" selection-start-line="663" selection-start-column="17" selection-end-line="663" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/shipping-data.blade.php">
+    <entry file="file://$PROJECT_DIR$/resources/views/reports/parts/transaction-yearly-data.blade.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="610">
-          <caret line="78" column="56" selection-start-line="78" selection-start-column="56" selection-end-line="78" selection-end-column="56" />
-          <folding />
+        <state relative-caret-position="185">
+          <caret line="81" column="52" selection-start-line="81" selection-start-column="52" selection-end-line="81" selection-end-column="52" />
+          <folding>
+            <element signature="n#style#0;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#!!top" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/Models/Report.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="562">
-          <caret line="481" column="0" selection-start-line="481" selection-start-column="0" selection-end-line="481" selection-end-column="0" />
+        <state relative-caret-position="-577">
+          <caret line="600" column="0" selection-start-line="600" selection-start-column="0" selection-end-line="600" selection-end-column="0" />
           <folding>
             <element signature="e#29#62#0#PHP" expanded="true" />
           </folding>
@@ -957,6 +882,6 @@
     </states>
   </component>
   <component name="webServersAuthStorage">
-    <data>AAAA0C1j79IJ1DpQGKrTpxv/lLs9l+RzIC6n08eEIpTIGsNG9SCnsA7clSSGeUfsdf1agblSRUzilMHDsOuRb+sblmnFZqy6jILCcNVYvvnuI77EPD5mQijKr1+dxVlGn3c9GExsmh3IQzQ88+vbbtPseSmEnZvhWPyBC6FWpZqgPPEDhVcknyGvswDCKMcRwGN5cvKKFQ6uvUehfCz/9r5/oEWsEPOg9eKPrKcF4ex9mc6b585Q6xIdjlOqQySEOCWEY9cHgjZ2asszU/JMIFSwlFyEQ3rQ4I1RdCRCa2YMeIcy</data>
+    <data>AAAA0NqlgBxdU4cbnpquiixMiKNy1sambEfYiSyjCRUz0Jcz1TiddKZDmcfEVcl3SPCRq46S6NEr7dvWu0+B6q7WcA2OuqcLui0PLYwfsWSuNx6xGPB4wJusXB4M/TXidj3Gef1xKILMeULumycCcuuOOdTvwm5VyJmD+eMWhE/sUM69JTfh8+Ccx3zSmMrYHxjgcL/MTUXsGLciJL5qWXNnWjd8LPiGC6PTpPnOauuxmyC9Yn1DvH498YqLRimNilMLNB5TC7ednUJMJ4h5Dx+QL3GIeauBQDhmfnB0e48gsRCv</data>
   </component>
 </project>

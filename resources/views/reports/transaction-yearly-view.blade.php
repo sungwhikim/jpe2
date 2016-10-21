@@ -1,7 +1,7 @@
 @extends('reports.transaction-yearly');
 
 @section('report-data')
-    @include('reports.parts.transaction-yearly-data')
+    @include('reports.parts.transaction-yearly-data', ['paginate' => true])
     @include('reports.parts.pagination')
 @stop
 

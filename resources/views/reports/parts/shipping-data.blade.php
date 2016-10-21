@@ -54,38 +54,42 @@
             </td>
         </tr>
     @endforeach
-    <tr class="total">
-        <td>Totals</td>
-        <?php $line_total = ['tx_count' => 0, 'units' => []] ?>
-        @foreach( $report_data['total'] as $total_data )
-            <td>{{ $total_data['tx_count'] }}</td>
+
+    {{-- Only show totals on last page --}}
+    @if( $paginate === false || $report_data['body']->currentPage() == $report_data['body']->lastPage() )
+        <tr class="total">
+            <td>Totals</td>
+            <?php $line_total = ['tx_count' => 0, 'units' => []] ?>
+            @foreach( $report_data['total'] as $total_data )
+                <td>{{ $total_data['tx_count'] }}</td>
+                <td>
+                    @if( count($total_data['units']) == 0 )
+                        {{ 0 }}
+                    @else
+                        <ul class="tags tags-report-quantity">
+                            @foreach( $total_data['units'] as $key => $value )
+                                <li class="tag-report-quantity">{{ ucwords($key) }}: {{ number_format($value) }}</li>
+
+                                {{-- update unit line total --}}
+                                @if( !isset($line_total['units'][$key]) )<?php $line_total['units'][$key] = 0; ?>@endif
+                                <?php $line_total['units'][$key] += $value ?>
+                            @endforeach
+                        </ul>
+                    @endif
+                </td>
+
+                {{-- update tx count line total --}}
+                <?php $line_total['tx_count'] += $total_data['tx_count']; ?>
+            @endforeach
+            <td>{{ number_format($line_total['tx_count']) }}</td>
             <td>
-                @if( count($total_data['units']) == 0 )
-                    {{ 0 }}
-                @else
-                    <ul class="tags tags-report-quantity">
-                        @foreach( $total_data['units'] as $key => $value )
-                            <li class="tag-report-quantity">{{ ucwords($key) }}: {{ number_format($value) }}</li>
-
-                            {{-- update unit line total --}}
-                            @if( !isset($line_total['units'][$key]) )<?php $line_total['units'][$key] = 0; ?>@endif
-                            <?php $line_total['units'][$key] += $value ?>
-                        @endforeach
-                    </ul>
-                @endif
+                <ul class="tags tags-report-quantity">
+                    @foreach( $line_total['units'] as $key => $value )
+                        <li class="tag-report-quantity">{{ ucwords($key) }}: {{ number_format($value) }}</li>
+                    @endforeach
+                </ul>
             </td>
-
-            {{-- update tx count line total --}}
-            <?php $line_total['tx_count'] += $total_data['tx_count']; ?>
-        @endforeach
-        <td>{{ number_format($line_total['tx_count']) }}</td>
-        <td>
-            <ul class="tags tags-report-quantity">
-                @foreach( $line_total['units'] as $key => $value )
-                    <li class="tag-report-quantity">{{ ucwords($key) }}: {{ number_format($value) }}</li>
-                @endforeach
-            </ul>
-        </td>
-    </tr>
+        </tr>
+    @endif
     </tbody>
 </table>

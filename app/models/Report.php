@@ -462,7 +462,7 @@ class Report extends Model
                            ->get();
 
             //build the full yearly data
-            $client->tx_data = $this->buildYearlyTxData($result);
+            $client->tx_data = $this->buildYearlyTxDataShip($result);
         }
 
         //assign return array
@@ -478,7 +478,128 @@ class Report extends Model
                         ->havingRaw('SUM(ship_detail.quantity) > 0')
                         ->get();
 
-        $data['total'] = $this->buildYearlyTxData($result);
+        $data['total'] = $this->buildYearlyTxDataShip($result);
+
+        return $data;
+    }
+
+    /**
+     * This is for the Transaction Yearly report
+     *
+     * @param $request
+     * @param $paginate
+     *
+     * @return mixed
+     */
+    public function transactionYearly($request, $paginate)
+    {
+        //get the products
+        $query = Product::select('product.id AS product_id', 'product.sku', 'product.name AS product_name',
+                                 'product_variant1.id AS variant1_id', 'product_variant2.id AS variant2_id',
+                                 'product_variant3.id AS variant1_id', 'product_variant4.id AS variant2_id',
+                                 'product_variant1.name AS variant1_name', 'product_variant1.value AS variant1_value',
+                                 'product_variant2.name AS variant2_name', 'product_variant2.value AS variant2_value',
+                                 'product_variant3.name AS variant3_name', 'product_variant3.value AS variant3_value',
+                                 'product_variant4.name AS variant4_name', 'product_variant4.value AS variant4_value')
+                        ->leftJoin('product_variant1', 'product.id', '=', 'product_variant1.product_id')
+                        ->leftJoin('product_variant2', 'product.id', '=', 'product_variant2.product_id')
+                        ->leftJoin('product_variant3', 'product.id', '=', 'product_variant3.product_id')
+                        ->leftJoin('product_variant4', 'product.id', '=', 'product_variant4.product_id')
+                        ->where('product.warehouse_id', '=', $request->get('warehouse_id'))
+                        ->where('product.client_id', '=', $request->get('client_id'))
+                        ->where('product.active', '=', true)
+                        ->orderBy('product.sku')->orderBy('product_variant1.name')->orderBy('product_variant1.value')
+                        ->orderBy('product_variant2.name')->orderBy('product_variant2.value')->orderBy('product_variant3.name')
+                        ->orderBy('product_variant3.value')->orderBy('product_variant4.name')->orderBy('product_variant4.value');
+
+        //add product filter if need be
+        $product_id = $request->get('product_id');
+        if( $product_id != null && $product_id != 'undefined' && is_numeric($product_id) && $product_id > 0 )
+        {
+            $query->where('product.id', '=', $product_id);
+        }
+
+        $products = $this->getResult($query, $paginate);
+
+        //get data for each product
+        foreach( $products as $product )
+        {
+            //get data
+            $ship_units = Ship::select(DB::raw("date_part('MONTH', ship.tx_date) AS month"), 'ship_detail.uom_name',
+                                       DB::raw('SUM(ship_detail.quantity) AS total'))
+                              ->join('ship_detail', 'ship.id', '=', 'ship_detail.ship_id')
+                              ->whereNull('ship_detail.deleted_at')
+                              ->where('ship_detail.product_id', '=', $product->product_id)
+                              ->where('ship_detail.variant1_id', '=', $product->variant1_id)
+                              ->where('ship_detail.variant2_id', '=', $product->variant2_id)
+                              ->where('ship_detail.variant3_id', '=', $product->variant3_id)
+                              ->where('ship_detail.variant4_id', '=', $product->variant4_id)
+                              ->groupBy(DB::raw("date_part('MONTH', ship.tx_date)"), 'ship_detail.uom_name')
+                              ->havingRaw('SUM(ship_detail.quantity) > 0')
+                              ->get();
+
+            $receive_units = Receive::select(DB::raw("date_part('MONTH', receive.tx_date) AS month"), 'receive_detail.uom_name',
+                                             DB::raw('SUM(receive_detail.quantity) AS total'))
+                                    ->join('receive_detail', 'receive.id', '=', 'receive_detail.receive_id')
+                                    ->whereNull('receive_detail.deleted_at')
+                                    ->where('receive_detail.product_id', '=', $product->product_id)
+                                    ->where('receive_detail.variant1_id', '=', $product->variant1_id)
+                                    ->where('receive_detail.variant2_id', '=', $product->variant2_id)
+                                    ->where('receive_detail.variant3_id', '=', $product->variant3_id)
+                                    ->where('receive_detail.variant4_id', '=', $product->variant4_id)
+                                    ->groupBy(DB::raw("date_part('MONTH', receive.tx_date)"), 'receive_detail.uom_name')
+                                    ->havingRaw('SUM(receive_detail.quantity) > 0')
+                                    ->get();
+
+            //build the full yearly data
+            $product->tx_data = $this->buildYearlyUnitData($receive_units, $ship_units);
+        }
+
+        //assign return array
+        $data['body'] = $products;
+
+        //get grand total
+        $ship_units = Ship::select(DB::raw("date_part('MONTH', ship.tx_date) AS month"), 'ship_detail.uom_name',
+                                   DB::raw('SUM(ship_detail.quantity) AS total'))
+                          ->join('ship_detail', 'ship.id', '=', 'ship_detail.ship_id')
+                          ->join('product', 'ship_detail.product_id', '=', 'product.id')
+                          ->whereNull('ship_detail.deleted_at')
+                          ->where('ship_detail.variant1_id', '=', $product->variant1_id)
+                          ->where('ship_detail.variant2_id', '=', $product->variant2_id)
+                          ->where('ship_detail.variant3_id', '=', $product->variant3_id)
+                          ->where('ship_detail.variant4_id', '=', $product->variant4_id)
+                          ->where('product.warehouse_id', '=', $request->get('warehouse_id'))
+                          ->where('product.client_id', '=', $request->get('client_id'))
+                          ->groupBy(DB::raw("date_part('MONTH', ship.tx_date)"), 'ship_detail.uom_name')
+                          ->havingRaw('SUM(ship_detail.quantity) > 0');
+
+        //add product filter if need to
+        if( $product_id != null && $product_id != 'undefined' && is_numeric($product_id) && $product_id > 0 )
+        {
+            $ship_units->where('product.id', '=', $product_id);
+        }
+
+        $receive_units = Receive::select(DB::raw("date_part('MONTH', receive.tx_date) AS month"), 'receive_detail.uom_name',
+                                         DB::raw('SUM(receive_detail.quantity) AS total'))
+                                ->join('receive_detail', 'receive.id', '=', 'receive_detail.receive_id')
+                                ->join('product', 'receive_detail.product_id', '=', 'product.id')
+                                ->whereNull('receive_detail.deleted_at')
+                                ->where('receive_detail.variant1_id', '=', $product->variant1_id)
+                                ->where('receive_detail.variant2_id', '=', $product->variant2_id)
+                                ->where('receive_detail.variant3_id', '=', $product->variant3_id)
+                                ->where('receive_detail.variant4_id', '=', $product->variant4_id)
+                                ->where('product.warehouse_id', '=', $request->get('warehouse_id'))
+                                ->where('product.client_id', '=', $request->get('client_id'))
+                                ->groupBy(DB::raw("date_part('MONTH', receive.tx_date)"), 'receive_detail.uom_name')
+                                ->havingRaw('SUM(receive_detail.quantity) > 0');
+
+        //add product filter if need to
+        if( $product_id != null && $product_id != 'undefined' && is_numeric($product_id) && $product_id > 0 )
+        {
+            $receive_units->where('product.id', '=', $product_id);
+        }
+
+        $data['total'] = $this->buildYearlyUnitData($receive_units->get(), $ship_units->get());
 
         return $data;
     }
@@ -490,7 +611,7 @@ class Report extends Model
      *
      * @return array
      */
-    protected function buildYearlyTxData($data)
+    protected function buildYearlyTxDataShip($data)
     {
         //we need to build the full data set by month - this is a performance and clarity decision.  It could be faster
         //to do it in the view as we don't have to go through the data again, but it is much messier to do it there. We
@@ -505,6 +626,33 @@ class Report extends Model
 
             //set quantities
             $tx_data[$i]['units'] = ( count($tx_count) > 0 ) ? $this->getUnitTotals($tx_count) : [];
+        }
+
+        return $tx_data;
+    }
+
+    /**
+     * This builds the full year of transaction data for receiving and
+     *
+     * @param $data
+     *
+     * @return array
+     */
+    protected function buildYearlyUnitData($receive_data, $ship_data)
+    {
+        //we need to build the full data set by month - this is a performance and clarity decision.  It could be faster
+        //to do it in the view as we don't have to go through the data again, but it is much messier to do it there. We
+        //want the data set in a way that each month is in its own array with the tx count and all the uom's
+        $tx_data = [];
+        for( $i = 1; $i <= 12; $i++ )
+        {
+            //set receive quantities
+            $receive_units = $receive_data->where('month', (string)$i);
+            $tx_data[$i]['receive_units'] = ( count($receive_units) > 0 ) ? $this->getUnitTotals($receive_units) : [];
+
+            //set ship quantities
+            $ship_units = $ship_data->where('month', (string)$i);
+            $tx_data[$i]['ship_units'] = ( count($ship_units) > 0 ) ? $this->getUnitTotals($ship_units) : [];
         }
 
         return $tx_data;
