@@ -114,6 +114,7 @@ class ProductController extends Controller
             $product->barcode = request()->json('barcode', null);
             $product->barcode_client = request()->json('barcode_client', null);
             $product->rfid = request()->json('rfid', null);
+            $product->reorder_level = request()->json('reorder_level');
             $product->product_type_id = request()->json('product_type_id');
 
             /* HARDCODE IT TO BE THE DEFAULT FOR THE PRODUCT TYPE FOR NOW.  CHANGE IT TO BE PER PRODUCT LATER */

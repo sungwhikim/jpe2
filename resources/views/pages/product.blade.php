@@ -63,6 +63,10 @@
                                                                     'name' => 'rfid',
                                                                     'size' => 200,
                                                                     'required' => false])
+                                        @include('forms.new-text', ['title' => 'Reorder Level',
+                                                                    'name' => 'reorder_level',
+                                                                    'size' => 10,
+                                                                    'required' => false])
                                         @include('forms.new-toggle-button', ['title' => 'Over Sized Pallet',
                                                                              'name' => 'oversized_pallet',
                                                                              'default' => 'false',
@@ -118,6 +122,10 @@
                                         @include('forms.text', ['title' => 'RFID',
                                                                 'name' => 'rfid',
                                                                 'size' => 200,
+                                                                'required' => false])
+                                        @include('forms.text', ['title' => 'Reorder Level',
+                                                                'name' => 'reorder_level',
+                                                                'size' => 10,
                                                                 'required' => false])
                                         @include('forms.toggle-button', ['title' => 'Over Sized Pallet',
                                                                          'name' => 'oversized_pallet',

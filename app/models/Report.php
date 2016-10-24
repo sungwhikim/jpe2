@@ -261,6 +261,46 @@ class Report extends Model
     }
 
     /**
+     * This is for the Inventory Reorder report
+     *
+     * @param $request
+     * @param $paginate
+     *
+     * @return mixed
+     */
+    public function inventoryReorder($request, $paginate)
+    {
+        /* VALIDATE DATA */
+
+        //get data
+        $query = Inventory::select('product.sku', 'product.name', 'product.reorder_level',
+            'product_type.uom1', 'product_type.uom2', 'product_type.uom3', 'product_type.uom4',
+            'product_type.uom5', 'product_type.uom6', 'product_type.uom7', 'product_type.uom8',
+            'product.uom1 AS uom1_multiplier', 'product.uom2 AS uom2_multiplier', 'product.uom3 AS uom3_multiplier',
+            'product.uom4 AS uom4_multiplier', 'product.uom5 AS uom5_multiplier', 'product.uom6 AS uom6_multiplier',
+            'product.uom7 AS uom7_multiplier', 'product.uom8 AS uom8_multiplier',
+            DB::raw('SUM(inventory.quantity) AS quantity'))
+            ->rightJoin('bin', 'inventory.bin_id', '=', 'bin.id')
+            ->rightJoin('product', 'bin.product_id', '=', 'product.id')
+            ->join('product_type', 'product.product_type_id', '=', 'product_type.id')
+            ->where('product.warehouse_id', '=', $request->get('warehouse_id'))
+            ->where('product.client_id', '=', $request->get('client_id'))
+            ->whereNotNull('product.reorder_level')
+            ->where('product.active', '=', true)
+            ->groupBy('bin.product_id', 'product.sku', 'product.name', 'product.reorder_level',
+                'product_type.uom1', 'product_type.uom2', 'product_type.uom3', 'product_type.uom4',
+                'product_type.uom5', 'product_type.uom6', 'product_type.uom7', 'product_type.uom8',
+                'product.uom1', 'product.uom2', 'product.uom3', 'product.uom4', 'product.uom5', 'product.uom6', 'product.uom7', 'product.uom8')
+            ->havingRaw('SUM(inventory.quantity) <= product.reorder_level')
+            ->orderBy('product.sku');
+
+        //get data with accounting for whether it needs to be paginated or not
+        $data['body'] = $this->getResult($query, $paginate);
+
+        return $data;
+    }
+
+    /**
      * This is for the Bin Location Detail report
      *
      * @param $request
@@ -728,8 +768,10 @@ class Report extends Model
         if( isset($data['product_id']) )
         {
             $data['product_id'] = ( $data['product_id'] == 'null' ||
-                                        !is_numeric($data['product_id']) ||
-                                            intval($data['product_id']) == 0 ) ? 'null' : intval($data['product_id']);
+                                        $data['product_id'] === null ||
+                                            $data['product_id'] == 'undefined' ||
+                                                !is_numeric($data['product_id']) ||
+                                                    intval($data['product_id']) == 0 ) ? 'null' : intval($data['product_id']);
         }
 
 

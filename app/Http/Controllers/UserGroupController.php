@@ -124,4 +124,3 @@ class UserGroupController extends Controller
         UserGroup::find($id)->delete();
     }
 }
-?>

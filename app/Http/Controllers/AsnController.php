@@ -13,4 +13,3 @@ class AsnController extends TransactionController
         $this->tx_view      = 'pages.asn';
     }
 }
-?>

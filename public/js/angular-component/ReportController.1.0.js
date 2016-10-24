@@ -8,6 +8,7 @@ app.controller('ReportController', function($http, alertService, datePickerServi
     ReportController.baseUrl = baseUrl;
     ReportController.alerts = alertService.get();
     ReportController.criteria = reportCriteria;
+    ReportController.isOpened = [];
 
     /* SET MEMBER METHODS */
     ReportController.submit = submit;
@@ -48,7 +49,13 @@ app.controller('ReportController', function($http, alertService, datePickerServi
 
     /* ASSIGN SERVICES TO ALLOW DIRECT ACCESS FROM TEMPLATE TO SERVICE */
     ReportController.datePicker = datePickerService;
-    ReportController.datePicker2 = datePickerService;
+    //overload open function as we have multiple date controls
+    ReportController.datePicker.open = function($event, instance) {
+        $event.preventDefault();
+        $event.stopPropagation();
+
+        ReportController.isOpened[instance] = true;
+    };
 
     /* INITIALIZE DATES FOR THE DATE PICKER SERVICE*/
     initializeDates();
@@ -79,6 +86,10 @@ app.controller('ReportController', function($http, alertService, datePickerServi
                 value = value.toISOString().slice(0,10);
             }
 
+            /*  KLUDGE!!!! */
+            /******* fix product_id - a kludge until I find out why undefined is being returned from the server ********/
+            if( key == 'product_id' && value == undefined ) { value = null; }
+
             //add the parameter array
             params.push(key + '=' + value);
         }
@@ -103,8 +114,8 @@ app.controller('ReportController', function($http, alertService, datePickerServi
 
             //excel
             case 'excel':
-                //window.open(url, '_self');
-                popupWindow(url, 'Report', 1200, 800);
+                window.open(url, '_self');
+                //popupWindow(url, 'Report', 1200, 800);
                 break;
 
             //all others do nothing for now

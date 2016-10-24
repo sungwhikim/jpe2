@@ -4,10 +4,10 @@
     <div ng-class="{ 'has-error': (reportForm.{{ $name }}.$touched || reportForm.$submitted) && reportForm.{{ $name }}.$invalid }">
         <div class="input-group" style="width: 175px;">
             <input type="text" class="form-control" name="{{ $name }}" ng-model="ctrl.criteria.{{ $name }}"
-                   uib-datepicker-popup="@{{ ctrl.datePicker.dateFormat }}" is-open="ctrl.datePicker.popupOpened"
+                   uib-datepicker-popup="@{{ ctrl.datePicker.dateFormat }}" is-open="ctrl.isOpened['{{ $name }}']"
                    datepicker-options="ctrl.datePicker.dateOptions" on-open-focus="false" close-text="Close" required />
             <span class="input-group-btn">
-            <button type="button" class="btn btn-default btn-date" ng-click="ctrl.datePicker.open()">
+            <button type="button" class="btn btn-default btn-date" ng-click="ctrl.datePicker.open($event, '{{ $name}}')">
                 <i class="glyphicon glyphicon-calendar"></i>
             </button>
             </span>

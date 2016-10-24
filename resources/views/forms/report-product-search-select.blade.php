@@ -1,4 +1,4 @@
-<div class="pull-left" style="width: 235px; margin: 0 15px 20px 0;">
+<div class="pull-left report-control" style="width: 235px; margin: 0 15px 20px 0;">
     <label class="col-lg-3 control-label">Product</label>
     <div class="col-lg-12 col-md-12 no-float" style="padding-right: 0;">
         <div class="input-group">

@@ -640,6 +640,7 @@ input[type='radio'] {
 }
 .report-control {
     margin-bottom: 20px;
+    height: 85px;
 }
 .report-date {
     float: left;

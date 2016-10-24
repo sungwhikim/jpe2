@@ -7,7 +7,7 @@
         @include('forms.report-tx-type')
         @include('forms.report-date', ['title' => 'From Date',
                                        'name' => 'from_date'])
-        @include('forms.report-date-2', ['title' => 'To Date',
+        @include('forms.report-date', ['title' => 'To Date',
                                            'name' => 'to_date'])
 @stop
 

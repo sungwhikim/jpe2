@@ -131,3 +131,5 @@ Route::get('/transaction/test-email/{tx_type}/{tx_id}/', 'TransactionController@
 /* REPORTS */
 Route::get('/report/{report_name}', 'ReportController@getIndex');
 Route::get('/report/{report_name}/{action}', 'ReportController@getReport');
+
+Route::get('/test-excel-report', 'ReportTestController@getIndex');
