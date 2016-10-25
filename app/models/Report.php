@@ -1039,4 +1039,42 @@ class Report extends Model
 
         return $date_array[1] . '-' . $date_array[2] . '-' . $date_array[0];
     }
+
+    /**
+     * Deletes all the old files based on path and extension and minutes old
+     *
+     * @param $path
+     * @param $extension
+     * @param $minutes_old
+     */
+    public static function deleteOldFiles($path, $extension, $minutes_old)
+    {
+        foreach( glob($path . '*.' . $extension) as $file )
+        {
+            //check to see if it is older than the defined minutes
+            if( time() - filemtime($file) > 60 * $minutes_old ) { unlink($file); }
+        }
+    }
+
+    /**
+     * We are using this method to download the excel file rather than using the built in function as it doesn't work for
+     * xlsx files.  It produces zero byte files.
+     *
+     * @param $server_file_name
+     * @param $download_name
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public static function downloadExcelFile($server_file_name, $download_name, $path)
+    {
+        //delete files
+        Report::deleteOldFiles($path, 'xlsx', 1);
+
+        //set header
+        $headers = array(
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+
+        return response()->download($path . $server_file_name, $download_name, $headers);
+    }
 }
