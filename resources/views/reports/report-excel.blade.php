@@ -9,17 +9,21 @@
 
 <body>
     <div class="container">
-        <div class="row col-lg-12 col-md-12 col-sm-12">
-            <h1>{{ $report['title'] }}</h1>
-        </div>
+        <table>
+            <tr>
+                <td colspan="4">
+                    <h1>{{ $report['title'] }}</h1>
+                </td>
+            </tr>
+            <tr><td colspan="4"></td></tr>
 
-        <div class="row col-lg-12 col-md-12 col-sm-12 report-criteria-display">
-            <ul class="tags">
-                @foreach( $report['criteria_display'] as $key => $value )
-                    <li class="">{{ $key }}: {{ $value }}</li>
-                @endforeach
-            </ul>
-        </div>
+            @foreach( $report['criteria_display'] as $key => $value )
+                <tr>
+                    <td colspan="2">{{ $key }}: {{ $value }}</td>
+                    <td></td><td></td>
+                </tr>
+            @endforeach
+        </table>
 
         @yield('report-data')
     </div>

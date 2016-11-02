@@ -1077,4 +1077,33 @@ class Report extends Model
 
         return response()->download($path . $server_file_name, $download_name, $headers);
     }
+
+    public static function getUomCount($data)
+    {
+        //set counter
+        $count = 1;
+
+        /*
+           OK - going through every row is very slow, but I am going to do it this way for now and come back
+           later to optimize it.  Whether it is through the collection or a db query
+        */
+        foreach( $data as $row )
+        {
+            //we are going to count down from the largest uom as we just need to find what the largest number of uoms is
+            for( $i = 8; $i >= 1; $i-- )
+            {
+                //the uom is set
+                if( $row['uom' . $i] !== null )
+                {
+                    //make sure this one has a larger number than the last one
+                    if( $i > $count ) { $count = $i; }
+
+                    //break out of the loop since we found a uom that was set
+                    break;
+                }
+            }
+        }
+
+        return $count;
+    }
 }

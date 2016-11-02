@@ -33,15 +33,15 @@ app.controller('ReportController', function($http, alertService, datePickerServi
         ReportController.SearchSelectProduct.client_id = ReportController.criteria.client_id;
 
         //prefill list and select the item if product was previously selected
-        if( ReportController.criteria.product_id != null ) {
-            //fill list
-            ReportController.SearchSelectProduct.getData(true);
-
-            //change callback so we can pre-select the item
-            ReportController.SearchSelectProduct.getDataCallBack = function(data, init) {
-                ReportController.selectProduct(getObjectById(data, ReportController.criteria.product_id));
-            }
-        }
+        // if( ReportController.criteria.product_id != null ) {
+        //     //fill list
+        //     ReportController.SearchSelectProduct.getData(true);
+        //
+        //     //change callback so we can pre-select the item
+        //     ReportController.SearchSelectProduct.getDataCallBack = function(data, init) {
+        //         ReportController.selectProduct(getObjectById(data, ReportController.criteria.product_id));
+        //     }
+        // }
     }
 
     /* SET DATA TO BE USED FOR SELECT LISTS */

@@ -48,11 +48,15 @@ class ReportController extends Controller
         //excel
         elseif( $action == 'excel' )
         {
-            Excel::create('Report3', function($excel) use($report_name, $action, $report, $report_data)
+            //set file name
+            $file_name = $report_name . '-' . auth()->user()->name;
+
+            //create excel file
+            Excel::create($file_name, function($excel) use($report_name, $action, $report, $report_data, $report_model)
             {
-                $excel->sheet('New sheet', function($sheet) use($report_name, $action, $report, $report_data)
+                $excel->sheet('New sheet', function($sheet) use($report_name, $action, $report, $report_data, $report_model)
                 {
-                    $sheet->loadView('reports.' . $report_name . '-' . $action, ['report' => $report, 'report_data' => $report_data]);
+                    $sheet->loadView('reports.' . $report_name . '-' . $action, ['report' => $report, 'report_data' => $report_data])->with('report_model', $report_model);
                 });
 
             })->store('xlsx', storage_path(env('APP_EXCEL_DOWNLOAD_FILE_PATH')));
@@ -63,7 +67,7 @@ class ReportController extends Controller
                and did find them all, it might crop up again and it isn't a guaranty of fixing the issues today.  So, we are
                saving the file first, then streaming it out.  We will delete all files older than 10 minutes before each download
             */
-            return Report::downloadExcelFile('Report3.xlsx', 'Download1.xlsx', storage_path(env('APP_EXCEL_DOWNLOAD_FILE_PATH')));
+            return Report::downloadExcelFile($file_name . '.xlsx', $file_name . '.xlsx', storage_path(env('APP_EXCEL_DOWNLOAD_FILE_PATH')));
         }
     }
 

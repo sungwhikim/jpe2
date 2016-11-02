@@ -1,0 +1,1 @@
+<th colspan="{{ ($uom_count - 1) * 2 }}">UOM</th>
