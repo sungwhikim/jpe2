@@ -1,4 +1,4 @@
-<div class="col-lg-2 col-md-2 col-sm-2 col-xs-3 report-control form-group"
+<div class="report-control"
      ng-class="{ 'has-error': (reportForm.year.$touched || reportForm.$submitted) && reportForm.year.$invalid }">
     <label class="control-label">Year <span class="required-field glyphicon glyphicon-asterisk" /></label>
     <?php $current_year = date('Y'); ?>

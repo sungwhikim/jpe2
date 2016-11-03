@@ -1,4 +1,4 @@
-<div class="report-date report-control"
+<div class="report-date report-control" @if( isset($margin_left) )style="margin-left: {{ $margin_left }};"@endif
      ng-class="{ 'has-error': (reportForm.{{ $name }}.$touched || reportForm.$submitted) && reportForm.{{ $name }}.$invalid }">
     <label class="control-label">{{ $title }} <span class="required-field glyphicon glyphicon-asterisk" /></label>
     <div ng-class="{ 'has-error': (reportForm.{{ $name }}.$touched || reportForm.$submitted) && reportForm.{{ $name }}.$invalid }">

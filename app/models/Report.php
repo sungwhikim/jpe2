@@ -443,6 +443,41 @@ class Report extends Model
     }
 
     /**
+     * This is for the Received item report
+     *
+     * @param $request
+     * @param $paginate
+     *
+     * @return mixed
+     */
+    public function receivedItem($request, $paginate)
+    {
+        //get data
+        $query = Receive::select('receive.id AS tx_id', 'tx_date', 'po_number', 'product.id AS product_id',
+                                 'product.sku', 'product.name', 'tx_status.name as tx_status_name',
+                                 'product_variant1.name AS variant1_name', 'product_variant1.value AS variant1_value',
+                                 'product_variant2.name AS variant2_name', 'product_variant2.value AS variant2_value',
+                                 'product_variant3.name AS variant3_name', 'product_variant3.value AS variant3_value',
+                                 'product_variant4.name AS variant4_name', 'product_variant4.value AS variant4_value',
+                                 'uom_name', DB::raw('quantity / uom_multiplier AS quantity'))
+                        ->join('receive_detail', 'receive.id', '=', 'receive_detail.receive_id')
+                        ->join('product', 'receive_detail.product_id', '=', 'product.id')
+                        ->join('tx_status', 'receive.tx_status_id', '=', 'tx_status.id')
+                        ->leftJoin('product_variant1', 'receive_detail.variant1_id', '=', 'product_variant1.id')
+                        ->leftJoin('product_variant2', 'receive_detail.variant2_id', '=', 'product_variant2.id')
+                        ->leftJoin('product_variant3', 'receive_detail.variant3_id', '=', 'product_variant3.id')
+                        ->leftJoin('product_variant4', 'receive_detail.variant4_id', '=', 'product_variant4.id')
+                        ->where('receive.warehouse_id', '=', $request->get('warehouse_id'))
+                        ->where('receive.client_id', '=', $request->get('client_id'))
+                        ->where('receive.tx_date', '>=', $request->get('from_date'))
+                        ->where('receive.tx_date', '<=', $request->get('to_date'))
+                        ->where('receive.tx_status_id', '=', TxStatus::active)
+                        ->orderBy('tx_date')->orderBy('po_number');
+
+        return ['body' => $this->getResult($query, $paginate)];
+    }
+
+    /**
      * This is for the CSR open report
      *
      * @param $request

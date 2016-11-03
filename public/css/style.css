@@ -639,19 +639,20 @@ input[type='radio'] {
     margin-bottom: 50px;
 }
 .report-control {
-    margin-bottom: 20px;
+    float: left;
+    width: 160px;
+    margin: 0 0 20px 15px;
     height: 85px;
 }
 .report-date {
-    float: left;
-    /*margin-left: 15px;*/
+
 }
 .btn-date {
     height: 34px;
 }
 .report-toggle {
     float: left;
-    margin-left: 25px;
+    padding-left: 25px;
 }
 .report-action-buttons {
     position: relative;

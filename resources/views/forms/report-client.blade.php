@@ -1,4 +1,4 @@
-<div class="col-lg-2 col-md-2 col-sm-2 col-xs-3 report-control form-group"
+<div class="report-control"
      ng-class="{ 'has-error': (reportForm.client_id.$touched || reportForm.$submitted) && reportForm.client_id.$invalid }">
     <label class="control-label">Client <span class="required-field glyphicon glyphicon-asterisk" /></label>
     <select class="form-control" name="client_id" ng-model="ctrl.criteria.client_id" ng-change="ctrl.selectClient();"

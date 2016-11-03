@@ -1,6 +1,6 @@
-<div class="pull-left report-control" style="width: 235px; margin: 0 15px 20px 0;">
-    <label class="col-lg-3 control-label">Product</label>
-    <div class="col-lg-12 col-md-12 no-float" style="padding-right: 0;">
+<div class="report-control" style="width: 235px;">
+    <label class="control-label">Product</label>
+    <div class="no-float" style="padding-right: 0;">
         <div class="input-group">
             <input type="text" class="form-control" id="search-select-product" ng-value="ctrl.SearchSelectProduct.selectedItem.sku"
                    ng-model="ctrl.SearchSelectProduct.searchTerm" ng-change="ctrl.searchProduct()" placeholder="-- All Products --" autocomplete="off"

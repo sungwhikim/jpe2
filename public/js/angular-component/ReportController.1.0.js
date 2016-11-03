@@ -80,13 +80,12 @@ app.controller('ReportController', function($http, alertService, datePickerServi
 
         //build the parameter array to build the query string
         for( key in ReportController.criteria ) {
-            //if it is a date, only send the date and not the date/time
+            //if it is a date, only send the date as a string and not the date/time
             var value = ReportController.criteria[key];
             if( value instanceof Date ) {
-                value = value.toISOString().slice(0,10);
+                value = datePickerService.getDateString(value);
             }
 
-            /*  KLUDGE!!!! */
             /******* fix product_id - a kludge until I find out why undefined is being returned from the server ********/
             if( key == 'product_id' && value == undefined ) { value = null; }
 
@@ -115,7 +114,6 @@ app.controller('ReportController', function($http, alertService, datePickerServi
             //excel
             case 'excel':
                 window.open(url, '_self');
-                //popupWindow(url, 'Report', 1200, 800);
                 break;
 
             //all others do nothing for now
@@ -126,7 +124,7 @@ app.controller('ReportController', function($http, alertService, datePickerServi
 
     /* AFTER CLIENT SELECTION, GO GET PRODUCT DATA */
     function selectClient() {
-        //make sure we do need to get product list
+        //if product_id is not set, then don't get product list since this report doesn't use it
         if( typeof ReportController.criteria.product_id == 'undefined' ) { return; }
 
         //pre-fill the drop down with all products
