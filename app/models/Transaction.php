@@ -1127,10 +1127,15 @@ class Transaction extends Model
         $to_emails = env('APP_CONFIRM_EMAIL_DEV') ? auth()->user()->email :
                         $this->getConfirmationEmailAddress($tx_data->warehouse_id, $tx_data->client_id, $tx_type, $action);
 
+        /* THIS WON'T WORK IN PRODUCTION - NEED TO CHANGE THE LIVE SERVER DOMAIN */
         //set the host for the images.  The reason is that on a local host server, we need to set it to a public location
         $tx_data->host = strpos(url('/'), 'local') ? 'http://jpent.01digitalmarketing.com' : url('/');
 
-        Mail::send('emails.transaction', ['data' => $tx_data], function ($m) use($tx_type, $site, $tx_data, $to_emails)
+        //render view explicitly to get email content as it won't work properly using a queue and rendering it at the same time
+        $view = view()->make('emails.transaction', ['data' => $tx_data]);
+        $content = $view->render();
+
+        Mail::queue([], [], function ($m) use($tx_type, $site, $tx_data, $to_emails, $content)
         {
             //set email addresses
             $m->from($site['admin_email'], $site['admin_name']);
@@ -1139,6 +1144,9 @@ class Transaction extends Model
 
             //set subject
             $m->subject($tx_data->tx_title . ' confirmation from ' . $site['site_title']);
+
+            //set content here rather than using the view
+            $m->setBody($content, 'text/html');
         });
     }
 
