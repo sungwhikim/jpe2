@@ -1104,9 +1104,6 @@ class Transaction extends Model
            DEPENDING ON THE USER ACCOUNT SETTINGS AND THE TX ACTIVITY TYPE.  FOR EXAMPLE, SHOULD THERE BE CONFIRMATIONS
            FOR VOIDS AND CONVERSIONS?  OR, JUST NEW AND UPDATES? */
 
-        /* DON'T SEND EMAILS IF THE FLAG IS SET IN THE .env FILE. THIS IS FOR LOCAL DEBUGGING AND TESTING */
-        if( env('APP_CONFIRM_EMAIL_DO_NOT_SEND') === true ) { return; }
-
         /* NEED TO ACCOUNT FOR WHITE LABEL SITES HERE
              Email, From, Image, Subject, Outbound Server, etc */
         //use temp object for now

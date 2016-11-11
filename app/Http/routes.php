@@ -44,6 +44,10 @@ Route::get('/user-functions', 'UserFunctionController@getListView');
 Route::controller('/user-function-category', 'UserFunctionCategoryController');
 Route::get('/user-function-categories', 'UserFunctionCategoryController@getListView');
 
+/* SITE */
+Route::controller('/site', 'SiteController');
+Route::get('/sites', 'SiteController@getListView');
+
 /* CUSTOMER */
 Route::get('/customer/list-by-wc', 'CustomerController@getListByWarehouseClient');
 Route::get('/customers', 'CustomerController@getListView');
